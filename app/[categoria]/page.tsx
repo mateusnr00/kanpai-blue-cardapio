@@ -34,12 +34,19 @@ export default function CategoryPage({ params }: { params: { categoria: string }
       <Header showBack />
       <main style={{ position: "relative" }}>
         <CategoryView category={category} />
-        <FAB />
       </main>
       <Footer
         left={`${category.number} / ${String(total).padStart(2, "0")}`}
         right={rightLabel}
       />
+      {/* Espaço pro FAB flutuante não cobrir o footer */}
+      <div
+        aria-hidden
+        style={{
+          height: "calc(74px + env(safe-area-inset-bottom))",
+        }}
+      />
+      <FAB />
     </AppShell>
   );
 }
