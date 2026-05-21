@@ -72,11 +72,10 @@ export const categories: Category[] = [
     id: "festival",
     number: "01",
     name: "Festival",
-    description: "6 menus · principal experiência da casa",
-    itemCount: "6 menus",
-    detail: "principal experiência",
+    description: "2 menus · principal experiência da casa",
+    itemCount: "2 menus",
+    detail: "Festival Premium e Experience",
     featured: true,
-    subcategories: ["Todos", "Fim de semana", "Semanais"],
     gradient: "linear-gradient(135deg, #1A0E6E 0%, #2A1E8E 100%)",
     dishes: [
       {
@@ -85,7 +84,6 @@ export const categories: Category[] = [
         price: "R$ 174,90",
         description: "Entradas variadas, sushis, sashimis e sobremesa. Com reposição. Não inclui todos os pratos do cardápio. Válido somente para consumo no restaurante. Em caso de viagem, considerar o preço de R$ 5,50 por peça. Servido de sexta a domingo.",
         featured: true,
-        subcategory: "Fim de semana",
         tags: ["Não compartilhável"],
       },
       {
@@ -94,36 +92,52 @@ export const categories: Category[] = [
         price: "R$ 144,90",
         description: "Seleção LIMITADA de pratos da casa: entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição. Não inclui todos os pratos do cardápio.",
         featured: true,
-        subcategory: "Fim de semana",
       },
+    ],
+  },
+
+  // ==========================================================================
+  // 02. PROMOÇÕES (semanais + diárias não-festival)
+  // ==========================================================================
+  {
+    id: "promocoes",
+    number: "02",
+    name: "Promoções",
+    description: "7 promoções · semanais e diárias",
+    itemCount: "7 promoções",
+    detail: "semanais e diárias",
+    subcategories: ["Todos", "Semanais", "Diárias"],
+    gradient: "linear-gradient(135deg, #E5DEC8 0%, #D2C7AA 100%)",
+    dishes: [
       {
-        id: "fest-segunda",
+        id: "prom-segunda",
         name: "Segunda · Ladies Only",
         price: "R$ 129,90",
         description: "Todas as segundas o Festival Premium Kanpai com valor promocional para elas.",
-        subcategory: "Semanais",
-        tags: ["Não compartilhável"],
-      },
-      {
-        id: "fest-terca",
-        name: "Terça Gastronômica",
-        price: "R$ 159,90",
-        originalPrice: "R$ 184,90",
-        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana, sabores do dia). Por pessoa.",
         featured: true,
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
       {
-        id: "fest-quarta",
-        name: "Quarta Delas",
-        price: "R$ 194,90",
-        description: "Festival Premium Kanpai COM REPOSIÇÃO + espumante Brut e Rosé + Aperol Spritz + Moscow Blue à vontade. Válido para homens e mulheres. Não será servido mais de um drink ou espumante por vez.",
+        id: "prom-terca",
+        name: "Terça Gastronômica",
+        price: "R$ 159,90",
+        originalPrice: "R$ 184,90",
+        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana, sabores do dia). Por pessoa.",
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
       {
-        id: "fest-quinta",
+        id: "prom-quarta",
+        name: "Quarta Delas",
+        price: "R$ 194,90",
+        description: "Festival Premium Kanpai COM REPOSIÇÃO + espumante Brut e Rosé + Aperol Spritz + Moscow Blue à vontade. Válido para homens e mulheres. Não será servido mais de um drink ou espumante por vez.",
+        featured: true,
+        subcategory: "Semanais",
+        tags: ["Não compartilhável"],
+      },
+      {
+        id: "prom-quinta-festival",
         name: "Quinta · Festival Premium",
         price: "R$ 164,90",
         originalPrice: "R$ 184,90",
@@ -131,33 +145,19 @@ export const categories: Category[] = [
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
-    ],
-  },
-
-  // ==========================================================================
-  // 02. PROMOÇÕES (não-featured, promoções diárias não-festival)
-  // ==========================================================================
-  {
-    id: "promocoes",
-    number: "02",
-    name: "Promoções",
-    description: "3 promoções · vinhos, ostras e happy hour",
-    itemCount: "3 promoções",
-    detail: "vinhos, ostras, happy hour",
-    gradient: "linear-gradient(135deg, #E5DEC8 0%, #D2C7AA 100%)",
-    dishes: [
       {
         id: "prom-wine-experience",
         name: "Quinta · Wine Experience",
         price: "",
         description: "Todos os rótulos de vinho com 20% OFF, válido apenas às quintas.",
-        featured: true,
+        subcategory: "Semanais",
       },
       {
         id: "prom-ostras-day",
         name: "Quinta · Ostra's Day",
         price: "",
         description: "Todas as quintas chegam ostras frescas no Kanpai.",
+        subcategory: "Semanais",
       },
       {
         id: "prom-happy-hour",
@@ -165,6 +165,7 @@ export const categories: Category[] = [
         price: "",
         description: "Das 16h às 20h, todos os dias. Drinks e pratos com descontos.",
         featured: true,
+        subcategory: "Diárias",
       },
     ],
   },
