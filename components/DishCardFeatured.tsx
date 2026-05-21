@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { PlaceholderImage } from "./PlaceholderImage";
 import { LikeButton } from "./LikeButton";
+import { DishDetailsModal } from "./DishDetailsModal";
 
 const FEATURED_BLUE = "linear-gradient(135deg, #1A0E6E 0%, #2A1E8E 100%)";
 const FEATURED_BEIGE = "linear-gradient(135deg, #C8BFA0 0%, #A89878 100%)";
@@ -19,8 +22,11 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
   const hasPrice = dish.price && dish.price.length > 0;
+  const hasDetails = !!dish.details && dish.details.sections.length > 0;
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   return (
+    <>
     <article
       id={dish.id}
       style={{
@@ -29,7 +35,21 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
         display: "flex",
         flexDirection: "column",
         scrollMarginTop: 80,
+        cursor: hasDetails ? "pointer" : "default",
       }}
+      onClick={hasDetails ? () => setDetailsOpen(true) : undefined}
+      role={hasDetails ? "button" : undefined}
+      tabIndex={hasDetails ? 0 : undefined}
+      onKeyDown={
+        hasDetails
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setDetailsOpen(true);
+              }
+            }
+          : undefined
+      }
     >
       <PlaceholderImage
         gradient={gradient}
@@ -166,12 +186,60 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
           style={{
             marginTop: 14,
             display: "flex",
-            justifyContent: "flex-end",
+            alignItems: "center",
+            justifyContent: hasDetails ? "space-between" : "flex-end",
+            gap: 10,
           }}
         >
+          {hasDetails && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDetailsOpen(true);
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "10px 16px",
+                background: "transparent",
+                border: "0.5px solid var(--ink)",
+                borderRadius: 999,
+                cursor: "pointer",
+                color: "var(--ink)",
+                fontSize: fs(12),
+                fontWeight: 500,
+                letterSpacing: "-0.005em",
+              }}
+            >
+              Ver itens
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M3 1L7 5L3 9"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          )}
           <LikeButton dishId={dish.id} size="large" />
         </div>
       </div>
     </article>
+    <AnimatePresence>
+      {detailsOpen && (
+        <DishDetailsModal dish={dish} onClose={() => setDetailsOpen(false)} />
+      )}
+    </AnimatePresence>
+    </>
   );
 }

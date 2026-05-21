@@ -7,6 +7,16 @@
 //   - dishes (array de pratos com nome, preço, descrição opcional, featured opcional)
 // ============================================================================
 
+export type DishDetailSection = {
+  label: string;          // ex: "Entradas Da Cozinha"
+  description: string;    // bloco de texto descrevendo os itens da seção
+};
+
+export type DishDetails = {
+  longDescription?: string;       // texto principal mais detalhado (opcional)
+  sections: DishDetailSection[];  // seções com itens (entradas, principais, sobremesa)
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -17,6 +27,7 @@ export type Dish = {
   subcategory?: string;   // alimenta os chips de subcategoria
   originalPrice?: string; // pra promoções com preço riscado
   tags?: string[];        // ex: ["Vegetariano", "Sem álcool", "Não compartilhável"]
+  details?: DishDetails;  // se presente, card mostra botão "Ver itens" e abre modal
 };
 
 export type ExecutivoMenu = {
@@ -82,9 +93,35 @@ export const categories: Category[] = [
         id: "fest-fds",
         name: "Festival Premium",
         price: "R$ 174,90",
-        description: "Entradas variadas, sushis, sashimis e sobremesa. Com reposição. Não inclui todos os pratos do cardápio. Válido somente para consumo no restaurante. Em caso de viagem, considerar o preço de R$ 5,50 por peça. Servido de sexta a domingo.",
+        description: "Entradas variadas, sushis, sashimis e sobremesa. Com reposição. Servido de sexta a domingo.",
         featured: true,
         tags: ["Não compartilhável"],
+        details: {
+          longDescription:
+            "Entradas variadas, sushis, sashimis e sobremesa. Com reposição. Não inclui todos os pratos do cardápio. Válido somente para consumo no restaurante. Em caso de viagem considerar o preço de R$ 5,50 por peça.",
+          sections: [
+            {
+              label: "Entradas Da Cozinha",
+              description:
+                "Camarão empanado, guioza, isca de tilápia, pipoquinha de camarão, edamame e casquinha de siri gratinada no queijo parmesão.",
+            },
+            {
+              label: "Entradas Do Sushibar",
+              description:
+                "Variedade de pratos clássicos do Kanpai Blue: Shake hara (salmão com crispy de batata doce), carpaccio salmão / Saint Peter, tataki, tartar do chef servido no gelo, dyo camarão flambado, sashimi maçaricado servido sob cama de shimeji, entre outros, servidos à vontade.",
+            },
+            {
+              label: "Combinado Individual",
+              description:
+                "Variação de sushis, sashimis, niguiris e Hot Roll filadelphia à vontade.",
+            },
+            {
+              label: "Sobremesa",
+              description:
+                "Tempurá de sorvete, panqueca brulée com doce de leite argentino ou brigadeiro de colher.",
+            },
+          ],
+        },
       },
       {
         id: "fest-experience",
