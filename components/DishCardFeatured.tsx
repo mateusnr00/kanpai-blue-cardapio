@@ -3,6 +3,7 @@
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { PlaceholderImage } from "./PlaceholderImage";
+import { LikeButton } from "./LikeButton";
 
 const FEATURED_BLUE = "linear-gradient(135deg, #1A0E6E 0%, #2A1E8E 100%)";
 const FEATURED_BEIGE = "linear-gradient(135deg, #C8BFA0 0%, #A89878 100%)";
@@ -21,11 +22,13 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
 
   return (
     <article
+      id={dish.id}
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--ink)",
         display: "flex",
         flexDirection: "column",
+        scrollMarginTop: 80,
       }}
     >
       <PlaceholderImage
@@ -171,6 +174,16 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
             ))}
           </div>
         )}
+
+        <div
+          style={{
+            marginTop: 14,
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <LikeButton dishId={dish.id} size="large" />
+        </div>
       </div>
     </article>
   );

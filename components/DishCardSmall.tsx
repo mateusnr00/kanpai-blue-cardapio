@@ -3,6 +3,7 @@
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { PlaceholderImage } from "./PlaceholderImage";
+import { LikeButton } from "./LikeButton";
 
 const SMALL_GRADIENTS = [
   "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)",
@@ -25,12 +26,14 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
 
   return (
     <article
+      id={dish.id}
       style={{
         background: "var(--bg-card)",
         border: "0.5px solid var(--ink-faint)",
         display: "flex",
         flexDirection: "column",
         alignSelf: "flex-start",
+        scrollMarginTop: 80,
       }}
     >
       <PlaceholderImage gradient={gradient} number={number} aspect="1/1" />
@@ -155,6 +158,16 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
             ))}
           </div>
         )}
+
+        <div
+          style={{
+            marginTop: 12,
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <LikeButton dishId={dish.id} size="small" />
+        </div>
       </div>
     </article>
   );

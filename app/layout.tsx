@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { FontSizeProvider } from "@/components/FontSizeProvider";
+import { LikesProvider } from "@/components/LikesProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,7 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" data-text-size="default" className={inter.variable}>
       <body>
-        <FontSizeProvider>{children}</FontSizeProvider>
+        <FontSizeProvider>
+          <LikesProvider>{children}</LikesProvider>
+        </FontSizeProvider>
       </body>
     </html>
   );

@@ -66,87 +66,98 @@ export const restaurant = {
 
 export const categories: Category[] = [
   // ==========================================================================
-  // 01. PROMOÇÕES (Featured · destaque azul Kanpai no índice)
+  // 01. FESTIVAL (Featured · destaque azul Kanpai no índice)
   // ==========================================================================
   {
-    id: "promocoes",
+    id: "festival",
     number: "01",
-    name: "Promoções",
-    description: "8 promoções · semanais e diárias",
-    itemCount: "8 promoções",
-    detail: "semanais e diárias",
+    name: "Festival",
+    description: "6 menus · principal experiência da casa",
+    itemCount: "6 menus",
+    detail: "principal experiência",
     featured: true,
-    subcategories: ["Todos", "Festival", "Semanais", "Happy Hour"],
+    subcategories: ["Todos", "Fim de semana", "Semanais"],
     gradient: "linear-gradient(135deg, #1A0E6E 0%, #2A1E8E 100%)",
     dishes: [
       {
-        id: "prom-segunda",
+        id: "fest-fds",
+        name: "Festival Premium",
+        price: "R$ 174,90",
+        description: "Entradas variadas, sushis, sashimis e sobremesa. Com reposição. Não inclui todos os pratos do cardápio. Válido somente para consumo no restaurante. Em caso de viagem, considerar o preço de R$ 5,50 por peça. Servido de sexta a domingo.",
+        featured: true,
+        subcategory: "Fim de semana",
+        tags: ["Não compartilhável"],
+      },
+      {
+        id: "fest-experience",
+        name: "Menu Experience",
+        price: "R$ 144,90",
+        description: "Seleção LIMITADA de pratos da casa: entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição. Não inclui todos os pratos do cardápio.",
+        featured: true,
+        subcategory: "Fim de semana",
+      },
+      {
+        id: "fest-segunda",
         name: "Segunda · Ladies Only",
         price: "R$ 129,90",
         description: "Todas as segundas o Festival Premium Kanpai com valor promocional para elas.",
-        featured: true,
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
       {
-        id: "prom-terca",
+        id: "fest-terca",
         name: "Terça Gastronômica",
         price: "R$ 159,90",
         originalPrice: "R$ 184,90",
-        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana · sabores do dia). Por pessoa.",
+        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana, sabores do dia). Por pessoa.",
         featured: true,
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
       {
-        id: "prom-quarta",
+        id: "fest-quarta",
         name: "Quarta Delas",
         price: "R$ 194,90",
         description: "Festival Premium Kanpai COM REPOSIÇÃO + espumante Brut e Rosé + Aperol Spritz + Moscow Blue à vontade. Válido para homens e mulheres. Não será servido mais de um drink ou espumante por vez.",
-        featured: true,
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
       {
-        id: "prom-quinta-festival",
+        id: "fest-quinta",
         name: "Quinta · Festival Premium",
         price: "R$ 164,90",
         originalPrice: "R$ 184,90",
-        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana · sabores do dia).",
-        featured: true,
+        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana, sabores do dia).",
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
+    ],
+  },
+
+  // ==========================================================================
+  // 02. PROMOÇÕES (não-featured, promoções diárias não-festival)
+  // ==========================================================================
+  {
+    id: "promocoes",
+    number: "02",
+    name: "Promoções",
+    description: "3 promoções · vinhos, ostras e happy hour",
+    itemCount: "3 promoções",
+    detail: "vinhos, ostras, happy hour",
+    gradient: "linear-gradient(135deg, #E5DEC8 0%, #D2C7AA 100%)",
+    dishes: [
       {
         id: "prom-wine-experience",
         name: "Quinta · Wine Experience",
         price: "",
         description: "Todos os rótulos de vinho com 20% OFF, válido apenas às quintas.",
-        subcategory: "Semanais",
+        featured: true,
       },
       {
         id: "prom-ostras-day",
         name: "Quinta · Ostra's Day",
         price: "",
         description: "Todas as quintas chegam ostras frescas no Kanpai.",
-        subcategory: "Semanais",
-      },
-      {
-        id: "prom-festival-fds",
-        name: "Festival Premium (Sex, Sáb e Dom)",
-        price: "R$ 174,90",
-        description: "Entradas variadas, sushis, sashimis e sobremesa. Com reposição. Não inclui todos os pratos do cardápio. Válido somente para consumo no restaurante. Em caso de viagem, considerar o preço de R$ 5,50 por peça.",
-        featured: true,
-        subcategory: "Festival",
-        tags: ["Não compartilhável"],
-      },
-      {
-        id: "prom-festival-experience",
-        name: "Menu Experience",
-        price: "R$ 144,90",
-        description: "Seleção LIMITADA de pratos da casa · entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição. Não inclui todos os pratos do cardápio.",
-        featured: true,
-        subcategory: "Festival",
       },
       {
         id: "prom-happy-hour",
@@ -154,17 +165,16 @@ export const categories: Category[] = [
         price: "",
         description: "Das 16h às 20h, todos os dias. Drinks e pratos com descontos.",
         featured: true,
-        subcategory: "Happy Hour",
       },
     ],
   },
 
   // ==========================================================================
-  // 02. MENU EXECUTIVO (categoria especial com 2 menus featured)
+  // 03. MENU EXECUTIVO (categoria especial com 2 menus featured)
   // ==========================================================================
   {
     id: "executivo",
-    number: "02",
+    number: "03",
     name: "Menu Executivo",
     description: "Almoço · 2 menus disponíveis",
     itemCount: "2 menus",
@@ -220,11 +230,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 03. ENTRADAS (Menu Principal)
+  // 04. ENTRADAS (Menu Principal)
   // ==========================================================================
   {
     id: "entradas",
-    number: "03",
+    number: "04",
     name: "Entradas",
     description: "18 entradas · pasteizinhos, ceviches, frutos do mar",
     itemCount: "18 entradas",
@@ -254,11 +264,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 04. COMBINADOS & SASHIMIS
+  // 05. COMBINADOS & SASHIMIS
   // ==========================================================================
   {
     id: "combinados-sashimis",
-    number: "04",
+    number: "05",
     name: "Combinados & Sashimis",
     description: "12 combinados · pra dividir ou degustar",
     itemCount: "12 itens",
@@ -282,11 +292,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 05. CLÁSSICOS KANPAI
+  // 06. CLÁSSICOS KANPAI
   // ==========================================================================
   {
     id: "classicos",
-    number: "05",
+    number: "06",
     name: "Clássicos Kanpai",
     description: "17 clássicos · carpaccios, ceviches, rolls",
     itemCount: "17 clássicos",
@@ -314,11 +324,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 06. DUPLAS ESPECIAIS
+  // 07. DUPLAS ESPECIAIS
   // ==========================================================================
   {
     id: "duplas-especiais",
-    number: "06",
+    number: "07",
     name: "Duplas Especiais",
     description: "5 duplas · niguiris e ikuras",
     itemCount: "5 duplas",
@@ -334,11 +344,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 07. SELEÇÕES PREMIUM KANPAI
+  // 08. SELEÇÕES PREMIUM KANPAI
   // ==========================================================================
   {
     id: "selecoes-premium",
-    number: "07",
+    number: "08",
     name: "Seleções Premium",
     description: "16 premium · alta gastronomia da casa",
     itemCount: "16 premium",
@@ -364,11 +374,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 08. VARIADOS (Hossomaki, Niguiris, Gunkans, Hots, Califórnias)
+  // 09. VARIADOS (Hossomaki, Niguiris, Gunkans, Hots, Califórnias)
   // ==========================================================================
   {
     id: "variados",
-    number: "08",
+    number: "09",
     name: "Variados",
     description: "28 sushis · hossomakis, niguiris, hots, califórnias",
     itemCount: "28 variados",
@@ -412,11 +422,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 09. PRATOS QUENTES (Risotos, Teppanyaki, Yakissoba, Tempurás)
+  // 10. PRATOS QUENTES (Risotos, Teppanyaki, Yakissoba, Tempurás)
   // ==========================================================================
   {
     id: "pratos-quentes",
-    number: "09",
+    number: "10",
     name: "Pratos Quentes",
     description: "19 pratos · risotos, teppanyakis, yakissobas",
     itemCount: "19 pratos",
@@ -446,11 +456,11 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 10. TEMAKIS
+  // 11. TEMAKIS
   // ==========================================================================
   {
     id: "temakis",
-    number: "10",
+    number: "11",
     name: "Temakis",
     description: "11 temakis · cone de alga e arroz",
     itemCount: "11 temakis",

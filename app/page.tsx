@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CategoryCard } from "@/components/CategoryCard";
 import { IntroAnimation } from "@/components/IntroAnimation";
+import { SearchBar } from "@/components/SearchBar";
 
 const SESSION_KEY = "kanpai-intro-seen";
 
@@ -43,7 +44,16 @@ export default function HomePage() {
       <AppShell>
         <Header />
         <main>
-          <section style={{ padding: "40px 22px 28px" }}>
+          <section
+            style={{
+              padding: "40px 22px 18px",
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 16,
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
             <motion.h1
               initial={{ opacity: 0, y: 14 }}
               animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
@@ -79,6 +89,15 @@ export default function HomePage() {
             >
               Explore
             </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={ready ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.4, delay: ready ? 0.2 : 0, ease: [0.32, 0.72, 0, 1] }}
+              style={{ flexShrink: 0 }}
+            >
+              <SearchBar />
+            </motion.div>
           </section>
 
           <section style={{ padding: "8px 22px 24px" }}>
