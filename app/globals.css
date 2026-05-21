@@ -37,8 +37,12 @@ html[data-text-size="small"]  { --text-scale: 0.8462; }   /* 13 → 11 */
 
 .dish-head__name {
   min-width: 0;
-  word-break: break-word;
-  hyphens: auto;
+  /* Quebra só nas fronteiras naturais de palavra (espaços).
+     Nunca hifeniza no meio: "Croquete de Costela" vira
+     "Croquete de" + "Costela", nunca "Cos-tela". */
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: manual;
 }
 
 .dish-head__price {
