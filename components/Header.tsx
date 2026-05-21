@@ -7,6 +7,8 @@ import { SearchBar } from "./SearchBar";
 
 const LOGO_URL =
   "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
+const SPONSOR_URL =
+  "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/PATROCINADORES/logo_linq_azul_cor_1x.png";
 
 type Props = {
   showBack?: boolean;
@@ -61,6 +63,38 @@ export function Header({ showBack = false }: Props) {
             }}
           />
         </Link>
+
+        {/* Separador hairline entre marca e patrocinador */}
+        <span
+          aria-hidden
+          style={{
+            display: "inline-block",
+            width: "0.5px",
+            height: 16,
+            background: "var(--ink-faint)",
+            flexShrink: 0,
+          }}
+        />
+
+        {/* Patrocinador */}
+        <span
+          aria-label="Linq Telecom, patrocinador"
+          role="img"
+          style={{ display: "inline-flex", alignItems: "center", flexShrink: 0 }}
+        >
+          <Image
+            src={SPONSOR_URL}
+            alt="Linq Telecom, patrocinador"
+            width={2120}
+            height={782}
+            sizes="(max-width: 767px) 60px, 72px"
+            style={{
+              height: 22,
+              width: "auto",
+              display: "block",
+            }}
+          />
+        </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <SearchBar />
