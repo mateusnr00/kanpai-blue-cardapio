@@ -127,8 +127,33 @@ export const categories: Category[] = [
         id: "fest-experience",
         name: "Menu Experience",
         price: "R$ 144,90",
-        description: "Seleção LIMITADA de pratos da casa: entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição. Não inclui todos os pratos do cardápio.",
+        description: "Seleção LIMITADA de pratos da casa: entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição.",
         featured: true,
+        details: {
+          longDescription:
+            "Seleção LIMITADA de pratos da casa, composta por entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição. Não inclui todos os pratos do cardápio.",
+          sections: [
+            {
+              label: "Entradas Da Cozinha",
+              description:
+                "Guioza, isca de tilápia, e casquinha de siri gratinada no queijo parmesão.",
+            },
+            {
+              label: "Entradas Do Sushibar",
+              description:
+                "Carpaccio misto de salmão / Saint Peter, tataki, Hot mix (Hot Roll Salmão / Hot Skin) e Tartar do Chef servido no gelo.",
+            },
+            {
+              label: "Combinado Individual",
+              description:
+                "Variação de sushis e sashimis com 14 peças: 8 sushis e 6 sashimis.",
+            },
+            {
+              label: "Sobremesa",
+              description: "Tempurá de sorvete ou brigadeiro de colher.",
+            },
+          ],
+        },
       },
     ],
   },
