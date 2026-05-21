@@ -5,18 +5,20 @@ import type { Category, Dish } from "@/lib/menu-data";
 import { SubcategoryChips } from "./SubcategoryChips";
 import { DishCardSmall } from "./DishCardSmall";
 import { DishCardFeatured } from "./DishCardFeatured";
+import { ExecutivoMenuCard } from "./ExecutivoMenuCard";
 
 type Props = {
   category: Category;
 };
 
 type Row =
-  | { kind: "featured"; dish: Dish; number: string }
+  | { kind: "featured"; dish: Dish; number: string; featuredIndex: number }
   | { kind: "pair"; left: { dish: Dish; number: string }; right?: { dish: Dish; number: string } };
 
 function buildRows(dishes: Dish[]): Row[] {
   const rows: Row[] = [];
   let buffer: { dish: Dish; number: string } | null = null;
+  let featuredCount = 0;
 
   dishes.forEach((dish, idx) => {
     const number = String(idx + 1).padStart(2, "0");
@@ -25,7 +27,8 @@ function buildRows(dishes: Dish[]): Row[] {
         rows.push({ kind: "pair", left: buffer });
         buffer = null;
       }
-      rows.push({ kind: "featured", dish, number });
+      rows.push({ kind: "featured", dish, number, featuredIndex: featuredCount });
+      featuredCount += 1;
       return;
     }
     if (buffer) {
@@ -44,7 +47,9 @@ function buildRows(dishes: Dish[]): Row[] {
 }
 
 export function CategoryView({ category }: Props) {
-  const [activeSubcat, setActiveSubcat] = useState<string>(category.subcategories?.[0] ?? "Todos");
+  const [activeSubcat, setActiveSubcat] = useState<string>(
+    category.subcategories?.[0] ?? "Todos",
+  );
 
   const filteredDishes = useMemo(() => {
     if (!activeSubcat || activeSubcat === "Todos") return category.dishes;
@@ -54,6 +59,8 @@ export function CategoryView({ category }: Props) {
   }, [category.dishes, activeSubcat]);
 
   const rows = useMemo(() => buildRows(filteredDishes), [filteredDishes]);
+
+  const isExecutivo = !!category.executivos && category.executivos.length > 0;
 
   return (
     <>
@@ -96,9 +103,14 @@ export function CategoryView({ category }: Props) {
         </p>
       </section>
 
-      {category.subcategories && category.subcategories.length > 1 && (
-        <SubcategoryChips options={category.subcategories} onChange={setActiveSubcat} />
-      )}
+      {!isExecutivo &&
+        category.subcategories &&
+        category.subcategories.length > 1 && (
+          <SubcategoryChips
+            options={category.subcategories}
+            onChange={setActiveSubcat}
+          />
+        )}
 
       <section
         style={{
@@ -108,37 +120,55 @@ export function CategoryView({ category }: Props) {
           gap: 14,
         }}
       >
-        {rows.map((row, rowIdx) => {
-          if (row.kind === "featured") {
-            return <DishCardFeatured key={`f-${row.dish.id}`} dish={row.dish} number={row.number} />;
-          }
-          return (
-            <div
-              key={`p-${row.left.dish.id}-${rowIdx}`}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gap: 14,
-                alignItems: "start",
-              }}
-            >
-              <DishCardSmall
-                dish={row.left.dish}
-                number={row.left.number}
-                gradientIndex={rowIdx}
-              />
-              {row.right && (
-                <DishCardSmall
-                  dish={row.right.dish}
-                  number={row.right.number}
-                  gradientIndex={rowIdx + 1}
-                />
-              )}
-            </div>
-          );
-        })}
+        {isExecutivo &&
+          category.executivos!.map((menu, idx) => (
+            <ExecutivoMenuCard
+              key={menu.name}
+              menu={menu}
+              number={String(idx + 1).padStart(2, "0")}
+              variant={idx % 2 === 0 ? "blue" : "beige"}
+            />
+          ))}
 
-        {rows.length === 0 && (
+        {!isExecutivo &&
+          rows.map((row, rowIdx) => {
+            if (row.kind === "featured") {
+              return (
+                <DishCardFeatured
+                  key={`f-${row.dish.id}`}
+                  dish={row.dish}
+                  number={row.number}
+                  variant={row.featuredIndex % 2 === 0 ? "blue" : "beige"}
+                />
+              );
+            }
+            return (
+              <div
+                key={`p-${row.left.dish.id}-${rowIdx}`}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 14,
+                  alignItems: "start",
+                }}
+              >
+                <DishCardSmall
+                  dish={row.left.dish}
+                  number={row.left.number}
+                  gradientIndex={rowIdx}
+                />
+                {row.right && (
+                  <DishCardSmall
+                    dish={row.right.dish}
+                    number={row.right.number}
+                    gradientIndex={rowIdx + 1}
+                  />
+                )}
+              </div>
+            );
+          })}
+
+        {!isExecutivo && rows.length === 0 && (
           <p
             style={{
               padding: "32px 0",

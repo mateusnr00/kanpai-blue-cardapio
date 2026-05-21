@@ -24,7 +24,10 @@ export default function CategoryPage({ params }: { params: { categoria: string }
   if (!category) notFound();
 
   const total = categories.length;
-  const totalDishes = category.dishes.length;
+  const isExecutivo = !!category.executivos && category.executivos.length > 0;
+  const rightLabel = isExecutivo
+    ? `${category.executivos!.length} ${category.executivos!.length === 1 ? "menu" : "menus"}`
+    : `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`;
 
   return (
     <AppShell>
@@ -35,7 +38,7 @@ export default function CategoryPage({ params }: { params: { categoria: string }
       </main>
       <Footer
         left={`${category.number} / ${String(total).padStart(2, "0")}`}
-        right={`${totalDishes} ${totalDishes === 1 ? "prato" : "pratos"}`}
+        right={rightLabel}
       />
     </AppShell>
   );

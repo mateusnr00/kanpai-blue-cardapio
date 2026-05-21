@@ -58,22 +58,61 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
           >
             {dish.name}
           </h3>
-          <span
+          <div
             style={{
-              fontSize: 12,
-              fontWeight: 500,
-              letterSpacing: "-0.005em",
-              whiteSpace: "nowrap",
-              fontVariantNumeric: "tabular-nums",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 1,
             }}
           >
-            {price}
-          </span>
+            {dish.originalPrice && (
+              <span
+                style={{
+                  fontSize: 9,
+                  fontWeight: 400,
+                  textDecoration: "line-through",
+                  color: "var(--ink-soft)",
+                  whiteSpace: "nowrap",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {dish.originalPrice}
+              </span>
+            )}
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 500,
+                letterSpacing: "-0.005em",
+                whiteSpace: "nowrap",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {price}
+            </span>
+          </div>
         </div>
+
+        {dish.unit && (
+          <p
+            style={{
+              marginTop: 4,
+              marginBottom: 0,
+              fontSize: 10,
+              fontWeight: 400,
+              color: "var(--ink-soft)",
+              opacity: 0.85,
+            }}
+          >
+            {dish.unit}
+          </p>
+        )}
+
         {dish.description && (
           <p
             style={{
-              marginTop: 6,
+              marginTop: dish.unit ? 4 : 6,
               marginBottom: 0,
               fontSize: 10,
               fontWeight: 400,
@@ -83,6 +122,35 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
           >
             {dish.description}
           </p>
+        )}
+
+        {dish.tags && dish.tags.length > 0 && (
+          <div
+            style={{
+              marginTop: 8,
+              display: "flex",
+              gap: 6,
+              flexWrap: "wrap",
+            }}
+          >
+            {dish.tags.map((tag) => (
+              <span
+                key={tag}
+                style={{
+                  fontSize: 8,
+                  fontWeight: 500,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  padding: "3px 6px",
+                  border: "0.5px solid var(--ink-faint)",
+                  color: "var(--ink-soft)",
+                  lineHeight: 1,
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         )}
       </div>
     </article>
