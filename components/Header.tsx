@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeToggle } from "./ThemeToggle";
+
+const LOGO_URL =
+  "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
 
 type Props = {
   showBack?: boolean;
@@ -39,15 +43,22 @@ export function Header({ showBack = false }: Props) {
         )}
         <Link
           href="/"
-          aria-label="Ir para o cardápio"
-          style={{
-            fontSize: 15,
-            fontWeight: 500,
-            letterSpacing: "-0.01em",
-            color: "var(--ink)",
-          }}
+          aria-label="Kanpai Blue — ir para o cardápio"
+          style={{ display: "inline-flex", alignItems: "center" }}
         >
-          kanpai
+          <Image
+            src={LOGO_URL}
+            alt="Kanpai Blue"
+            width={1280}
+            height={352}
+            priority
+            sizes="(max-width: 767px) 88px, 104px"
+            style={{
+              height: 22,
+              width: "auto",
+              display: "block",
+            }}
+          />
         </Link>
       </div>
       <ThemeToggle />
