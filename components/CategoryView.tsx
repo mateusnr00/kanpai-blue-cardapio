@@ -197,13 +197,16 @@ export function CategoryView({ category }: Props) {
         {!isExecutivo && rows.length === 0 && (
           <p
             style={{
-              padding: "32px 0",
+              padding: "48px 8px",
               textAlign: "center",
               fontSize: fs(12),
               color: "var(--ink-soft)",
+              letterSpacing: "0.05em",
             }}
           >
-            Nenhum prato nesta subcategoria.
+            {category.dishes.length === 0
+              ? "Conteúdo em breve."
+              : "Nenhum prato nesta subcategoria."}
           </p>
         )}
       </section>

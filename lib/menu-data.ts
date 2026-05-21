@@ -299,8 +299,8 @@ export const categories: Category[] = [
     id: "entradas",
     number: "04",
     name: "Entradas",
-    description: "18 entradas · pasteizinhos, ceviches, frutos do mar",
-    itemCount: "18 entradas",
+    description: "19 entradas · pasteizinhos, ceviches, frutos do mar",
+    itemCount: "19 entradas",
     detail: "para começar",
     gradient: "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)",
     dishes: [
@@ -327,94 +327,14 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 05. COMBINADOS & SASHIMIS
-  // ==========================================================================
-  {
-    id: "combinados-sashimis",
-    number: "05",
-    name: "Combinados & Sashimis",
-    description: "12 combinados · pra dividir ou degustar",
-    itemCount: "12 itens",
-    detail: "combinados, sashimis",
-    gradient: "linear-gradient(135deg, #E5DEC8 0%, #D2C7AA 100%)",
-    subcategories: ["Todos", "Combinados", "Sashimis"],
-    dishes: [
-      { id: "cs-01", name: "Combinado Osaka", price: "R$ 119,00", description: "19 peças variadas de sushis, sashimis e gunkans.", featured: true, subcategory: "Combinados" },
-      { id: "cs-02", name: "Combinado Sushi Kanpai", price: "R$ 99,90", description: "19 peças variadas de sushis selecionados.", subcategory: "Combinados" },
-      { id: "cs-03", name: "Combinado Okinawa", price: "R$ 238,00", description: "40 peças, sendo 22 sushis e 18 sashimis.", featured: true, subcategory: "Combinados" },
-      { id: "cs-04", name: "Combinado do Chef", price: "R$ 398,00", description: "48 unidades. Seleção especial de sushis e sashimis escolhidos pelo sushiman chef.", featured: true, subcategory: "Combinados" },
-      { id: "cs-05", name: "Sashimi Especial", price: "R$ 149,00", unit: "32 unidades", description: "Sashimis variados entre salmão, atum, peixe branco, polvo, kani e camarão.", subcategory: "Sashimis" },
-      { id: "cs-06", name: "Sashimi Kanpai", price: "R$ 79,90", unit: "18 unidades", description: "Sashimis variados entre salmão, atum e peixe branco.", subcategory: "Sashimis" },
-      { id: "cs-07", name: "Sashimi Shake", price: "R$ 42,90", unit: "9 fatias", description: "Salmão.", subcategory: "Sashimis" },
-      { id: "cs-08", name: "Sashimi Maguro", price: "R$ 44,00", unit: "9 fatias", description: "Atum.", subcategory: "Sashimis" },
-      { id: "cs-09", name: "Sashimi Kani", price: "R$ 35,90", unit: "9 fatias", subcategory: "Sashimis" },
-      { id: "cs-10", name: "Sashimi Shiromi", price: "R$ 38,90", unit: "9 fatias", description: "Tilápia.", subcategory: "Sashimis" },
-      { id: "cs-11", name: "Sashimi Tako", price: "R$ 54,00", unit: "9 fatias", description: "Polvo.", subcategory: "Sashimis" },
-      { id: "cs-12", name: "Gari", price: "R$ 6,90", description: "Porção de gengibre." },
-    ],
-  },
-
-  // ==========================================================================
-  // 06. CLÁSSICOS KANPAI
-  // ==========================================================================
-  {
-    id: "classicos",
-    number: "06",
-    name: "Clássicos Kanpai",
-    description: "17 clássicos · carpaccios, ceviches, rolls",
-    itemCount: "17 clássicos",
-    detail: "assinaturas da casa",
-    gradient: "linear-gradient(135deg, #EFE9D7 0%, #DFD4B6 100%)",
-    dishes: [
-      { id: "cl-01", name: "Carpaccio de Salmão ao Molho Ponzu", price: "R$ 66,00", unit: "20 a 24 peças", description: "Fatias de salmão, molho ponzu e gergelim.", featured: true },
-      { id: "cl-02", name: "Carpaccio de Barriga de Salmão Trufado", price: "R$ 69,00", unit: "20 a 24 peças", description: "Finas fatias de barriga de salmão, azeite trufado, raspas de limão siciliano." },
-      { id: "cl-03", name: "Carpaccio de Peixe Branco Picante", price: "R$ 55,00", unit: "20 a 24 peças", description: "Finas fatias de tilápia, acrescido de limão e sriracha." },
-      { id: "cl-04", name: "Poke Kanpai", price: "R$ 64,00", description: "Cubos de salmão, atum, Saint Peter e abacate, crispy de couve, gohan e nori.", featured: true },
-      { id: "cl-05", name: "Ceviche de Saint Peter", price: "R$ 46,90", description: "Cubos de peixe branco e cebola roxa, coentro, marinados em molho de limão picante." },
-      { id: "cl-06", name: "Tataki", price: "R$ 46,90", description: "Atum, peixe branco e salmão marinado em molho shoyu picante." },
-      { id: "cl-07", name: "Salmão Maçaricado com Shimeji", price: "R$ 36,90", description: "Finas fatias de salmão com shimeji." },
-      { id: "cl-08", name: "Dyo Flambado com Camarão", price: "R$ 36,90", unit: "6 unidades", description: "Finas fatias de salmão envolto do shari, cream cheese e camarão." },
-      { id: "cl-09", name: "Sashimi Salmão com Azeite Trufado na Pedra de Sal", price: "R$ 37,90", description: "Finas fatias de salmão com azeite trufado na pedra de sal." },
-      { id: "cl-10", name: "Tartar Kanpai", price: "R$ 44,90", description: "Camadas de salmão, atum e peixe branco ao molho tarê." },
-      { id: "cl-11", name: "Salmão Roasted", price: "R$ 42,00", description: "Finas fatias de salmão selado com molho ponzu especial." },
-      { id: "cl-12", name: "Atum Roasted", price: "R$ 42,00", description: "Finas fatias de atum selado com molho ponzu especial." },
-      { id: "cl-13", name: "Lula com Massago", price: "R$ 52,90", description: "Anéis de lula levemente cozidos com ovas de arenque." },
-      { id: "cl-14", name: "Dragon", price: "R$ 38,90", description: "Enrolado com recheio de tempurá de camarão e sriracha, levemente picante." },
-      { id: "cl-15", name: "Uramaki Massago", price: "R$ 36,90", unit: "8 unidades", description: "Ovas de arenque por fora do arroz, recheio de salmão aquecido e cream cheese." },
-      { id: "cl-16", name: "Gunkan Ebi Furai", price: "R$ 38,90", unit: "4 unidades", description: "Camarão rosa empanado, envolto de peixe branco com cream cheese, finalizado com molho do chef e crispy de couve." },
-      { id: "cl-17", name: "Ceviche Nikkei", price: "R$ 62,90", description: "Cubos de tilápia, milho peruano, chips de batata-doce, cebolinha e molho especial da casa.", featured: true },
-    ],
-  },
-
-  // ==========================================================================
-  // 07. DUPLAS ESPECIAIS
-  // ==========================================================================
-  {
-    id: "duplas-especiais",
-    number: "07",
-    name: "Duplas Especiais",
-    description: "5 duplas · niguiris e ikuras",
-    itemCount: "5 duplas",
-    detail: "ovas e finalizações",
-    gradient: "linear-gradient(135deg, #E7E0CB 0%, #D5CAAE 100%)",
-    dishes: [
-      { id: "dp-01", name: "Dupla de Ikura", price: "R$ 29,90", description: "Bolinho de arroz envolto com alga, recheio de ovas de salmão." },
-      { id: "dp-02", name: "Dupla de Massagô", price: "R$ 29,90", description: "Bolinho de arroz envolto com alga, recheio de ovas de arenque." },
-      { id: "dp-03", name: "Dupla de Niguiri de Atum com Ovas Black", price: "R$ 24,90", description: "Niguiris de atum finalizado com ovas black." },
-      { id: "dp-04", name: "Dupla de Niguiris de Barriga de Salmão Trufada", price: "R$ 18,90", description: "Niguiris de barriga de salmão, finalizada com azeite de trufas e raspa de limão siciliano." },
-      { id: "dp-05", name: "Dupla de Tobiko", price: "R$ 29,90", description: "Bolinho de arroz envolto com alga, recheio de ovas de peixe voador." },
-    ],
-  },
-
-  // ==========================================================================
-  // 08. SELEÇÕES PREMIUM KANPAI
+  // 05. SELEÇÕES PREMIUM KANPAI
   // ==========================================================================
   {
     id: "selecoes-premium",
-    number: "08",
+    number: "05",
     name: "Seleções Premium",
-    description: "16 premium · alta gastronomia da casa",
-    itemCount: "16 premium",
+    description: "15 premium · alta gastronomia da casa",
+    itemCount: "15 premium",
     detail: "carpaccios, tartares, vieiras",
     gradient: "linear-gradient(135deg, #ECE5D1 0%, #DCD1B3 100%)",
     dishes: [
@@ -437,27 +357,109 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 09. VARIADOS (Hossomaki, Niguiris, Gunkans, Hots, Califórnias)
+  // 06. DUPLAS ESPECIAIS
+  // ==========================================================================
+  {
+    id: "duplas-especiais",
+    number: "06",
+    name: "Duplas Especiais",
+    description: "5 duplas · niguiris e ikuras",
+    itemCount: "5 duplas",
+    detail: "ovas e finalizações",
+    gradient: "linear-gradient(135deg, #E7E0CB 0%, #D5CAAE 100%)",
+    dishes: [
+      { id: "dp-01", name: "Dupla de Ikura", price: "R$ 29,90", description: "Bolinho de arroz envolto com alga, recheio de ovas de salmão." },
+      { id: "dp-02", name: "Dupla de Massagô", price: "R$ 29,90", description: "Bolinho de arroz envolto com alga, recheio de ovas de arenque." },
+      { id: "dp-03", name: "Dupla de Niguiri de Atum com Ovas Black", price: "R$ 24,90", description: "Niguiris de atum finalizado com ovas black." },
+      { id: "dp-04", name: "Dupla de Niguiris de Barriga de Salmão Trufada", price: "R$ 18,90", description: "Niguiris de barriga de salmão, finalizada com azeite de trufas e raspa de limão siciliano." },
+      { id: "dp-05", name: "Dupla de Tobiko", price: "R$ 29,90", description: "Bolinho de arroz envolto com alga, recheio de ovas de peixe voador." },
+    ],
+  },
+
+  // ==========================================================================
+  // 07. COMBINADOS (combinados + sashimis)
+  // ==========================================================================
+  {
+    id: "combinados",
+    number: "07",
+    name: "Combinados",
+    description: "12 combinados · pra dividir ou degustar",
+    itemCount: "12 itens",
+    detail: "combinados, sashimis",
+    gradient: "linear-gradient(135deg, #E5DEC8 0%, #D2C7AA 100%)",
+    subcategories: ["Todos", "Combinados", "Sashimis"],
+    dishes: [
+      { id: "cs-01", name: "Combinado Osaka", price: "R$ 119,00", description: "19 peças variadas de sushis, sashimis e gunkans.", featured: true, subcategory: "Combinados" },
+      { id: "cs-02", name: "Combinado Sushi Kanpai", price: "R$ 99,90", description: "19 peças variadas de sushis selecionados.", subcategory: "Combinados" },
+      { id: "cs-03", name: "Combinado Okinawa", price: "R$ 238,00", description: "40 peças, sendo 22 sushis e 18 sashimis.", featured: true, subcategory: "Combinados" },
+      { id: "cs-04", name: "Combinado do Chef", price: "R$ 398,00", description: "48 unidades. Seleção especial de sushis e sashimis escolhidos pelo sushiman chef.", featured: true, subcategory: "Combinados" },
+      { id: "cs-05", name: "Sashimi Especial", price: "R$ 149,00", unit: "32 unidades", description: "Sashimis variados entre salmão, atum, peixe branco, polvo, kani e camarão.", subcategory: "Sashimis" },
+      { id: "cs-06", name: "Sashimi Kanpai", price: "R$ 79,90", unit: "18 unidades", description: "Sashimis variados entre salmão, atum e peixe branco.", subcategory: "Sashimis" },
+      { id: "cs-07", name: "Sashimi Shake", price: "R$ 42,90", unit: "9 fatias", description: "Salmão.", subcategory: "Sashimis" },
+      { id: "cs-08", name: "Sashimi Maguro", price: "R$ 44,00", unit: "9 fatias", description: "Atum.", subcategory: "Sashimis" },
+      { id: "cs-09", name: "Sashimi Kani", price: "R$ 35,90", unit: "9 fatias", subcategory: "Sashimis" },
+      { id: "cs-10", name: "Sashimi Shiromi", price: "R$ 38,90", unit: "9 fatias", description: "Tilápia.", subcategory: "Sashimis" },
+      { id: "cs-11", name: "Sashimi Tako", price: "R$ 54,00", unit: "9 fatias", description: "Polvo.", subcategory: "Sashimis" },
+      { id: "cs-12", name: "Gari", price: "R$ 6,90", description: "Porção de gengibre." },
+    ],
+  },
+
+  // ==========================================================================
+  // 08. VARIADOS (clássicos, temakis, hossomakis, niguiris, gunkans, hots…)
   // ==========================================================================
   {
     id: "variados",
-    number: "09",
+    number: "08",
     name: "Variados",
-    description: "28 sushis · hossomakis, niguiris, hots, califórnias",
-    itemCount: "28 variados",
-    detail: "todos os clássicos",
+    description: "60 sushis · clássicos, temakis, niguiris, hots, califórnias",
+    itemCount: "60 variados",
+    detail: "todo o sushibar",
     gradient: "linear-gradient(135deg, #E2DBC4 0%, #D0C5A6 100%)",
-    subcategories: ["Todos", "Hossomakis", "Uramakis", "Niguiris", "Gunkans", "Hots", "Califórnias"],
+    subcategories: [
+      "Todos",
+      "Clássicos",
+      "Hossomakis",
+      "Uramakis",
+      "Niguiris",
+      "Gunkans",
+      "Hots",
+      "Califórnias",
+      "Temakis",
+    ],
     dishes: [
+      // Clássicos Kanpai (mesclados)
+      { id: "cl-01", name: "Carpaccio de Salmão ao Molho Ponzu", price: "R$ 66,00", unit: "20 a 24 peças", description: "Fatias de salmão, molho ponzu e gergelim.", featured: true, subcategory: "Clássicos" },
+      { id: "cl-02", name: "Carpaccio de Barriga de Salmão Trufado", price: "R$ 69,00", unit: "20 a 24 peças", description: "Finas fatias de barriga de salmão, azeite trufado, raspas de limão siciliano.", subcategory: "Clássicos" },
+      { id: "cl-03", name: "Carpaccio de Peixe Branco Picante", price: "R$ 55,00", unit: "20 a 24 peças", description: "Finas fatias de tilápia, acrescido de limão e sriracha.", subcategory: "Clássicos" },
+      { id: "cl-04", name: "Poke Kanpai", price: "R$ 64,00", description: "Cubos de salmão, atum, Saint Peter e abacate, crispy de couve, gohan e nori.", featured: true, subcategory: "Clássicos" },
+      { id: "cl-05", name: "Ceviche de Saint Peter", price: "R$ 46,90", description: "Cubos de peixe branco e cebola roxa, coentro, marinados em molho de limão picante.", subcategory: "Clássicos" },
+      { id: "cl-06", name: "Tataki", price: "R$ 46,90", description: "Atum, peixe branco e salmão marinado em molho shoyu picante.", subcategory: "Clássicos" },
+      { id: "cl-07", name: "Salmão Maçaricado com Shimeji", price: "R$ 36,90", description: "Finas fatias de salmão com shimeji.", subcategory: "Clássicos" },
+      { id: "cl-08", name: "Dyo Flambado com Camarão", price: "R$ 36,90", unit: "6 unidades", description: "Finas fatias de salmão envolto do shari, cream cheese e camarão.", subcategory: "Clássicos" },
+      { id: "cl-09", name: "Sashimi Salmão com Azeite Trufado na Pedra de Sal", price: "R$ 37,90", description: "Finas fatias de salmão com azeite trufado na pedra de sal.", subcategory: "Clássicos" },
+      { id: "cl-10", name: "Tartar Kanpai", price: "R$ 44,90", description: "Camadas de salmão, atum e peixe branco ao molho tarê.", subcategory: "Clássicos" },
+      { id: "cl-11", name: "Salmão Roasted", price: "R$ 42,00", description: "Finas fatias de salmão selado com molho ponzu especial.", subcategory: "Clássicos" },
+      { id: "cl-12", name: "Atum Roasted", price: "R$ 42,00", description: "Finas fatias de atum selado com molho ponzu especial.", subcategory: "Clássicos" },
+      { id: "cl-13", name: "Lula com Massago", price: "R$ 52,90", description: "Anéis de lula levemente cozidos com ovas de arenque.", subcategory: "Clássicos" },
+      { id: "cl-14", name: "Dragon", price: "R$ 38,90", description: "Enrolado com recheio de tempurá de camarão e sriracha, levemente picante.", subcategory: "Clássicos" },
+      { id: "cl-15", name: "Uramaki Massago", price: "R$ 36,90", unit: "8 unidades", description: "Ovas de arenque por fora do arroz, recheio de salmão aquecido e cream cheese.", subcategory: "Clássicos" },
+      { id: "cl-16", name: "Gunkan Ebi Furai", price: "R$ 38,90", unit: "4 unidades", description: "Camarão rosa empanado, envolto de peixe branco com cream cheese, finalizado com molho do chef e crispy de couve.", subcategory: "Clássicos" },
+      { id: "cl-17", name: "Ceviche Nikkei", price: "R$ 62,90", description: "Cubos de tilápia, milho peruano, chips de batata-doce, cebolinha e molho especial da casa.", featured: true, subcategory: "Clássicos" },
+
+      // Hossomakis
       { id: "va-01", name: "Hossomaki Filadelphia Roll", price: "R$ 34,90", description: "Alga por fora, recheio de salmão e cream cheese.", subcategory: "Hossomakis" },
       { id: "va-02", name: "Hossomaki Shakemaki", price: "R$ 33,00", description: "Alga por fora, recheado de salmão.", subcategory: "Hossomakis" },
       { id: "va-03", name: "Hossomaki Tekkamaki", price: "R$ 36,00", description: "Alga por fora, recheio de arroz e atum.", subcategory: "Hossomakis" },
       { id: "va-04", name: "Hossomaki Ebimaki", price: "R$ 38,00", unit: "8 unidades", description: "Alga por fora, recheio de camarão.", subcategory: "Hossomakis" },
       { id: "va-05", name: "Hossomaki Kanimaki", price: "R$ 29,00", description: "Alga por fora, recheio de kani.", subcategory: "Hossomakis" },
       { id: "va-06", name: "Hossomaki Tomate Seco", price: "R$ 32,90", description: "Alga por fora, recheio de tomate seco, rúcula e cream cheese.", subcategory: "Hossomakis", tags: ["Vegetariano"] },
+
+      // Uramakis
       { id: "va-07", name: "Uramaki Filadelphia", price: "R$ 34,90", description: "Arroz e gergelim por fora, recheio de salmão e cream cheese.", subcategory: "Uramakis" },
       { id: "va-08", name: "Uramaki Skin Roll Especial", price: "R$ 29,90", description: "Recheio de salmão skin e cream cheese, enrolado com arroz por fora.", subcategory: "Uramakis" },
       { id: "va-09", name: "Uramaki Skin Roll", price: "R$ 28,00", description: "Recheio de salmão skin e molho tarê, enrolado com arroz por fora.", subcategory: "Uramakis" },
+
+      // Niguiris
       { id: "va-10", name: "Niguiri Shake Salmão", price: "R$ 15,90", unit: "2 unidades", description: "Bolinho de arroz coberto com uma fatia de salmão.", subcategory: "Niguiris" },
       { id: "va-11", name: "Niguiri Salmão com Lâminas de Abacate", price: "R$ 24,90", subcategory: "Niguiris" },
       { id: "va-12", name: "Niguiri de Salmão Skin Especial", price: "R$ 28,90", unit: "6 unidades", description: "Niguiri de salmão skin, limão, cream cheese e cebolinha.", subcategory: "Niguiris" },
@@ -467,32 +469,51 @@ export const categories: Category[] = [
       { id: "va-16", name: "Niguiri Shiromi", price: "R$ 15,90", unit: "2 unidades", description: "Bolinho de arroz coberto com fatia de peixe branco.", subcategory: "Niguiris" },
       { id: "va-17", name: "Niguiri Tako", price: "R$ 22,90", unit: "2 unidades", description: "Bolinho de arroz coberto com fatia de polvo.", subcategory: "Niguiris" },
       { id: "va-18", name: "Niguiri Kani", price: "R$ 12,90", unit: "2 unidades", description: "Bolinho de arroz coberto com fatia de peixe.", subcategory: "Niguiris" },
+
+      // Gunkans
       { id: "va-19", name: "Gunkans Shake", price: "R$ 38,90", unit: "6 unidades", description: "Bolinho de arroz envolto com salmão, recheio de salmão batidinho.", subcategory: "Gunkans" },
       { id: "va-20", name: "Gunkans Tasty", price: "R$ 38,90", unit: "6 unidades", description: "Salmão envolto no cream cheese.", subcategory: "Gunkans" },
       { id: "va-21", name: "Gunkans Morango", price: "R$ 40,90", unit: "6 unidades", description: "Salmão e recheio de cream cheese, morango e mel.", subcategory: "Gunkans" },
       { id: "va-22", name: "Gunkans Maguro", price: "R$ 38,90", unit: "6 unidades", description: "Bolinho de arroz envolto com atum, recheio de atum batidinho.", subcategory: "Gunkans" },
       { id: "va-23", name: "Gunkans Shakemeji", price: "R$ 42,90", unit: "6 unidades", description: "Bolinho de arroz envolto com salmão, recheio de shimeji.", subcategory: "Gunkans" },
       { id: "va-24", name: "Gunkan Vegetariano", price: "R$ 36,90", unit: "1 unidade", description: "Bolinho de arroz envolto com pepino, recheio de shimeji.", subcategory: "Gunkans", tags: ["Vegetariano"] },
+
+      // Hots
       { id: "va-25", name: "Hot Filadelphia", price: "R$ 42,90", unit: "10 unidades", description: "Empanado com alga, recheio de arroz, salmão e cream cheese levemente derretido.", subcategory: "Hots" },
       { id: "va-26", name: "Hot Mix", price: "R$ 42,90", unit: "8 unidades", description: "Empanado com alga, recheio de peixe branco, salmão e cream cheese.", subcategory: "Hots" },
       { id: "va-27", name: "Hot Shake", price: "R$ 44,90", unit: "8 unidades", description: "Empanado de salmão com recheio de camarão e cream cheese levemente derretido.", subcategory: "Hots" },
       { id: "va-28", name: "Salmão Tempurado", price: "R$ 44,90", unit: "8 unidades", description: "Empanado de salmão com recheio de camarão, kani, ovas e cream cheese.", subcategory: "Hots" },
+
+      // Califórnias
       { id: "va-29", name: "Califórnia Roll", price: "R$ 28,90", unit: "8 unidades", description: "Recheio de kani, manga e pepino, enrolado com arroz por fora.", subcategory: "Califórnias" },
       { id: "va-30", name: "Futomaki Vegetariano", price: "R$ 32,90", unit: "1 unidade", description: "Alga por fora, recheio de arroz, tomate seco, alface, pepino, cenoura e manga.", subcategory: "Califórnias", tags: ["Vegetariano"] },
       { id: "va-31", name: "Kyurimaki de Shimeji", price: "R$ 36,90", unit: "1 unidade", description: "Enrolado de pepino com recheio de cream cheese e shimeji.", subcategory: "Califórnias", tags: ["Vegetariano"] },
       { id: "va-32", name: "Kyurimaki de Tomate Seco", price: "R$ 36,90", unit: "1 unidade", description: "Enrolado de pepino e arroz, tomate seco, rúcula e cream cheese.", subcategory: "Califórnias", tags: ["Vegetariano"] },
+
+      // Temakis (mesclados)
+      { id: "tk-01", name: "Temakis sem Arroz com Peixe", price: "R$ 42,90", description: "Enrolado de alga recheado com peixe à sua escolha: atum, salmão ou peixe branco.", subcategory: "Temakis" },
+      { id: "tk-02", name: "Temaki Salmão", price: "R$ 36,90", unit: "1 unidade", description: "Enrolado de alga e arroz em formato de cone com recheio de salmão e cebolinha.", featured: true, subcategory: "Temakis" },
+      { id: "tk-03", name: "Temaki Hot Roll", price: "R$ 42,00", unit: "1 unidade", description: "Enrolado de alga e arroz empanado em formato de cone com recheio de salmão e cream cheese.", subcategory: "Temakis" },
+      { id: "tk-04", name: "Temaki Salmão Especial", price: "R$ 38,00", description: "Enrolado de alga e arroz com recheio de salmão, cream cheese e cebolinha.", subcategory: "Temakis" },
+      { id: "tk-05", name: "Temaki Shiromi", price: "R$ 35,00", unit: "1 unidade", description: "Enrolado com recheio de peixe branco, cebolinha e raspas de limão siciliano.", subcategory: "Temakis" },
+      { id: "tk-06", name: "Temaki Takô", price: "R$ 42,00", unit: "1 unidade", description: "Recheio de polvo e cebolinha.", subcategory: "Temakis" },
+      { id: "tk-07", name: "Temaki Salmão Skin", price: "R$ 35,00", unit: "1 unidade", description: "Recheio de salmão skin, salmão e cebolinha.", subcategory: "Temakis" },
+      { id: "tk-08", name: "Temaki Ebi Empanado", price: "R$ 39,00", description: "Recheio de camarão empanado, cream cheese e cebolinha.", subcategory: "Temakis" },
+      { id: "tk-09", name: "Temaki Califórnia", price: "R$ 29,90", unit: "1 unidade", description: "Recheio de kani, manga e pepino.", subcategory: "Temakis" },
+      { id: "tk-10", name: "Temaki Vegetariano", price: "R$ 29,90", unit: "1 unidade", description: "Recheio de shimeji, pepino, manga e cebolinha.", subcategory: "Temakis", tags: ["Vegetariano"] },
+      { id: "tk-11", name: "Temaki Maguro", price: "R$ 37,00", description: "Recheio de atum e cebolinha.", subcategory: "Temakis" },
     ],
   },
 
   // ==========================================================================
-  // 10. PRATOS QUENTES (Risotos, Teppanyaki, Yakissoba, Tempurás)
+  // 09. PRATOS QUENTES (Risotos, Teppanyaki, Yakissoba, Tempurás)
   // ==========================================================================
   {
     id: "pratos-quentes",
-    number: "10",
+    number: "09",
     name: "Pratos Quentes",
-    description: "19 pratos · risotos, teppanyakis, yakissobas",
-    itemCount: "19 pratos",
+    description: "18 pratos · risotos, teppanyakis, yakissobas",
+    itemCount: "18 pratos",
     detail: "wok, chapa, forno",
     gradient: "linear-gradient(135deg, #C8BFA0 0%, #A89878 100%)",
     subcategories: ["Todos", "Risotos", "Teppanyaki", "Yakissoba", "Tempurás"],
@@ -519,34 +540,19 @@ export const categories: Category[] = [
   },
 
   // ==========================================================================
-  // 11. TEMAKIS
+  // 10. SOBREMESAS (placeholder · conteúdo a definir)
   // ==========================================================================
   {
-    id: "temakis",
-    number: "11",
-    name: "Temakis",
-    description: "11 temakis · cone de alga e arroz",
-    itemCount: "11 temakis",
-    detail: "cones recheados",
+    id: "sobremesas",
+    number: "10",
+    name: "Sobremesas",
+    description: "em breve · doces da casa",
+    itemCount: "em breve",
+    detail: "doces e finalizações",
     gradient: "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)",
-    dishes: [
-      { id: "tk-01", name: "Temakis sem Arroz com Peixe", price: "R$ 42,90", description: "Enrolado de alga recheado com peixe à sua escolha: atum, salmão ou peixe branco." },
-      { id: "tk-02", name: "Temaki Salmão", price: "R$ 36,90", unit: "1 unidade", description: "Enrolado de alga e arroz em formato de cone com recheio de salmão e cebolinha.", featured: true },
-      { id: "tk-03", name: "Temaki Hot Roll", price: "R$ 42,00", unit: "1 unidade", description: "Enrolado de alga e arroz empanado em formato de cone com recheio de salmão e cream cheese." },
-      { id: "tk-04", name: "Temaki Salmão Especial", price: "R$ 38,00", description: "Enrolado de alga e arroz com recheio de salmão, cream cheese e cebolinha." },
-      { id: "tk-05", name: "Temaki Shiromi", price: "R$ 35,00", unit: "1 unidade", description: "Enrolado com recheio de peixe branco, cebolinha e raspas de limão siciliano." },
-      { id: "tk-06", name: "Temaki Takô", price: "R$ 42,00", unit: "1 unidade", description: "Recheio de polvo e cebolinha." },
-      { id: "tk-07", name: "Temaki Salmão Skin", price: "R$ 35,00", unit: "1 unidade", description: "Recheio de salmão skin, salmão e cebolinha." },
-      { id: "tk-08", name: "Temaki Ebi Empanado", price: "R$ 39,00", description: "Recheio de camarão empanado, cream cheese e cebolinha." },
-      { id: "tk-09", name: "Temaki Califórnia", price: "R$ 29,90", unit: "1 unidade", description: "Recheio de kani, manga e pepino." },
-      { id: "tk-10", name: "Temaki Vegetariano", price: "R$ 29,90", unit: "1 unidade", description: "Recheio de shimeji, pepino, manga e cebolinha.", tags: ["Vegetariano"] },
-      { id: "tk-11", name: "Temaki Maguro", price: "R$ 37,00", description: "Recheio de atum e cebolinha." },
-    ],
+    dishes: [],
   },
 ];
-
-// As outras categorias (Ostras, Sobremesas+Kids, Bebidas, Vinhos) virão
-// quando você enviar os bodies dessas seções do cardápio online.
 
 export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find((c) => c.id === slug);
