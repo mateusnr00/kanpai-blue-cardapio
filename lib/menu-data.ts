@@ -25,6 +25,7 @@ export type ExecutivoMenu = {
   format: string;
   description: string;
   validity?: string;
+  subcategory?: string;   // alimenta os chips do executivo
   entradas: { name: string; description: string }[];
   principais: { name: string; description: string }[];
   sobremesas?: { name: string; price: string; description: string }[];
@@ -168,6 +169,7 @@ export const categories: Category[] = [
     description: "Almoço · 2 menus disponíveis",
     itemCount: "2 menus",
     detail: "almoço executivo",
+    subcategories: ["Todos", "Contemporâneo", "Oriental"],
     gradient: "linear-gradient(135deg, #E5DEC8 0%, #D2C7AA 100%)",
     dishes: [],  // executivo usa o array `executivos` abaixo, não dishes
     executivos: [
@@ -177,6 +179,7 @@ export const categories: Category[] = [
         format: "Entrada + Prato Principal",
         description: "Menu elaborado pelo renomado Chef Lucas Santos, fundador do Restaurante Lote 17. Massas, proteínas e risotos para o almoço executivo do Kanpai.",
         validity: "Segunda a sexta, 11h30 às 15h",
+        subcategory: "Contemporâneo",
         entradas: [
           { name: "Salada Caesar", description: "Acelga, molho caesar, croutons e lascas de parmesão." },
           { name: "Croquete de Costela", description: "Croquete de costela com maionese de pimenta." },
@@ -199,6 +202,7 @@ export const categories: Category[] = [
         format: "Entrada + Prato Principal",
         description: "Servido todos os dias, das 11h30 às 15h.",
         validity: "Todos os dias, 11h30 às 15h",
+        subcategory: "Oriental",
         entradas: [
           { name: "Ceviche de Tilápia", description: "Uva verde, milho peruano, azeite verde e raspadinha de pimenta dedo-de-moça." },
           { name: "Carpaccio de Salmão", description: "Aioli de maracujá, molho ponzu, crocante de arroz e ovas de capelin." },

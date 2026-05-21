@@ -62,6 +62,14 @@ export function CategoryView({ category }: Props) {
 
   const isExecutivo = !!category.executivos && category.executivos.length > 0;
 
+  const filteredExecutivos = useMemo(() => {
+    if (!isExecutivo) return [] as NonNullable<typeof category.executivos>;
+    if (!activeSubcat || activeSubcat === "Todos") return category.executivos!;
+    return category.executivos!.filter(
+      (m) => !m.subcategory || m.subcategory === activeSubcat,
+    );
+  }, [isExecutivo, category.executivos, activeSubcat]);
+
   return (
     <>
       <section style={{ padding: "32px 22px 18px" }}>
@@ -103,14 +111,12 @@ export function CategoryView({ category }: Props) {
         </p>
       </section>
 
-      {!isExecutivo &&
-        category.subcategories &&
-        category.subcategories.length > 1 && (
-          <SubcategoryChips
-            options={category.subcategories}
-            onChange={setActiveSubcat}
-          />
-        )}
+      {category.subcategories && category.subcategories.length > 1 && (
+        <SubcategoryChips
+          options={category.subcategories}
+          onChange={setActiveSubcat}
+        />
+      )}
 
       <section
         style={{
@@ -121,14 +127,33 @@ export function CategoryView({ category }: Props) {
         }}
       >
         {isExecutivo &&
-          category.executivos!.map((menu, idx) => (
-            <ExecutivoMenuCard
-              key={menu.name}
-              menu={menu}
-              number={String(idx + 1).padStart(2, "0")}
-              variant={idx % 2 === 0 ? "blue" : "beige"}
-            />
-          ))}
+          filteredExecutivos.map((menu, idx) => {
+            // Mantém numeração estável baseada na posição original
+            const originalIdx = category.executivos!.findIndex(
+              (m) => m.name === menu.name,
+            );
+            return (
+              <ExecutivoMenuCard
+                key={menu.name}
+                menu={menu}
+                number={String(originalIdx + 1).padStart(2, "0")}
+                variant={originalIdx % 2 === 0 ? "blue" : "beige"}
+              />
+            );
+          })}
+
+        {isExecutivo && filteredExecutivos.length === 0 && (
+          <p
+            style={{
+              padding: "32px 0",
+              textAlign: "center",
+              fontSize: 12,
+              color: "var(--ink-soft)",
+            }}
+          >
+            Nenhum menu nesta seleção.
+          </p>
+        )}
 
         {!isExecutivo &&
           rows.map((row, rowIdx) => {

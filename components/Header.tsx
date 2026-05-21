@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ThemeToggle } from "./ThemeToggle";
+import { FontSizeToggle } from "./FontSizeToggle";
 
 const LOGO_URL =
   "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
@@ -61,7 +62,10 @@ export function Header({ showBack = false }: Props) {
           />
         </Link>
       </div>
-      <ThemeToggle />
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <FontSizeToggle />
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

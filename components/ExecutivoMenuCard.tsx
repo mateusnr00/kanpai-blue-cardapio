@@ -62,7 +62,7 @@ function Section({
             >
               <span
                 style={{
-                  fontSize: 13,
+                  fontSize: "var(--text-name)",
                   fontWeight: 500,
                   letterSpacing: "-0.01em",
                 }}
@@ -85,7 +85,7 @@ function Section({
             <p
               style={{
                 margin: "4px 0 0",
-                fontSize: 11,
+                fontSize: "var(--text-desc-featured)",
                 fontWeight: 400,
                 lineHeight: 1.45,
                 color: "var(--ink-soft)",
@@ -189,7 +189,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
         <p
           style={{
             margin: "12px 0 0",
-            fontSize: 12,
+            fontSize: "var(--text-desc-featured)",
             fontWeight: 400,
             lineHeight: 1.5,
             color: "var(--ink-soft)",

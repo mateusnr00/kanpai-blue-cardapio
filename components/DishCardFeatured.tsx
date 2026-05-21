@@ -66,7 +66,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
         >
           <h3
             style={{
-              fontSize: 17,
+              fontSize: "var(--text-name-featured)",
               fontWeight: 500,
               letterSpacing: "-0.02em",
               margin: 0,
@@ -130,7 +130,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
             style={{
               marginTop: dish.unit ? 6 : 8,
               marginBottom: 0,
-              fontSize: 11,
+              fontSize: "var(--text-desc-featured)",
               fontWeight: 400,
               lineHeight: 1.45,
               color: "var(--ink-soft)",

@@ -13,6 +13,27 @@
   --ink-ghost: rgba(26, 14, 110, 0.12);
   --ink-trace: rgba(26, 14, 110, 0.08);
   --bg: var(--bg-warm);
+
+  /* Escala de texto controlada pelo botão Aa do header.
+     Default 13px, "grande" 15px, "pequeno" 11px. */
+  --text-name: 13px;
+  --text-name-featured: 17px;
+  --text-desc: 10px;
+  --text-desc-featured: 11px;
+}
+
+html[data-text-size="large"] {
+  --text-name: 15px;
+  --text-name-featured: 19px;
+  --text-desc: 12px;
+  --text-desc-featured: 13px;
+}
+
+html[data-text-size="small"] {
+  --text-name: 11px;
+  --text-name-featured: 15px;
+  --text-desc: 9px;
+  --text-desc-featured: 10px;
 }
 
 html[data-theme="cool"] {

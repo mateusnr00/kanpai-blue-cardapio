@@ -49,7 +49,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
         >
           <h3
             style={{
-              fontSize: 13,
+              fontSize: "var(--text-name)",
               fontWeight: 500,
               letterSpacing: "-0.01em",
               margin: 0,
@@ -114,7 +114,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
             style={{
               marginTop: dish.unit ? 4 : 6,
               marginBottom: 0,
-              fontSize: 10,
+              fontSize: "var(--text-desc)",
               fontWeight: 400,
               lineHeight: 1.4,
               color: "var(--ink-soft)",
