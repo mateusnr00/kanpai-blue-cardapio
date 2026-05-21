@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-warm: #FAFAF8;
+  --bg-cool: #F7F8FA;
+  --bg-frame: #F5EFE3;
+  --bg-card: #FBFAF6;
+  --ink: #1A0E6E;
+  --ink-soft: rgba(26, 14, 110, 0.55);
+  --ink-faint: rgba(26, 14, 110, 0.18);
+  --ink-ghost: rgba(26, 14, 110, 0.12);
+  --ink-trace: rgba(26, 14, 110, 0.08);
+  --bg: var(--bg-warm);
+}
+
+html[data-theme="cool"] {
+  --bg: var(--bg-cool);
+}
+
+html[data-theme="warm"] {
+  --bg: var(--bg-warm);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  background: var(--bg-frame);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--bg-frame);
+  transition: background 200ms ease;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Hairline borders sharpen on retina */
+.border-hair {
+  border-width: 0.5px;
+}
+
+/* Hide scrollbars on chip rows */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth theme transitions on background-dependent surfaces */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+/* App shell — emulates device frame on mobile */
+.app-shell {
+  background: var(--bg);
+  min-height: 100vh;
+  min-height: 100dvh;
+  transition: background 200ms ease;
+}
+
+@media (max-width: 767px) {
+  body {
+    padding: 10px;
+    background: var(--bg-frame);
+  }
+  .app-shell {
+    border-radius: 32px;
+    overflow: hidden;
+    min-height: calc(100vh - 20px);
+    min-height: calc(100dvh - 20px);
+    box-shadow: 0 0 0 0.5px var(--ink-ghost);
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    background: var(--bg);
+  }
+  .app-shell {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+}
+
+/* Number badge in placeholder corner */
+.corner-number {
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tiny 5x5 square selo */
+.corner-square {
+  width: 5px;
+  height: 5px;
+  border: 0.5px solid var(--ink-faint);
+  background: transparent;
+}
