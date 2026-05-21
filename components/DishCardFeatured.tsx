@@ -60,15 +60,9 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
           padding: "16px 18px 18px",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            gap: 12,
-          }}
-        >
+        <div className="dish-head" style={{ gap: 12 }}>
           <h3
+            className="dish-head__name"
             style={{
               fontSize: fs(17),
               fontWeight: 500,
@@ -80,14 +74,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
             {dish.name}
           </h3>
           {hasPrice && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-                gap: 2,
-              }}
-            >
+            <div className="dish-head__price" style={{ gap: 2 }}>
               {dish.originalPrice && (
                 <span
                   style={{

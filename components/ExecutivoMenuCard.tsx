@@ -141,15 +141,9 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
           padding: "18px 20px 24px",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            gap: 12,
-          }}
-        >
+        <div className="dish-head" style={{ gap: 12 }}>
           <h3
+            className="dish-head__name"
             style={{
               fontSize: fs(19),
               fontWeight: 500,
@@ -161,6 +155,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
             {menu.name}
           </h3>
           <span
+            className="dish-head__price"
             style={{
               fontSize: fs(14),
               fontWeight: 500,

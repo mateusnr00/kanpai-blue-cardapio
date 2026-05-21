@@ -43,15 +43,9 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
           padding: "12px 14px 14px",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            gap: 8,
-          }}
-        >
+        <div className="dish-head">
           <h3
+            className="dish-head__name"
             style={{
               fontSize: fs(13),
               fontWeight: 500,
@@ -63,14 +57,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
             {dish.name}
           </h3>
           {hasPrice && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-                gap: 1,
-              }}
-            >
+            <div className="dish-head__price">
               {dish.originalPrice && (
                 <span
                   style={{
