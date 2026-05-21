@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { FontSizeProvider } from "@/components/FontSizeProvider";
 import "./globals.css";
 
@@ -26,11 +25,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" data-theme="warm" data-text-size="default" className={inter.variable}>
+    <html lang="pt-BR" data-text-size="default" className={inter.variable}>
       <body>
-        <ThemeProvider>
-          <FontSizeProvider>{children}</FontSizeProvider>
-        </ThemeProvider>
+        <FontSizeProvider>{children}</FontSizeProvider>
       </body>
     </html>
   );

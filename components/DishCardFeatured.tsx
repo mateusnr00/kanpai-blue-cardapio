@@ -16,7 +16,7 @@ type Props = {
 export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
-  const price = dish.price && dish.price.length > 0 ? dish.price : "—";
+  const hasPrice = dish.price && dish.price.length > 0;
 
   return (
     <article
@@ -75,39 +75,41 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
           >
             {dish.name}
           </h3>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-              gap: 2,
-            }}
-          >
-            {dish.originalPrice && (
+          {hasPrice && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: 2,
+              }}
+            >
+              {dish.originalPrice && (
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 400,
+                    textDecoration: "line-through",
+                    color: "var(--ink-soft)",
+                    whiteSpace: "nowrap",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {dish.originalPrice}
+                </span>
+              )}
               <span
                 style={{
-                  fontSize: 11,
-                  fontWeight: 400,
-                  textDecoration: "line-through",
-                  color: "var(--ink-soft)",
+                  fontSize: 14,
+                  fontWeight: 500,
                   whiteSpace: "nowrap",
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {dish.originalPrice}
+                {dish.price}
               </span>
-            )}
-            <span
-              style={{
-                fontSize: 14,
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-                fontVariantNumeric: "tabular-nums",
-              }}
-            >
-              {price}
-            </span>
-          </div>
+            </div>
+          )}
         </div>
 
         {dish.unit && (

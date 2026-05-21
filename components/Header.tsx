@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ThemeToggle } from "./ThemeToggle";
 import { FontSizeToggle } from "./FontSizeToggle";
 
 const LOGO_URL =
@@ -44,7 +43,7 @@ export function Header({ showBack = false }: Props) {
         )}
         <Link
           href="/"
-          aria-label="Kanpai Blue — ir para o cardápio"
+          aria-label="Kanpai Blue, ir para o cardápio"
           style={{ display: "inline-flex", alignItems: "center" }}
         >
           <Image
@@ -62,10 +61,7 @@ export function Header({ showBack = false }: Props) {
           />
         </Link>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <FontSizeToggle />
-        <ThemeToggle />
-      </div>
+      <FontSizeToggle />
     </header>
   );
 }

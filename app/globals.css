@@ -14,6 +14,8 @@
   --ink-trace: rgba(26, 14, 110, 0.08);
   --bg: var(--bg-warm);
 
+  /* Tema único (warm). Toggle warm/cool foi removido. */
+
   /* Escala de texto controlada pelo botão Aa do header.
      Default 13px, "grande" 15px, "pequeno" 11px. */
   --text-name: 13px;
@@ -34,14 +36,6 @@ html[data-text-size="small"] {
   --text-name-featured: 15px;
   --text-desc: 9px;
   --text-desc-featured: 10px;
-}
-
-html[data-theme="cool"] {
-  --bg: var(--bg-cool);
-}
-
-html[data-theme="warm"] {
-  --bg: var(--bg-warm);
 }
 
 * {
@@ -105,7 +99,7 @@ button {
   transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
 }
 
-/* App shell — emulates device frame on mobile */
+/* App shell · emulates device frame on mobile */
 .app-shell {
   background: var(--bg);
   min-height: 100vh;

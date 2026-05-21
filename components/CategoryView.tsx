@@ -83,7 +83,7 @@ export function CategoryView({ category }: Props) {
             color: "var(--ink-soft)",
           }}
         >
-          {category.number} — Categoria
+          Categoria · {category.number}
         </p>
         <h1
           style={{

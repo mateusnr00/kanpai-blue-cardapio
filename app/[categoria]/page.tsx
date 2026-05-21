@@ -12,7 +12,7 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { categoria: string } }) {
   const category = getCategoryBySlug(params.categoria);
-  if (!category) return { title: "Categoria — Kanpai Blue" };
+  if (!category) return { title: "Categoria · Kanpai Blue" };
   return {
     title: `${category.name} · Kanpai Blue`,
     description: `${category.itemCount} · ${category.detail}`,

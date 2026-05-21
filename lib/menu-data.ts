@@ -1,5 +1,5 @@
 // ============================================================================
-// CARDÁPIO KANPAI BLUE — DADOS COMPLETOS
+// CARDÁPIO KANPAI BLUE · DADOS COMPLETOS
 // ============================================================================
 // Restaurante japonês contemporâneo, Goiânia/GO.
 // Para editar conteúdo: altere os arrays abaixo. Cada categoria tem:
@@ -10,9 +10,9 @@
 export type Dish = {
   id: string;
   name: string;
-  price: string;          // "R$ 68,00" — formato padrão. Use "" se sem preço.
+  price: string;          // "R$ 68,00" · formato padrão. Use "" se sem preço.
   unit?: string;          // ex: "8 unidades", "6 peças", "9 fatias"
-  description?: string;   // opcional — se omitido, card termina depois do preço
+  description?: string;   // opcional · se omitido, card termina depois do preço
   featured?: boolean;     // se true, ocupa linha inteira com badge DESTAQUE
   subcategory?: string;   // alimenta os chips de subcategoria
   originalPrice?: string; // pra promoções com preço riscado
@@ -61,12 +61,12 @@ export const restaurant = {
 };
 
 // ============================================================================
-// CATEGORIAS — ORDEM DE APARIÇÃO NA HOME
+// CATEGORIAS · ORDEM DE APARIÇÃO NA HOME
 // ============================================================================
 
 export const categories: Category[] = [
   // ==========================================================================
-  // 01. PROMOÇÕES (Featured — destaque azul Kanpai no índice)
+  // 01. PROMOÇÕES (Featured · destaque azul Kanpai no índice)
   // ==========================================================================
   {
     id: "promocoes",
@@ -81,7 +81,7 @@ export const categories: Category[] = [
     dishes: [
       {
         id: "prom-segunda",
-        name: "Segunda — Ladies Only",
+        name: "Segunda · Ladies Only",
         price: "R$ 129,90",
         description: "Todas as segundas o Festival Premium Kanpai com valor promocional para elas.",
         featured: true,
@@ -93,7 +93,7 @@ export const categories: Category[] = [
         name: "Terça Gastronômica",
         price: "R$ 159,90",
         originalPrice: "R$ 184,90",
-        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana — sabores do dia). Por pessoa.",
+        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana · sabores do dia). Por pessoa.",
         featured: true,
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
@@ -109,31 +109,31 @@ export const categories: Category[] = [
       },
       {
         id: "prom-quinta-festival",
-        name: "Quinta — Festival Premium",
+        name: "Quinta · Festival Premium",
         price: "R$ 164,90",
         originalPrice: "R$ 184,90",
-        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana — sabores do dia).",
+        description: "Festival Premium Kanpai com valor promocional + bebidas em refil (refrigerante, água, suco, soda italiana · sabores do dia).",
         featured: true,
         subcategory: "Semanais",
         tags: ["Não compartilhável"],
       },
       {
         id: "prom-wine-experience",
-        name: "Quinta — Wine Experience",
+        name: "Quinta · Wine Experience",
         price: "",
         description: "Todos os rótulos de vinho com 20% OFF, válido apenas às quintas.",
         subcategory: "Semanais",
       },
       {
         id: "prom-ostras-day",
-        name: "Quinta — Ostra's Day",
+        name: "Quinta · Ostra's Day",
         price: "",
         description: "Todas as quintas chegam ostras frescas no Kanpai.",
         subcategory: "Semanais",
       },
       {
         id: "prom-festival-fds",
-        name: "Festival Premium (Sex–Dom)",
+        name: "Festival Premium (Sex, Sáb e Dom)",
         price: "R$ 174,90",
         description: "Entradas variadas, sushis, sashimis e sobremesa. Com reposição. Não inclui todos os pratos do cardápio. Válido somente para consumo no restaurante. Em caso de viagem, considerar o preço de R$ 5,50 por peça.",
         featured: true,
@@ -144,7 +144,7 @@ export const categories: Category[] = [
         id: "prom-festival-experience",
         name: "Menu Experience",
         price: "R$ 144,90",
-        description: "Seleção LIMITADA de pratos da casa — entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição. Não inclui todos os pratos do cardápio.",
+        description: "Seleção LIMITADA de pratos da casa · entradas variadas, combinado com sushis, sashimis e sobremesa. Sem reposição. Não inclui todos os pratos do cardápio.",
         featured: true,
         subcategory: "Festival",
       },
