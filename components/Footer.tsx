@@ -1,3 +1,5 @@
+import { fs } from "@/lib/scale";
+
 type Props = {
   left: string;
   right: string;
@@ -10,7 +12,7 @@ export function Footer({ left, right }: Props) {
       style={{
         padding: "20px 22px",
         borderTop: "0.5px solid var(--ink-ghost)",
-        fontSize: 10,
+        fontSize: fs(10),
         fontWeight: 400,
         letterSpacing: "0.15em",
         textTransform: "uppercase",

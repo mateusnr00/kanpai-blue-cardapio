@@ -1,4 +1,5 @@
 import { categories } from "@/lib/menu-data";
+import { fs } from "@/lib/scale";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -16,7 +17,7 @@ export default function HomePage() {
         >
           <h1
             style={{
-              fontSize: 44,
+              fontSize: fs(44),
               fontWeight: 500,
               letterSpacing: "-0.03em",
               lineHeight: 1,
@@ -30,7 +31,7 @@ export default function HomePage() {
             style={{
               marginTop: 14,
               marginBottom: 0,
-              fontSize: 11,
+              fontSize: fs(11),
               fontWeight: 400,
               letterSpacing: "0.2em",
               textTransform: "uppercase",

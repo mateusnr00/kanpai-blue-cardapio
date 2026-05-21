@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dish } from "@/lib/menu-data";
+import { fs } from "@/lib/scale";
 import { PlaceholderImage } from "./PlaceholderImage";
 
 const FEATURED_BLUE = "linear-gradient(135deg, #1A0E6E 0%, #2A1E8E 100%)";
@@ -39,7 +40,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
               padding: "5px 9px",
               background: "var(--ink)",
               color: "#FAFAF8",
-              fontSize: 9,
+              fontSize: fs(9),
               fontWeight: 500,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
@@ -66,7 +67,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
         >
           <h3
             style={{
-              fontSize: "var(--text-name-featured)",
+              fontSize: fs(17),
               fontWeight: 500,
               letterSpacing: "-0.02em",
               margin: 0,
@@ -87,7 +88,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
               {dish.originalPrice && (
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: fs(11),
                     fontWeight: 400,
                     textDecoration: "line-through",
                     color: "var(--ink-soft)",
@@ -100,7 +101,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
               )}
               <span
                 style={{
-                  fontSize: 14,
+                  fontSize: fs(14),
                   fontWeight: 500,
                   whiteSpace: "nowrap",
                   fontVariantNumeric: "tabular-nums",
@@ -117,7 +118,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
             style={{
               marginTop: 6,
               marginBottom: 0,
-              fontSize: 11,
+              fontSize: fs(11),
               fontWeight: 400,
               color: "var(--ink-soft)",
               opacity: 0.9,
@@ -132,7 +133,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
             style={{
               marginTop: dish.unit ? 6 : 8,
               marginBottom: 0,
-              fontSize: "var(--text-desc-featured)",
+              fontSize: fs(11),
               fontWeight: 400,
               lineHeight: 1.45,
               color: "var(--ink-soft)",
@@ -155,7 +156,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
               <span
                 key={tag}
                 style={{
-                  fontSize: 8,
+                  fontSize: fs(8),
                   fontWeight: 500,
                   letterSpacing: "0.15em",
                   textTransform: "uppercase",

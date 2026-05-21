@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { fs } from "@/lib/scale";
 
 export function FAB() {
   return (
@@ -30,7 +31,7 @@ export function FAB() {
           background: "var(--ink)",
           color: "#FAFAF8",
           borderRadius: 999,
-          fontSize: 12,
+          fontSize: fs(12),
           fontWeight: 500,
           letterSpacing: "-0.005em",
           boxShadow: "0 4px 16px rgba(26, 14, 110, 0.25)",

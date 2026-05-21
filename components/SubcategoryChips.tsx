@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { fs } from "@/lib/scale";
 
 type Props = {
   options: string[];
@@ -40,7 +41,7 @@ export function SubcategoryChips({ options, onChange }: Props) {
             style={{
               flex: "0 0 auto",
               padding: "7px 14px",
-              fontSize: 11,
+              fontSize: fs(11),
               fontWeight: 500,
               letterSpacing: "-0.005em",
               background: isActive ? "var(--ink)" : "transparent",

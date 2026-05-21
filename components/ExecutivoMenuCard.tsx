@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dish, ExecutivoMenu } from "@/lib/menu-data";
+import { fs } from "@/lib/scale";
 import { PlaceholderImage } from "./PlaceholderImage";
 import { DishCardSmall } from "./DishCardSmall";
 
@@ -48,7 +49,7 @@ function Section({
       <h4
         style={{
           margin: 0,
-          fontSize: 10,
+          fontSize: fs(10),
           fontWeight: 500,
           letterSpacing: "0.2em",
           textTransform: "uppercase",
@@ -123,7 +124,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
               padding: "5px 9px",
               background: "var(--ink)",
               color: "#FAFAF8",
-              fontSize: 9,
+              fontSize: fs(9),
               fontWeight: 500,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
@@ -150,7 +151,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
         >
           <h3
             style={{
-              fontSize: 19,
+              fontSize: fs(19),
               fontWeight: 500,
               letterSpacing: "-0.02em",
               margin: 0,
@@ -161,7 +162,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
           </h3>
           <span
             style={{
-              fontSize: 14,
+              fontSize: fs(14),
               fontWeight: 500,
               whiteSpace: "nowrap",
               fontVariantNumeric: "tabular-nums",
@@ -174,7 +175,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
         <p
           style={{
             margin: "6px 0 0",
-            fontSize: 11,
+            fontSize: fs(11),
             fontWeight: 400,
             letterSpacing: "0.05em",
             color: "var(--ink-soft)",
@@ -187,7 +188,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
         <p
           style={{
             margin: "12px 0 0",
-            fontSize: "var(--text-desc-featured)",
+            fontSize: fs(11),
             fontWeight: 400,
             lineHeight: 1.5,
             color: "var(--ink-soft)",
@@ -200,7 +201,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
           <p
             style={{
               margin: "8px 0 0",
-              fontSize: 10,
+              fontSize: fs(10),
               fontWeight: 400,
               letterSpacing: "0.05em",
               color: "var(--ink-soft)",

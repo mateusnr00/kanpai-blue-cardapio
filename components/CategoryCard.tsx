@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Category } from "@/lib/menu-data";
+import { fs } from "@/lib/scale";
 import { PlaceholderImage } from "./PlaceholderImage";
 
 export function CategoryCard({ category }: { category: Category }) {
@@ -57,7 +58,7 @@ export function CategoryCard({ category }: { category: Category }) {
         >
           <div
             style={{
-              fontSize: 18,
+              fontSize: fs(18),
               fontWeight: 500,
               letterSpacing: "-0.02em",
               lineHeight: 1.1,
@@ -68,7 +69,7 @@ export function CategoryCard({ category }: { category: Category }) {
           <div
             style={{
               marginTop: 6,
-              fontSize: 11,
+              fontSize: fs(11),
               fontWeight: 400,
               color: "var(--ink-soft)",
               opacity: 0.95,

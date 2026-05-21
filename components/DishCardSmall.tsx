@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dish } from "@/lib/menu-data";
+import { fs } from "@/lib/scale";
 import { PlaceholderImage } from "./PlaceholderImage";
 
 const SMALL_GRADIENTS = [
@@ -49,7 +50,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
         >
           <h3
             style={{
-              fontSize: "var(--text-name)",
+              fontSize: fs(13),
               fontWeight: 500,
               letterSpacing: "-0.01em",
               margin: 0,
@@ -70,7 +71,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
               {dish.originalPrice && (
                 <span
                   style={{
-                    fontSize: 9,
+                    fontSize: fs(9),
                     fontWeight: 400,
                     textDecoration: "line-through",
                     color: "var(--ink-soft)",
@@ -83,7 +84,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
               )}
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: fs(12),
                   fontWeight: 500,
                   letterSpacing: "-0.005em",
                   whiteSpace: "nowrap",
@@ -101,7 +102,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
             style={{
               marginTop: 4,
               marginBottom: 0,
-              fontSize: 10,
+              fontSize: fs(10),
               fontWeight: 400,
               color: "var(--ink-soft)",
               opacity: 0.85,
@@ -116,7 +117,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
             style={{
               marginTop: dish.unit ? 4 : 6,
               marginBottom: 0,
-              fontSize: "var(--text-desc)",
+              fontSize: fs(10),
               fontWeight: 400,
               lineHeight: 1.4,
               color: "var(--ink-soft)",
@@ -139,7 +140,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
               <span
                 key={tag}
                 style={{
-                  fontSize: 8,
+                  fontSize: fs(8),
                   fontWeight: 500,
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",

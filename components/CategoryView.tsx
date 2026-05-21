@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Category, Dish } from "@/lib/menu-data";
+import { fs } from "@/lib/scale";
 import { SubcategoryChips } from "./SubcategoryChips";
 import { DishCardSmall } from "./DishCardSmall";
 import { DishCardFeatured } from "./DishCardFeatured";
@@ -76,7 +77,7 @@ export function CategoryView({ category }: Props) {
         <p
           style={{
             margin: 0,
-            fontSize: 11,
+            fontSize: fs(11),
             fontWeight: 400,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
@@ -89,7 +90,7 @@ export function CategoryView({ category }: Props) {
           style={{
             marginTop: 14,
             marginBottom: 0,
-            fontSize: 38,
+            fontSize: fs(38),
             fontWeight: 500,
             letterSpacing: "-0.03em",
             lineHeight: 1,
@@ -102,7 +103,7 @@ export function CategoryView({ category }: Props) {
           style={{
             marginTop: 12,
             marginBottom: 0,
-            fontSize: 12,
+            fontSize: fs(12),
             fontWeight: 400,
             color: "var(--ink-soft)",
           }}
@@ -147,7 +148,7 @@ export function CategoryView({ category }: Props) {
             style={{
               padding: "32px 0",
               textAlign: "center",
-              fontSize: 12,
+              fontSize: fs(12),
               color: "var(--ink-soft)",
             }}
           >
@@ -198,7 +199,7 @@ export function CategoryView({ category }: Props) {
             style={{
               padding: "32px 0",
               textAlign: "center",
-              fontSize: 12,
+              fontSize: fs(12),
               color: "var(--ink-soft)",
             }}
           >

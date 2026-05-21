@@ -16,27 +16,14 @@
 
   /* Tema único (warm). Toggle warm/cool foi removido. */
 
-  /* Escala de texto controlada pelo botão Aa do header.
-     Default 13px, "grande" 15px, "pequeno" 11px. */
-  --text-name: 13px;
-  --text-name-featured: 17px;
-  --text-desc: 10px;
-  --text-desc-featured: 11px;
+  /* Escala de texto global controlada pelo botão Aa do header.
+     Multiplicador aplicado em TODOS os font-sizes via calc().
+     Body (13px) escala para 15px (large) e 11px (small). */
+  --text-scale: 1;
 }
 
-html[data-text-size="large"] {
-  --text-name: 15px;
-  --text-name-featured: 19px;
-  --text-desc: 12px;
-  --text-desc-featured: 13px;
-}
-
-html[data-text-size="small"] {
-  --text-name: 11px;
-  --text-name-featured: 15px;
-  --text-desc: 9px;
-  --text-desc-featured: 10px;
-}
+html[data-text-size="large"]  { --text-scale: 1.1538; }   /* 13 → 15 */
+html[data-text-size="small"]  { --text-scale: 0.8462; }   /* 13 → 11 */
 
 * {
   box-sizing: border-box;
