@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          detail: string | null
+          featured: boolean
+          gradient: string
+          id: string
+          item_count: string | null
+          name: string
+          number: string
+          position: number
+          short_name: string | null
+          subcategories: string[]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description: string
+          detail?: string | null
+          featured?: boolean
+          gradient: string
+          id: string
+          item_count?: string | null
+          name: string
+          number: string
+          position: number
+          short_name?: string | null
+          subcategories?: string[]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          detail?: string | null
+          featured?: boolean
+          gradient?: string
+          id?: string
+          item_count?: string | null
+          name?: string
+          number?: string
+          position?: number
+          short_name?: string | null
+          subcategories?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dish_detail_sections: {
+        Row: {
+          description: string
+          dish_id: string
+          id: string
+          label: string
+          position: number
+        }
+        Insert: {
+          description: string
+          dish_id: string
+          id?: string
+          label: string
+          position: number
+        }
+        Update: {
+          description?: string
+          dish_id?: string
+          id?: string
+          label?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_detail_sections_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dish_likes: {
         Row: {
           count: number
@@ -31,6 +114,197 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      dish_variants: {
+        Row: {
+          dish_id: string
+          id: string
+          image_path: string | null
+          name: string
+          position: number
+          price: string
+        }
+        Insert: {
+          dish_id: string
+          id?: string
+          image_path?: string | null
+          name: string
+          position: number
+          price: string
+        }
+        Update: {
+          dish_id?: string
+          id?: string
+          image_path?: string | null
+          name?: string
+          position?: number
+          price?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_variants_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dishes: {
+        Row: {
+          active: boolean
+          badges: string[]
+          category_id: string
+          created_at: string
+          description: string | null
+          featured: boolean
+          featured_gradient: string | null
+          id: string
+          image_path: string | null
+          long_description: string | null
+          name: string
+          original_price: string | null
+          position: number
+          price: string | null
+          slug: string
+          subcategory: string | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          badges?: string[]
+          category_id: string
+          created_at?: string
+          description?: string | null
+          featured?: boolean
+          featured_gradient?: string | null
+          id?: string
+          image_path?: string | null
+          long_description?: string | null
+          name: string
+          original_price?: string | null
+          position: number
+          price?: string | null
+          slug: string
+          subcategory?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          badges?: string[]
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          featured?: boolean
+          featured_gradient?: string | null
+          id?: string
+          image_path?: string | null
+          long_description?: string | null
+          name?: string
+          original_price?: string | null
+          position?: number
+          price?: string | null
+          slug?: string
+          subcategory?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dishes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      executivo_items: {
+        Row: {
+          description: string
+          executivo_id: string
+          id: string
+          kind: string
+          name: string
+          position: number
+          price: string | null
+        }
+        Insert: {
+          description: string
+          executivo_id: string
+          id?: string
+          kind: string
+          name: string
+          position: number
+          price?: string | null
+        }
+        Update: {
+          description?: string
+          executivo_id?: string
+          id?: string
+          kind?: string
+          name?: string
+          position?: number
+          price?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "executivo_items_executivo_id_fkey"
+            columns: ["executivo_id"]
+            isOneToOne: false
+            referencedRelation: "executivo_menus"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      executivo_menus: {
+        Row: {
+          active: boolean
+          category_id: string
+          description: string
+          format: string
+          id: string
+          name: string
+          position: number
+          price: string
+          subcategory: string | null
+          validity: string | null
+        }
+        Insert: {
+          active?: boolean
+          category_id: string
+          description: string
+          format: string
+          id?: string
+          name: string
+          position: number
+          price: string
+          subcategory?: string | null
+          validity?: string | null
+        }
+        Update: {
+          active?: boolean
+          category_id?: string
+          description?: string
+          format?: string
+          id?: string
+          name?: string
+          position?: number
+          price?: string
+          subcategory?: string | null
+          validity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "executivo_menus_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
