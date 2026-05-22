@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-warm:   #FAFAF8;
+  --bg-card:   #FBFAF6;
+  --ink:       #1A0E6E;
+  --ink-soft:  rgba(26, 14, 110, 0.55);
+  --ink-faint: rgba(26, 14, 110, 0.18);
+  --ink-ghost: rgba(26, 14, 110, 0.12);
+  --ink-trace: rgba(26, 14, 110, 0.08);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-warm);
+  color: var(--ink);
+  font-feature-settings: "ss01", "cv11";
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
