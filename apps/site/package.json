@@ -1,5 +1,5 @@
 {
-  "name": "kanpai-blue-cardapio",
+  "name": "@kanpai/site",
   "version": "0.1.0",
   "private": true,
   "scripts": {
