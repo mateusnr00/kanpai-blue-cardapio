@@ -17,6 +17,9 @@ importers:
 
   apps/site:
     dependencies:
+      '@kanpai/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@supabase/supabase-js':
         specifier: ^2.106.1
         version: 2.106.1
