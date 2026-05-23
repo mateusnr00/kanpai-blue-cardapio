@@ -2,7 +2,7 @@ import Link from "next/link";
 import { listCategoriesWithCounts } from "@/lib/data/categories";
 import { listDishesByCategory } from "@/lib/data/dishes";
 import { CategoryChips } from "@/components/CategoryChips";
-import { DishesTable } from "@/components/DishesTable";
+import { DishesTableSortable } from "@/components/DishesTableSortable";
 
 type SearchParams = { cat?: string };
 
@@ -34,7 +34,9 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
         </div>
       ) : null}
 
-      <DishesTable dishes={dishes} />
+      {selected ? (
+        <DishesTableSortable categoryId={selected.id} initial={dishes} />
+      ) : null}
     </section>
   );
 }
