@@ -56,7 +56,9 @@ middleware.ts                 # redireciona /admin/* sem sessão
 - **Badges**: 9 opções (Vegetariano, Frutos do mar, Contém leite/glúten, Uva, Picante, Com/Sem álcool, Não compartilhável).
 - **`/admin/cards`**: gestão das categorias da home (preview com gradient, drag-reorder, toggle ativo, edição, exclusão com aviso de cascade).
 - **`/admin/cards/new` e `/admin/cards/[id]`**: criar/editar categoria com gradient picker (presets + textarea CSS) e editor de subcategorias.
+- **`/admin/dishes/[id]/details`**: editor de descrição longa + seções (modal "Ver itens" do cardápio, ex. Festival Premium).
+- **`/admin/executivos`**: gestão de menus executivos com 3 listas drag-ordenáveis (entradas, principais, sobremesas com preço opcional).
 
 ## Próximo
 
-Fase 2: editor de seções de detalhes (Festival) e editor de menus executivos.
+Fase 3: migrar o site público pra ler do Supabase em vez de `menu-data.ts`.
