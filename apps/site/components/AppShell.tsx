@@ -2,8 +2,14 @@
 
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import type { Category } from "@/lib/menu-types";
 
-export function AppShell({ children }: { children: ReactNode }) {
+type AppShellProps = {
+  children: ReactNode;
+  categories: Category[];
+};
+
+export function AppShell({ children, categories: _categories }: AppShellProps) {
   return (
     <motion.div
       className="app-shell theme-transition"
