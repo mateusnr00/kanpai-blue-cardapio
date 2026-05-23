@@ -54,7 +54,9 @@ middleware.ts                 # redireciona /admin/* sem sessão
 - **Upload de fotos**: pro bucket `dish-images` no Storage, com preview e remoção.
 - **Variantes**: nome + preço por variante, adicionar/remover inline.
 - **Badges**: 9 opções (Vegetariano, Frutos do mar, Contém leite/glúten, Uva, Picante, Com/Sem álcool, Não compartilhável).
+- **`/admin/cards`**: gestão das categorias da home (preview com gradient, drag-reorder, toggle ativo, edição, exclusão com aviso de cascade).
+- **`/admin/cards/new` e `/admin/cards/[id]`**: criar/editar categoria com gradient picker (presets + textarea CSS) e editor de subcategorias.
 
 ## Próximo
 
-Fase 1C: gestão de categorias (página Cards).
+Fase 2: editor de seções de detalhes (Festival) e editor de menus executivos.
