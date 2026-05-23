@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { toggleDishActive } from "@/app/(protected)/dishes/actions";
 
@@ -10,13 +10,21 @@ type Props = {
 };
 
 export function DishToggleActive({ id, active }: Props) {
-  const [pending, startTransition] = useTransition();
+  const [optimistic, setOptimistic] = useState(active);
+  const [, startTransition] = useTransition();
+
+  // Sync com a prop quando o server revalida (categoria recarrega).
+  useEffect(() => {
+    setOptimistic(active);
+  }, [active]);
 
   function onToggle() {
-    const next = !active;
+    const next = !optimistic;
+    setOptimistic(next); // flip imediato
     startTransition(async () => {
       const res = await toggleDishActive(id, next);
       if ("error" in res) {
+        setOptimistic(!next); // reverte
         toast.error(`Falha ao atualizar: ${res.error}`);
       } else {
         toast.success(next ? "Ativado" : "Desativado");
@@ -28,18 +36,17 @@ export function DishToggleActive({ id, active }: Props) {
     <button
       type="button"
       onClick={onToggle}
-      disabled={pending}
       className={
-        "inline-flex h-5 w-9 items-center rounded-full transition disabled:opacity-50 " +
-        (active ? "bg-ink" : "bg-ink-faint")
+        "inline-flex h-5 w-9 items-center rounded-full transition " +
+        (optimistic ? "bg-ink" : "bg-ink-faint")
       }
-      aria-pressed={active}
-      aria-label={active ? "Desativar prato" : "Ativar prato"}
+      aria-pressed={optimistic}
+      aria-label={optimistic ? "Desativar prato" : "Ativar prato"}
     >
       <span
         className={
           "inline-block h-4 w-4 rounded-full bg-white transition " +
-          (active ? "translate-x-4" : "translate-x-0.5")
+          (optimistic ? "translate-x-4" : "translate-x-0.5")
         }
       />
     </button>
