@@ -7,55 +7,15 @@
 //   - dishes (array de pratos com nome, preço, descrição opcional, featured opcional)
 // ============================================================================
 
-export type DishDetailSection = {
-  label: string;          // ex: "Entradas Da Cozinha"
-  description: string;    // bloco de texto descrevendo os itens da seção
-};
+import type { Category } from "./menu-types";
 
-export type DishDetails = {
-  longDescription?: string;       // texto principal mais detalhado (opcional)
-  sections: DishDetailSection[];  // seções com itens (entradas, principais, sobremesa)
-};
-
-export type Dish = {
-  id: string;
-  name: string;
-  price: string;          // "R$ 68,00" · formato padrão. Use "" se sem preço.
-  unit?: string;          // ex: "8 unidades", "6 peças", "9 fatias"
-  description?: string;   // opcional · se omitido, card termina depois do preço
-  featured?: boolean;     // se true, ocupa linha inteira com badge DESTAQUE
-  subcategory?: string;   // alimenta os chips de subcategoria
-  originalPrice?: string; // pra promoções com preço riscado
-  tags?: string[];        // ex: ["Vegetariano", "Sem álcool", "Não compartilhável"]
-  details?: DishDetails;  // se presente, card mostra botão "Ver itens" e abre modal
-};
-
-export type ExecutivoMenu = {
-  name: string;
-  price: string;
-  format: string;
-  description: string;
-  validity?: string;
-  subcategory?: string;   // alimenta os chips do executivo
-  entradas: { name: string; description: string }[];
-  principais: { name: string; description: string }[];
-  sobremesas?: { name: string; price: string; description: string }[];
-};
-
-export type Category = {
-  id: string;
-  number: string;
-  name: string;
-  shortName?: string;
-  description: string;
-  itemCount: string;
-  detail: string;
-  featured?: boolean;
-  subcategories?: string[];
-  gradient: string;
-  dishes: Dish[];
-  executivos?: ExecutivoMenu[];  // só usado na categoria Executivo
-};
+export type {
+  DishDetailSection,
+  DishDetails,
+  Dish,
+  ExecutivoMenu,
+  Category,
+} from "./menu-types";
 
 export const restaurant = {
   name: "Kanpai Blue",
