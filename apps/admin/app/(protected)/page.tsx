@@ -35,7 +35,7 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
       ) : null}
 
       {selected ? (
-        <DishesTableSortable categoryId={selected.id} initial={dishes} />
+        <DishesTableSortable key={selected.id} categoryId={selected.id} initial={dishes} />
       ) : null}
     </section>
   );
