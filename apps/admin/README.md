@@ -46,6 +46,15 @@ middleware.ts                 # redireciona /admin/* sem sessão
 - Middleware redireciona não-logado de `/admin/*` pra `/login`.
 - Layout `(protected)` faz double-check com `supabase.auth.getUser()`.
 
+## Funcionalidades
+
+- **`/admin` (Cardápio)**: chips de categoria com contagem `ativos/total`, tabela de pratos com foto, toggle ativo, drag-reorder, edição e exclusão.
+- **`/admin/dishes/new`**: criar prato (nome, categoria, descrição, preço, foto, badges, variantes).
+- **`/admin/dishes/[id]`**: editar prato com mesmo form.
+- **Upload de fotos**: pro bucket `dish-images` no Storage, com preview e remoção.
+- **Variantes**: nome + preço por variante, adicionar/remover inline.
+- **Badges**: 9 opções (Vegetariano, Frutos do mar, Contém leite/glúten, Uva, Picante, Com/Sem álcool, Não compartilhável).
+
 ## Próximo
 
-Conteúdo das abas (lista de pratos, form de prato, gestão de cards) na Fase 1B.
+Fase 1C: gestão de categorias (página Cards).
