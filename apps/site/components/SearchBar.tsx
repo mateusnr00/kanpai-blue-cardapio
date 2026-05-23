@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { categories, type Dish } from "@/lib/menu-data";
+import type { Category, Dish } from "@/lib/menu-types";
 import { fs } from "@/lib/scale";
 
 type Result = {
@@ -11,16 +11,6 @@ type Result = {
   categoryId: string;
   categoryName: string;
 };
-
-function buildIndex(): Result[] {
-  const out: Result[] = [];
-  for (const c of categories) {
-    for (const d of c.dishes) {
-      out.push({ dish: d, categoryId: c.id, categoryName: c.name });
-    }
-  }
-  return out;
-}
 
 function normalize(s: string) {
   return s
@@ -33,8 +23,22 @@ function normalize(s: string) {
  * Botão da lupa no header + overlay tela cheia com input e resultados.
  * Acessível de qualquer página onde o Header é renderizado.
  */
-export function SearchBar() {
+type SearchBarProps = {
+  categories: Category[];
+};
+
+export function SearchBar({ categories }: SearchBarProps) {
   const [open, setOpen] = useState(false);
+
+  const index = useMemo<Result[]>(() => {
+    const out: Result[] = [];
+    for (const c of categories) {
+      for (const d of c.dishes) {
+        out.push({ dish: d, categoryId: c.id, categoryName: c.name });
+      }
+    }
+    return out;
+  }, [categories]);
 
   return (
     <>
@@ -68,18 +72,16 @@ export function SearchBar() {
       </button>
 
       <AnimatePresence>
-        {open && <SearchOverlay onClose={() => setOpen(false)} />}
+        {open && <SearchOverlay index={index} onClose={() => setOpen(false)} />}
       </AnimatePresence>
     </>
   );
 }
 
-function SearchOverlay({ onClose }: { onClose: () => void }) {
+function SearchOverlay({ index, onClose }: { index: Result[]; onClose: () => void }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-
-  const index = useMemo(buildIndex, []);
 
   const results = useMemo(() => {
     const q = normalize(query.trim());
