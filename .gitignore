@@ -36,6 +36,11 @@ pnpm-debug.log*
 # claude code local settings
 .claude/
 
+# playwright + smoke-test scratch
+.playwright-mcp/
+tmp-*.mjs
+admin-*.png
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
