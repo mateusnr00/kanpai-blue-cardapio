@@ -1,0 +1,63 @@
+import Image from "next/image";
+import type { ReactNode } from "react";
+import { PlaceholderImage } from "./PlaceholderImage";
+
+type Aspect = "1/1" | "16/9" | "16/10";
+
+type Props = {
+  /** URL pública da foto. Se ausente, cai pro PlaceholderImage. */
+  src?: string;
+  /** Alt acessível — sempre o nome do prato. */
+  alt: string;
+  /** Gradiente do placeholder de fallback. */
+  gradient: string;
+  /** Numero pequeno mostrado no canto do placeholder. */
+  number?: string;
+  aspect?: Aspect;
+  /** Badge/overlay no canto superior direito (DESTAQUE etc). */
+  topRight?: ReactNode;
+  /** Se true, força texto claro no placeholder (gradient escuro). */
+  dark?: boolean;
+};
+
+const SIZES_BY_ASPECT: Record<Aspect, string> = {
+  "1/1": "(max-width: 768px) 50vw, 280px",
+  "16/9": "(max-width: 768px) 100vw, 600px",
+  "16/10": "(max-width: 768px) 100vw, 600px",
+};
+
+export function DishImage({ src, alt, gradient, number, aspect = "1/1", topRight, dark }: Props) {
+  if (!src) {
+    return (
+      <PlaceholderImage
+        gradient={gradient}
+        number={number}
+        aspect={aspect}
+        topRight={topRight}
+        dark={dark}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        aspectRatio: aspect,
+        overflow: "hidden",
+      }}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={SIZES_BY_ASPECT[aspect]}
+        style={{ objectFit: "cover" }}
+      />
+      {topRight ? (
+        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>{topRight}</div>
+      ) : null}
+    </div>
+  );
+}

@@ -2,7 +2,7 @@
 
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
-import { PlaceholderImage } from "./PlaceholderImage";
+import { DishImage } from "./DishImage";
 import { LikeButton } from "./LikeButton";
 
 const SMALL_GRADIENTS = [
@@ -36,7 +36,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
         scrollMarginTop: 80,
       }}
     >
-      <PlaceholderImage gradient={gradient} number={number} aspect="1/1" />
+      <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" />
       <div
         style={{
           borderTop: "0.5px solid var(--ink-faint)",

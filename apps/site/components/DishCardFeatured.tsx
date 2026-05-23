@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
-import { PlaceholderImage } from "./PlaceholderImage";
+import { DishImage } from "./DishImage";
 import { LikeButton } from "./LikeButton";
 import { DishDetailsModal } from "./DishDetailsModal";
 
@@ -51,7 +51,9 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
           : undefined
       }
     >
-      <PlaceholderImage
+      <DishImage
+        src={dish.image}
+        alt={dish.name}
         gradient={gradient}
         number={number}
         aspect="16/9"
