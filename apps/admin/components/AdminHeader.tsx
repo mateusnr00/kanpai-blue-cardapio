@@ -19,6 +19,7 @@ export function AdminHeader({ email }: Props) {
           <nav className="flex items-center gap-6">
             <NavLink href="/" exact>Cardápio</NavLink>
             <NavLink href="/cards">Cards</NavLink>
+            <NavLink href="/executivos">Executivos</NavLink>
             <NavLink href="/analytics">Analytics</NavLink>
             <a
               href="https://kanpai-blue.com"
