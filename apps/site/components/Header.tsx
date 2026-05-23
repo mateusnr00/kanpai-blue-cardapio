@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FontSizeToggle } from "./FontSizeToggle";
 import { SearchBar } from "./SearchBar";
+import type { Category } from "@/lib/menu-types";
 
 const LOGO_URL =
   "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
@@ -12,9 +13,10 @@ const SPONSOR_URL =
 
 type Props = {
   showBack?: boolean;
+  categories: Category[];
 };
 
-export function Header({ showBack = false }: Props) {
+export function Header({ showBack = false, categories }: Props) {
   return (
     <header
       className="sticky top-0 z-30 flex items-center justify-between"
@@ -97,7 +99,7 @@ export function Header({ showBack = false }: Props) {
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <SearchBar />
+        <SearchBar categories={categories} />
         <FontSizeToggle />
       </div>
     </header>
