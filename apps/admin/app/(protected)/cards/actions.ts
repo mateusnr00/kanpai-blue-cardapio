@@ -1,0 +1,143 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createServerClient } from "@/lib/supabase-server";
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64) || `categoria-${Date.now()}`;
+}
+
+function extractSubcategories(formData: FormData): string[] {
+  return formData.getAll("subcategory").map((s) => String(s).trim()).filter(Boolean);
+}
+
+export async function toggleCategoryActive(id: string, nextActive: boolean) {
+  const supabase = createServerClient();
+  const { error } = await supabase
+    .from("categories")
+    .update({ active: nextActive, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/cards");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
+export async function deleteCategory(id: string) {
+  const supabase = createServerClient();
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/cards");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
+export async function reorderCategories(orderedIds: string[]) {
+  const supabase = createServerClient();
+  const updates = orderedIds.map((id, index) =>
+    supabase.from("categories").update({ position: index }).eq("id", id)
+  );
+  const results = await Promise.all(updates);
+  const firstErr = results.find((r) => r.error)?.error;
+  if (firstErr) return { error: firstErr.message };
+  revalidatePath("/cards");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
+export async function createCategory(formData: FormData): Promise<{ error?: string }> {
+  const supabase = createServerClient();
+
+  const name = String(formData.get("name") ?? "").trim();
+  const number = String(formData.get("number") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const short_name = String(formData.get("short_name") ?? "").trim() || null;
+  const item_count = String(formData.get("item_count") ?? "").trim() || null;
+  const detail = String(formData.get("detail") ?? "").trim() || null;
+  const gradient = String(formData.get("gradient") ?? "").trim();
+  const featured = formData.get("featured") === "on";
+  const subcategories = extractSubcategories(formData);
+
+  if (!name || !number || !description || !gradient) {
+    return { error: "Nome, número, descrição e gradient são obrigatórios." };
+  }
+
+  let id = String(formData.get("id") ?? "").trim();
+  if (!id) id = slugify(name);
+
+  const { data: maxRow } = await supabase
+    .from("categories")
+    .select("position")
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const position = (maxRow?.position ?? -1) + 1;
+
+  const { error } = await supabase.from("categories").insert({
+    id,
+    number,
+    name,
+    short_name,
+    description,
+    item_count,
+    detail,
+    gradient,
+    featured,
+    active: true,
+    position,
+    subcategories,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/cards");
+  revalidatePath("/");
+  redirect("/cards");
+}
+
+export async function updateCategory(id: string, formData: FormData): Promise<{ error?: string }> {
+  const supabase = createServerClient();
+
+  const name = String(formData.get("name") ?? "").trim();
+  const number = String(formData.get("number") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const short_name = String(formData.get("short_name") ?? "").trim() || null;
+  const item_count = String(formData.get("item_count") ?? "").trim() || null;
+  const detail = String(formData.get("detail") ?? "").trim() || null;
+  const gradient = String(formData.get("gradient") ?? "").trim();
+  const featured = formData.get("featured") === "on";
+  const subcategories = extractSubcategories(formData);
+
+  if (!name || !number || !description || !gradient) {
+    return { error: "Nome, número, descrição e gradient são obrigatórios." };
+  }
+
+  const { error } = await supabase
+    .from("categories")
+    .update({
+      number,
+      name,
+      short_name,
+      description,
+      item_count,
+      detail,
+      gradient,
+      featured,
+      subcategories,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/cards");
+  revalidatePath("/");
+  redirect("/cards");
+}
