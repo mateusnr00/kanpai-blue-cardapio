@@ -123,6 +123,23 @@ export function DishForm({ mode, initial, variants = [], categories, defaultCate
         <BadgeCheckboxes initial={initial?.badges ?? []} />
       </div>
 
+      {mode === "edit" && initial ? (
+        <div className="flex items-center justify-between rounded-md border border-ink-faint bg-bg-card px-4 py-3">
+          <div>
+            <p className="text-sm font-medium">Detalhes (texto longo + seções)</p>
+            <p className="text-xs text-ink-soft">
+              Modal "Ver itens" no cardápio. Use pra Festival Premium e menus com mais texto.
+            </p>
+          </div>
+          <a
+            href={`/dishes/${initial.id}/details`}
+            className="rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink"
+          >
+            Editar detalhes →
+          </a>
+        </div>
+      ) : null}
+
       <VariantsEditor initial={variants} />
 
       <label className="flex items-center gap-2 text-sm">
