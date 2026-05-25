@@ -71,6 +71,10 @@ export function DishForm({
 
   const initialCategoryId = initial?.category_id ?? defaultCategoryId ?? categories[0]?.id ?? "";
   const [currentCategoryId, setCurrentCategoryId] = useState(initialCategoryId);
+  const [featured, setFeatured] = useState<boolean>(initial?.featured ?? false);
+
+  const photoAspect = featured ? 16 / 9 : 1;
+  const photoMaxSize = featured ? 1920 : 1200;
 
   return (
     <form action={action} className="flex flex-col gap-8">
@@ -161,10 +165,11 @@ export function DishForm({
         <input
           type="checkbox"
           name="featured"
-          defaultChecked={initial?.featured ?? false}
+          checked={featured}
+          onChange={(e) => setFeatured(e.target.checked)}
           className="h-4 w-4 rounded border-ink-ghost text-accent focus:ring-accent/30"
         />
-        Prato em destaque (linha cheia + badge DESTAQUE)
+        Prato em destaque (linha cheia 16:9 + badge DESTAQUE)
       </label>
 
         </div>
@@ -172,7 +177,12 @@ export function DishForm({
         <aside className="flex flex-col gap-6 xl:sticky xl:top-20">
           <div className="flex flex-col gap-2">
             <span className="admin-label">Foto</span>
-            <ImageUpload name="image" initialPath={initial?.image_path ?? null} />
+            <ImageUpload
+              name="image"
+              initialPath={initial?.image_path ?? null}
+              aspect={photoAspect}
+              maxOutputSize={photoMaxSize}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <span className="admin-label">Badges</span>

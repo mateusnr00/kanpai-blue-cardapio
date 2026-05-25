@@ -10,6 +10,10 @@ import { ImageCropDialog } from "./ImageCropDialog";
 type Props = {
   name: string;
   initialPath: string | null;
+  /** Default: 1 (quadrado). Featured/full-width usa 16/9. */
+  aspect?: number;
+  /** Default: 1200 (lado maior). Featured pode usar 1920. */
+  maxOutputSize?: number;
 };
 
 const MAX_INPUT_DIMENSION = 2000;
@@ -58,7 +62,7 @@ async function fetchAsBlobUrl(url: string): Promise<string> {
   return URL.createObjectURL(blob);
 }
 
-export function ImageUpload({ name, initialPath }: Props) {
+export function ImageUpload({ name, initialPath, aspect = 1, maxOutputSize = 1200 }: Props) {
   // Preview: blob: ou https. shouldRemove indica que usuario clicou "Remover".
   const [preview, setPreview] = useState<string | null>(publicImageUrl(initialPath));
   const [shouldRemove, setShouldRemove] = useState(false);
@@ -152,12 +156,15 @@ export function ImageUpload({ name, initialPath }: Props) {
   return (
     <>
       <div className="flex items-start gap-4">
-        <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-ink-ghost bg-bg-muted">
+        <div
+          className="flex h-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-ink-ghost bg-bg-muted"
+          style={{ width: `${Math.round(112 * aspect)}px` }}
+        >
           {preview ? (
             <Image
               src={preview}
               alt=""
-              width={112}
+              width={Math.round(112 * aspect)}
               height={112}
               unoptimized
               className="h-full w-full object-cover"
@@ -182,7 +189,11 @@ export function ImageUpload({ name, initialPath }: Props) {
           </label>
           {/* Este e o input que vai pro FormData; manipulado via DataTransfer */}
           <input ref={submitInputRef} type="file" name={name} className="sr-only" tabIndex={-1} />
-          <p className="text-xs text-ink-muted">JPEG, PNG, WebP ou AVIF · max. 8MB (cortado pra 1200x1200)</p>
+          <p className="text-xs text-ink-muted">
+            JPEG, PNG, WebP ou AVIF · max. 8MB
+            <br />
+            Cortado pra {aspect === 1 ? `${maxOutputSize}x${maxOutputSize}` : `${maxOutputSize}x${Math.round(maxOutputSize / aspect)} (16:9)`}
+          </p>
           {preview ? (
             <div className="flex flex-wrap gap-2">
               <button
@@ -207,8 +218,8 @@ export function ImageUpload({ name, initialPath }: Props) {
       <ImageCropDialog
         open={cropSource !== null}
         sourceUrl={cropSource}
-        aspect={1}
-        maxOutputSize={1200}
+        aspect={aspect}
+        maxOutputSize={maxOutputSize}
         outputType="image/jpeg"
         onClose={onCropCancel}
         onConfirm={onCropConfirm}
