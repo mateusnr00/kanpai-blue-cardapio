@@ -34,6 +34,7 @@ type Props = {
   initial: DishComponentRow[];
   choices: ChoiceItem[];
   categories: CategoryOption[];
+  parentCategoryId: string;
 };
 
 const TAB_LABEL: Record<Kind, string> = {
@@ -44,7 +45,12 @@ const TAB_LABEL: Record<Kind, string> = {
 
 const TAB_ORDER: Kind[] = ["entrada", "principal", "sobremesa"];
 
-export function DishComponentsEditor({ initial, choices: initialChoices, categories }: Props) {
+export function DishComponentsEditor({
+  initial,
+  choices: initialChoices,
+  categories,
+  parentCategoryId,
+}: Props) {
   const [items, setItems] = useState<LocalComponent[]>(
     initial.map((c) => ({
       childId: c.childId,
@@ -105,7 +111,7 @@ export function DishComponentsEditor({ initial, choices: initialChoices, categor
       const res = await quickCreateDishForComponent({
         name: newName.trim(),
         price: newPrice.trim() || null,
-        categoryId: newCategoryId || null,
+        categoryId: newCategoryId || parentCategoryId,
       });
       if ("error" in res) {
         toast.error(res.error);
@@ -346,7 +352,7 @@ export function DishComponentsEditor({ initial, choices: initialChoices, categor
                       value={newCategoryId}
                       onChange={setNewCategoryId}
                       disabled={creating}
-                      placeholder="Categoria (auto)"
+                      placeholder="Mesma do prato atual"
                       options={categories.map((c) => ({ value: c.id, label: c.name }))}
                     />
                   </div>

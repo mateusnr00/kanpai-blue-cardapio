@@ -57,7 +57,8 @@ export function DishForm({
     });
   }
 
-  const currentCategoryId = initial?.category_id ?? defaultCategoryId ?? categories[0]?.id ?? "";
+  const initialCategoryId = initial?.category_id ?? defaultCategoryId ?? categories[0]?.id ?? "";
+  const [currentCategoryId, setCurrentCategoryId] = useState(initialCategoryId);
 
   return (
     <form action={action} className="flex flex-col gap-8">
@@ -82,7 +83,8 @@ export function DishForm({
             id="category_id"
             name="category_id"
             required
-            defaultValue={currentCategoryId}
+            value={currentCategoryId}
+            onChange={setCurrentCategoryId}
             options={categories.map((c) => ({ value: c.id, label: c.name }))}
           />
         </div>
@@ -138,6 +140,7 @@ export function DishForm({
         initial={components}
         choices={componentChoices}
         categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+        parentCategoryId={currentCategoryId}
       />
 
       <label className="flex items-center gap-2.5 text-sm text-ink">

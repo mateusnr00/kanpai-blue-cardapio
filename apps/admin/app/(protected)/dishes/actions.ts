@@ -151,7 +151,7 @@ async function handleImage(
 export type QuickCreateInput = {
   name: string;
   price: string | null;
-  categoryId: string | null;
+  categoryId: string;
 };
 
 export type QuickCreateResult =
@@ -172,25 +172,10 @@ export async function quickCreateDishForComponent(
 ): Promise<QuickCreateResult> {
   const name = input.name.trim();
   const price = input.price?.trim() || null;
-  if (!name) return { error: "Nome obrigatório." };
+  const categoryId = input.categoryId.trim();
+  if (!name || !categoryId) return { error: "Nome e categoria obrigatórios." };
 
   const supabase = createServerClient();
-  const restaurantId = getActiveRestaurantId();
-
-  let categoryId = input.categoryId?.trim() || "";
-  if (!categoryId) {
-    const { data: fallback } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("restaurant_id", restaurantId)
-      .eq("active", true)
-      .order("position")
-      .limit(1)
-      .maybeSingle();
-    if (!fallback) return { error: "Nenhuma categoria disponível para este restaurante." };
-    categoryId = fallback.id;
-  }
-
   const { data: cat } = await supabase
     .from("categories")
     .select("restaurant_id, name")
