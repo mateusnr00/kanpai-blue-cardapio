@@ -73,8 +73,14 @@ export function DishForm({
   const [currentCategoryId, setCurrentCategoryId] = useState(initialCategoryId);
   const [featured, setFeatured] = useState<boolean>(initial?.featured ?? false);
 
-  const photoAspect = featured ? 16 / 9 : 1;
-  const photoMaxSize = featured ? 1920 : 1200;
+  // provisorio: Festival sempre 16:9, mesmo sem marcar destaque
+  const currentCategory = categories.find((c) => c.id === currentCategoryId);
+  const isFestivalCategory =
+    (currentCategory?.slug ?? "").toLowerCase().includes("festival") ||
+    (currentCategory?.name ?? "").toLowerCase().includes("festival");
+
+  const photoAspect = featured || isFestivalCategory ? 16 / 9 : 1;
+  const photoMaxSize = featured || isFestivalCategory ? 1920 : 1200;
 
   return (
     <form action={action} className="flex flex-col gap-8">
