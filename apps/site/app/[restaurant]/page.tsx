@@ -3,7 +3,7 @@ import { getCategories, getRestaurantById, listRestaurants } from "@/lib/menu-se
 import type { Category } from "@/lib/menu-types";
 import { HomePageClient } from "./HomePageClient";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   try {

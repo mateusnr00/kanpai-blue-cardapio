@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { FAB } from "@/components/FAB";
 import { CategoryView } from "@/components/CategoryView";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   try {
