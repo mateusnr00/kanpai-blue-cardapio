@@ -11,28 +11,27 @@ type Props = {
 };
 
 export function ImageUpload({ name, initialPath }: Props) {
-  const [path, setPath] = useState<string | null>(initialPath);
   const [preview, setPreview] = useState<string | null>(publicImageUrl(initialPath));
+  const [shouldRemove, setShouldRemove] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const removeRef = useRef<HTMLInputElement>(null);
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Imagem maior que 5MB");
+      if (fileRef.current) fileRef.current.value = "";
       return;
     }
     const url = URL.createObjectURL(file);
     setPreview(url);
-    if (removeRef.current) removeRef.current.value = "false";
+    setShouldRemove(false);
   }
 
   function onRemove() {
     setPreview(null);
-    setPath(null);
+    setShouldRemove(true);
     if (fileRef.current) fileRef.current.value = "";
-    if (removeRef.current) removeRef.current.value = "true";
   }
 
   return (
@@ -72,8 +71,8 @@ export function ImageUpload({ name, initialPath }: Props) {
             Remover foto
           </button>
         ) : null}
-        <input ref={removeRef} type="hidden" name={`${name}__remove`} defaultValue="false" />
-        <input type="hidden" name={`${name}__current`} defaultValue={path ?? ""} />
+        {/* Estado controlado: garante que o flag chega no server action */}
+        <input type="hidden" name={`${name}__remove`} value={shouldRemove ? "true" : "false"} readOnly />
       </div>
     </div>
   );
