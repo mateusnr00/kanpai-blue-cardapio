@@ -30,7 +30,9 @@ export async function uploadDishImageAction(
 ): Promise<{ path: string } | { error: string }> {
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const safeExt = ["jpg", "jpeg", "png", "webp", "avif"].includes(ext) ? ext : "jpg";
-  const path = `${pathBase}.${safeExt}`;
+  // Inclui timestamp no nome pra cada upload gerar URL única e invalidar
+  // cache de browser/CDN automaticamente (path antigo é deletado em handleImage).
+  const path = `${pathBase}-${Date.now().toString(36)}.${safeExt}`;
 
   const supabase = authedClient();
   const arrayBuf = await file.arrayBuffer();
