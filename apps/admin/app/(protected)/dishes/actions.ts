@@ -148,6 +148,83 @@ async function handleImage(
   return currentPath;
 }
 
+export type QuickCreateInput = {
+  name: string;
+  price: string | null;
+  categoryId: string;
+};
+
+export type QuickCreateResult =
+  | { error: string }
+  | {
+      ok: true;
+      dish: {
+        id: string;
+        name: string;
+        category: string;
+        image_path: string | null;
+        price: string | null;
+      };
+    };
+
+export async function quickCreateDishForComponent(
+  input: QuickCreateInput,
+): Promise<QuickCreateResult> {
+  const name = input.name.trim();
+  const price = input.price?.trim() || null;
+  const categoryId = input.categoryId.trim();
+  if (!name || !categoryId) return { error: "Nome e categoria obrigatórios." };
+
+  const supabase = createServerClient();
+  const { data: cat } = await supabase
+    .from("categories")
+    .select("restaurant_id, name")
+    .eq("id", categoryId)
+    .maybeSingle();
+  if (!cat) return { error: "Categoria inválida." };
+
+  const { data: maxRow } = await supabase
+    .from("dishes")
+    .select("position")
+    .eq("category_id", categoryId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const position = (maxRow?.position ?? -1) + 1;
+
+  const slug = `${slugify(name)}-${Date.now().toString(36)}`;
+
+  const { data: inserted, error } = await supabase
+    .from("dishes")
+    .insert({
+      slug,
+      category_id: categoryId,
+      restaurant_id: cat.restaurant_id,
+      name,
+      price,
+      active: true,
+      position,
+    })
+    .select("id")
+    .single();
+
+  if (error || !inserted) return { error: error?.message ?? "Falha ao criar." };
+
+  revalidatePath("/dishes");
+  revalidateMenu();
+
+  return {
+    ok: true,
+    dish: {
+      id: inserted.id,
+      name,
+      category: cat.name,
+      image_path: null,
+      price,
+    },
+  };
+}
+
 export async function createDish(formData: FormData): Promise<{ error?: string }> {
   const supabase = createServerClient();
   const categoryId = String(formData.get("category_id") ?? "").trim();

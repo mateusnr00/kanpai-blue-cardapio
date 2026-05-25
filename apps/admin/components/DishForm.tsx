@@ -134,7 +134,11 @@ export function DishForm({
 
       <VariantsEditor initial={variants} />
 
-      <DishComponentsEditor initial={components} choices={componentChoices} />
+      <DishComponentsEditor
+        initial={components}
+        choices={componentChoices}
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+      />
 
       <label className="flex items-center gap-2.5 text-sm text-ink">
         <input
