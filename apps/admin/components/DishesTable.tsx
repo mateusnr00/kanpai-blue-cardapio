@@ -15,16 +15,16 @@ export function DishesTable({ dishes }: Props) {
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-ink-faint bg-bg-card">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-md border border-ink-faint bg-bg-card">
+      <table className="w-full min-w-[480px] text-sm">
         <thead className="bg-ink-trace text-left text-xs uppercase tracking-wide text-ink-soft">
           <tr>
             <th className="w-8 px-2 py-2"></th>
-            <th className="w-16 px-2 py-2">Foto</th>
+            <th className="w-14 px-2 py-2 sm:w-16">Foto</th>
             <th className="py-2">Nome</th>
-            <th className="w-24 py-2">Preço</th>
+            <th className="hidden w-24 py-2 sm:table-cell">Preço</th>
             <th className="w-16 py-2">Ativo</th>
-            <th className="w-32 py-2 text-right pr-2">Ações</th>
+            <th className="w-28 py-2 text-right pr-2 sm:w-32">Ações</th>
           </tr>
         </thead>
         <tbody>

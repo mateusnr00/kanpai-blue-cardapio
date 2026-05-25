@@ -42,23 +42,24 @@ function SortableRow({ cat, dishCount }: { cat: CategoryRow; dishCount: number }
       <td className="w-8 cursor-grab select-none py-3 pr-2 text-center text-ink-faint" {...attributes} {...listeners}>
         ⋮⋮
       </td>
-      <td className="w-28 py-3 pr-3">
+      <td className="hidden w-28 py-3 pr-3 sm:table-cell">
         <CategoryPreview gradient={cat.gradient} label={cat.name} />
       </td>
-      <td className="py-3 pr-4">
+      <td className="py-3 pr-3 sm:pr-4">
         <div className="text-sm font-medium">{cat.name}</div>
         <div className="text-xs text-ink-soft">
           {cat.featured ? "featured · " : ""}#{cat.number} · {dishCount} prato{dishCount === 1 ? "" : "s"}
         </div>
+        <div className="mt-1 font-mono text-[10px] text-ink-soft md:hidden">#{cat.id}</div>
       </td>
-      <td className="w-48 whitespace-nowrap py-3 pr-4 font-mono text-xs text-ink-soft">#{cat.id}</td>
+      <td className="hidden w-48 whitespace-nowrap py-3 pr-4 font-mono text-xs text-ink-soft md:table-cell">#{cat.id}</td>
       <td className="w-16 py-3 pr-3">
         <CategoryToggleActive id={cat.id} active={cat.active} />
       </td>
-      <td className="w-32 py-3 pr-2 text-right">
+      <td className="w-28 py-3 pr-2 text-right sm:w-32">
         <Link
           href={`/cards/${cat.id}`}
-          className="mr-3 rounded-md border border-ink-faint px-3 py-1 text-xs font-medium hover:border-ink"
+          className="mr-2 inline-block rounded-md border border-ink-faint px-2 py-1 text-xs font-medium hover:border-ink sm:mr-3 sm:px-3"
         >
           Editar
         </Link>
@@ -101,16 +102,16 @@ export function CategoriesTable({ initial, dishCounts }: Props) {
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-ink-faint bg-bg-card">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-md border border-ink-faint bg-bg-card">
+      <table className="w-full min-w-[480px] text-sm">
         <thead className="bg-ink-trace text-left text-xs uppercase tracking-wide text-ink-soft">
           <tr>
             <th className="w-8 px-2 py-2"></th>
-            <th className="w-28 px-2 py-2">Preview</th>
+            <th className="hidden w-28 px-2 py-2 sm:table-cell">Preview</th>
             <th className="py-2">Categoria</th>
-            <th className="w-48 py-2">Slug</th>
+            <th className="hidden w-48 py-2 md:table-cell">Slug</th>
             <th className="w-16 py-2">Ativo</th>
-            <th className="w-32 py-2 text-right pr-2">Ações</th>
+            <th className="w-28 py-2 text-right pr-2 sm:w-32">Ações</th>
           </tr>
         </thead>
         <tbody>

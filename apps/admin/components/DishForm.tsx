@@ -80,7 +80,7 @@ export function DishForm({ mode, initial, variants = [], categories, defaultCate
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="price" className="text-xs font-medium text-ink-soft">Preço (texto, ex: R$ 82,90)</label>
           <input
@@ -124,7 +124,7 @@ export function DishForm({ mode, initial, variants = [], categories, defaultCate
       </div>
 
       {mode === "edit" && initial ? (
-        <div className="flex items-center justify-between rounded-md border border-ink-faint bg-bg-card px-4 py-3">
+        <div className="flex flex-col gap-3 rounded-md border border-ink-faint bg-bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium">Detalhes (texto longo + seções)</p>
             <p className="text-xs text-ink-soft">
@@ -133,7 +133,7 @@ export function DishForm({ mode, initial, variants = [], categories, defaultCate
           </div>
           <a
             href={`/dishes/${initial.id}/details`}
-            className="rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink"
+            className="self-start rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink sm:self-auto"
           >
             Editar detalhes →
           </a>

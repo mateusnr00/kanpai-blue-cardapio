@@ -58,7 +58,7 @@ function SortableItem({
 
   return (
     <li ref={setNodeRef} style={style} className="rounded-md border border-ink-faint bg-bg-card p-3">
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
         <button type="button" {...attributes} {...listeners} className="cursor-grab text-ink-faint" aria-label="Arrastar">⋮⋮</button>
         <input
           type="text"
@@ -66,7 +66,7 @@ function SortableItem({
           value={it.name}
           onChange={(e) => onChange(idx, "name", e.target.value)}
           placeholder="Nome do item"
-          className="flex-1 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm font-medium"
+          className="min-w-0 flex-1 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm font-medium"
         />
         {showPrice ? (
           <input
@@ -75,7 +75,7 @@ function SortableItem({
             value={it.price}
             onChange={(e) => onChange(idx, "price", e.target.value)}
             placeholder="R$"
-            className="w-24 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm"
+            className="w-20 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm sm:w-24"
           />
         ) : null}
         <button type="button" onClick={() => onRemove(idx)} className="text-xs font-medium text-red-700 hover:opacity-80">

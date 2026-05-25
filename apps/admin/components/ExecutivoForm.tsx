@@ -66,7 +66,7 @@ export function ExecutivoForm({ mode, initial, items = [], categories, onSubmit 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="price" className="text-xs font-medium text-ink-soft">Preço</label>
           <input

@@ -51,7 +51,7 @@ export function VariantsEditor({ initial }: Props) {
       ) : (
         <ul className="flex flex-col gap-2">
           {variants.map((v, idx) => (
-            <li key={v.id} className="flex items-center gap-2">
+            <li key={v.id} className="flex flex-wrap items-center gap-2">
               <input type="hidden" name={`variant_${idx}_id`} value={v.existing ? v.id : ""} />
               <input
                 type="text"
@@ -59,7 +59,7 @@ export function VariantsEditor({ initial }: Props) {
                 value={v.name}
                 onChange={(e) => update(idx, "name", e.target.value)}
                 placeholder="Nome"
-                className="flex-1 rounded-md border border-ink-faint bg-bg-card px-2 py-1 text-sm"
+                className="min-w-0 flex-1 rounded-md border border-ink-faint bg-bg-card px-2 py-1 text-sm"
               />
               <input
                 type="text"
@@ -67,7 +67,7 @@ export function VariantsEditor({ initial }: Props) {
                 value={v.price}
                 onChange={(e) => update(idx, "price", e.target.value)}
                 placeholder="R$ 0,00"
-                className="w-28 rounded-md border border-ink-faint bg-bg-card px-2 py-1 text-sm"
+                className="w-24 rounded-md border border-ink-faint bg-bg-card px-2 py-1 text-sm sm:w-28"
               />
               <button
                 type="button"
