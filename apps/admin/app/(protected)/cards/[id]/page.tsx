@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategory } from "@/lib/data/categories";
 import { CategoryForm } from "@/components/CategoryForm";
+import { BackLink } from "@/components/BackLink";
+import { PageHeader } from "@/components/PageHeader";
 import { updateCategory } from "../actions";
 
 type Params = { id: string };
@@ -16,10 +17,12 @@ export default async function EditCategoryPage({ params }: { params: Params }) {
   }
 
   return (
-    <section className="flex flex-col gap-6">
-      <Link href="/cards" className="text-xs text-ink-soft hover:text-ink">← Voltar pra lista</Link>
-      <h1 className="text-2xl font-semibold tracking-tight">Editar: {category.name}</h1>
-      <CategoryForm mode="edit" initial={category} onSubmit={onSubmit} />
+    <section className="flex w-full flex-col gap-6">
+      <BackLink href="/cards">Voltar às categorias</BackLink>
+      <PageHeader title={`Editar: ${category.name}`} description="Ajuste aparência e subcategorias da seção." />
+      <div className="admin-card p-6 sm:p-8">
+        <CategoryForm mode="edit" initial={category} onSubmit={onSubmit} />
+      </div>
     </section>
   );
 }

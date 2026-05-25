@@ -11,20 +11,19 @@ type Props = {
 
 export function DishToggleActive({ id, active }: Props) {
   const [optimistic, setOptimistic] = useState(active);
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
-  // Sync com a prop quando o server revalida (categoria recarrega).
   useEffect(() => {
     setOptimistic(active);
   }, [active]);
 
   function onToggle() {
     const next = !optimistic;
-    setOptimistic(next); // flip imediato
+    setOptimistic(next);
     startTransition(async () => {
       const res = await toggleDishActive(id, next);
       if ("error" in res) {
-        setOptimistic(!next); // reverte
+        setOptimistic(!next);
         toast.error(`Falha ao atualizar: ${res.error}`);
       } else {
         toast.success(next ? "Ativado" : "Desativado");
@@ -33,13 +32,14 @@ export function DishToggleActive({ id, active }: Props) {
   }
 
   return (
-    <input
-      type="checkbox"
-      className="switch"
-      checked={optimistic}
-      onChange={onToggle}
-      disabled={pending}
+    <button
+      type="button"
+      onClick={onToggle}
+      className={optimistic ? "admin-toggle-on" : "admin-toggle-off"}
+      aria-pressed={optimistic}
       aria-label={optimistic ? "Desativar prato" : "Ativar prato"}
-    />
+    >
+      <span className={"admin-toggle-thumb " + (optimistic ? "translate-x-5" : "translate-x-0.5")} />
+    </button>
   );
 }

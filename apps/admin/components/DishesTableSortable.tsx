@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { Image as ImageIcon, PencilSimple, Tray } from "@phosphor-icons/react";
 import {
   DndContext,
   closestCenter,
@@ -19,6 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
+import { DragHandle } from "./DragHandle";
 import { DishToggleActive } from "./DishToggleActive";
 import { DishDeleteButton } from "./DishDeleteButton";
 import { publicImageUrl } from "@/lib/storage";
@@ -31,49 +33,59 @@ type Props = {
 };
 
 function SortableDishRow({ dish }: { dish: DishListRow }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: dish.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: dish.id,
+  });
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.6 : 1,
   };
   const img = publicImageUrl(dish.image_path);
 
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-ink-trace last:border-b-0">
-      <td
-        className="w-8 cursor-grab select-none py-3 pr-2 text-center text-ink-faint"
-        {...attributes}
-        {...listeners}
-      >
-        ⋮⋮
+    <tr ref={setNodeRef} style={style}>
+      <td className="w-10">
+        <div {...attributes} {...listeners}>
+          <DragHandle />
+        </div>
       </td>
-      <td className="w-14 py-3 pr-3 sm:w-16">
+      <td className="w-14 sm:w-16">
         {img ? (
-          <Image src={img} alt="" width={48} height={48} className="h-10 w-10 rounded-md object-cover sm:h-12 sm:w-12" />
+          <Image
+            src={img}
+            alt=""
+            width={48}
+            height={48}
+            className="h-10 w-10 rounded-lg object-cover ring-1 ring-ink-ghost sm:h-12 sm:w-12"
+          />
         ) : (
-          <div className="h-10 w-10 rounded-md bg-ink-ghost sm:h-12 sm:w-12" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-muted text-ink-faint sm:h-12 sm:w-12">
+            <ImageIcon size={20} />
+          </div>
         )}
       </td>
-      <td className="py-3 pr-3 sm:pr-4">
-        <div className="text-sm font-medium uppercase tracking-tight">{dish.name}</div>
+      <td>
+        <div className="font-medium text-ink">{dish.name}</div>
         {dish.description ? (
-          <div className="line-clamp-1 max-w-xl text-xs text-ink-soft">{dish.description}</div>
+          <div className="line-clamp-1 max-w-xl text-xs text-ink-muted">{dish.description}</div>
         ) : null}
-        <div className="mt-1 text-xs text-ink-soft sm:hidden">{dish.price ?? "—"}</div>
+        <div className="mt-1 text-xs text-ink-muted sm:hidden">{dish.price ?? "—"}</div>
       </td>
-      <td className="hidden w-24 whitespace-nowrap py-3 pr-4 text-sm sm:table-cell">{dish.price ?? "—"}</td>
-      <td className="w-16 py-3 pr-3">
+      <td className="hidden w-28 whitespace-nowrap font-medium tabular-nums sm:table-cell">
+        {dish.price ?? "—"}
+      </td>
+      <td className="w-20">
         <DishToggleActive id={dish.id} active={dish.active} />
       </td>
-      <td className="w-28 py-3 pr-2 text-right sm:w-32">
-        <Link
-          href={`/dishes/${dish.id}`}
-          className="mr-2 inline-block rounded-md border border-ink-faint px-2 py-1 text-xs font-medium hover:border-ink sm:mr-3 sm:px-3"
-        >
-          Editar
-        </Link>
-        <DishDeleteButton id={dish.id} name={dish.name} />
+      <td className="text-right">
+        <div className="flex flex-wrap items-center justify-end gap-1">
+          <Link href={`/dishes/${dish.id}`} className="admin-btn-ghost">
+            <PencilSimple size={16} />
+            Editar
+          </Link>
+          <DishDeleteButton id={dish.id} name={dish.name} />
+        </div>
       </td>
     </tr>
   );
@@ -105,23 +117,24 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-md border border-ink-faint bg-bg-card p-6 text-sm text-ink-soft">
+      <div className="admin-empty">
+        <Tray size={32} className="mx-auto mb-2 text-ink-faint" weight="duotone" />
         Nenhum prato nesta categoria.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border border-ink-faint bg-bg-card">
-      <table className="w-full min-w-[480px] text-sm">
-        <thead className="bg-ink-trace text-left text-xs uppercase tracking-wide text-ink-soft">
+    <div className="admin-table-wrap">
+      <table className="admin-table">
+        <thead>
           <tr>
-            <th className="w-8 px-2 py-2"></th>
-            <th className="w-14 px-2 py-2 sm:w-16">Foto</th>
-            <th className="py-2">Nome</th>
-            <th className="hidden w-24 py-2 sm:table-cell">Preço</th>
-            <th className="w-16 py-2">Ativo</th>
-            <th className="w-28 py-2 text-right pr-2 sm:w-32">Ações</th>
+            <th className="w-10" />
+            <th className="w-14 sm:w-16">Foto</th>
+            <th>Nome</th>
+            <th className="hidden w-28 sm:table-cell">Preço</th>
+            <th className="w-20">Ativo</th>
+            <th className="text-right">Ações</th>
           </tr>
         </thead>
         <tbody>

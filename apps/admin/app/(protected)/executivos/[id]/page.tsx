@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listCategoriesWithCounts } from "@/lib/data/categories";
 import { getExecutivo, listExecutivoItems } from "@/lib/data/executivos";
 import { ExecutivoForm } from "@/components/ExecutivoForm";
+import { BackLink } from "@/components/BackLink";
+import { PageHeader } from "@/components/PageHeader";
 import { updateExecutivo } from "../actions";
 
 type Params = { id: string };
@@ -22,16 +23,18 @@ export default async function EditExecutivoPage({ params }: { params: Params }) 
   }
 
   return (
-    <section className="flex flex-col gap-6">
-      <Link href="/executivos" className="text-xs text-ink-soft hover:text-ink">← Voltar pra lista</Link>
-      <h1 className="text-2xl font-semibold tracking-tight">Editar: {executivo.name}</h1>
-      <ExecutivoForm
-        mode="edit"
-        initial={executivo}
-        items={items}
-        categories={categories}
-        onSubmit={onSubmit}
-      />
+    <section className="flex w-full flex-col gap-6">
+      <BackLink href="/executivos">Voltar aos executivos</BackLink>
+      <PageHeader title={`Editar: ${executivo.name}`} description="Dados do menu e itens por etapa." />
+      <div className="admin-card p-6 sm:p-8">
+        <ExecutivoForm
+          mode="edit"
+          initial={executivo}
+          items={items}
+          categories={categories}
+          onSubmit={onSubmit}
+        />
+      </div>
     </section>
   );
 }

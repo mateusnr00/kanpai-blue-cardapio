@@ -3,21 +3,37 @@
 @tailwind utilities;
 
 :root {
-  --bg-warm:   #FAFAF8;
-  --bg-card:   #FBFAF6;
-  --ink:       #1A0E6E;
-  --ink-soft:  rgba(26, 14, 110, 0.55);
-  --ink-faint: rgba(26, 14, 110, 0.18);
-  --ink-ghost: rgba(26, 14, 110, 0.12);
-  --ink-trace: rgba(26, 14, 110, 0.08);
+  --bg-app: #f4f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #eef0f6;
+
+  --ink: #1a0e6e;
+  --ink-secondary: #4a4580;
+  --ink-muted: #7c78a8;
+  --ink-faint: #c8c5dc;
+  --ink-ghost: #e8e6f2;
+
+  --accent: #2d4ae8;
+  --accent-hover: #2340d4;
+  --accent-soft: rgba(45, 74, 232, 0.1);
+
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.08);
+
+  --bg-warm: var(--bg-app);
+  --bg-card: var(--bg-surface);
+  --ink-soft: var(--ink-muted);
+  --ink-trace: var(--ink-ghost);
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  background: var(--bg-warm);
+  background: var(--bg-app);
   color: var(--ink);
   font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -30,67 +46,131 @@ button {
   cursor: pointer;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font: inherit;
   color: inherit;
 }
 
-/* Toggle switch (Uiverse / Yaya12085) — usado em DishToggleActive
-   e CategoryToggleActive. Aplicado direto no <input type="checkbox">
-   com appearance:none. */
-.switch {
-  position: relative;
-  height: 1.5rem;
-  width: 3rem;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  border-radius: 9999px;
-  background-color: rgba(100, 116, 139, 0.377);
-  transition: all 0.3s ease;
-  margin: 0;
-  flex-shrink: 0;
-}
+@layer components {
+  .admin-label {
+    @apply text-xs font-medium text-ink-muted;
+  }
 
-.switch:checked {
-  background-color: rgba(32, 151, 243, 1);
-}
+  .admin-input {
+    @apply w-full rounded-lg border border-ink-ghost bg-bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-ink-faint focus:border-accent focus:ring-2 focus:ring-accent-soft;
+  }
 
-.switch::before {
-  position: absolute;
-  content: "";
-  left: calc(1.5rem - 1.6rem);
-  top: calc(1.5rem - 1.6rem);
-  display: block;
-  height: 1.6rem;
-  width: 1.6rem;
-  cursor: pointer;
-  border: 1px solid rgba(100, 116, 139, 0.527);
-  border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 1);
-  box-shadow: 0 3px 10px rgba(100, 116, 139, 0.327);
-  transition: all 0.3s ease;
-}
+  .admin-card {
+    @apply rounded-xl border border-ink-ghost/80 bg-bg-surface shadow-sm;
+  }
 
-.switch:hover::before {
-  box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.15);
-}
+  .admin-empty {
+    @apply admin-card px-6 py-10 text-center text-sm text-ink-muted;
+  }
 
-.switch:checked:hover::before {
-  box-shadow: 0 0 0 8px rgba(32, 151, 243, 0.15);
-}
+  .admin-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft disabled:pointer-events-none disabled:opacity-50;
+  }
 
-.switch:checked::before {
-  transform: translateX(100%);
-  border-color: rgba(32, 151, 243, 1);
-}
+  .admin-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-ink-ghost bg-bg-surface px-4 py-2.5 text-sm font-medium text-ink transition hover:border-ink-faint hover:bg-bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft disabled:opacity-50;
+  }
 
-.switch:focus-visible {
-  outline: 2px solid rgba(32, 151, 243, 1);
-  outline-offset: 2px;
-}
+  .admin-btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-ink-secondary transition hover:bg-bg-muted hover:text-ink;
+  }
 
-.switch:disabled {
-  cursor: wait;
-  opacity: 0.6;
+  .admin-btn-danger {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-danger transition hover:bg-danger-soft;
+  }
+
+  .admin-table-wrap {
+    @apply admin-card overflow-x-auto;
+  }
+
+  .admin-table {
+    @apply w-full min-w-[480px] text-sm;
+  }
+
+  .admin-table thead {
+    @apply border-b border-ink-ghost bg-bg-muted/60 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-muted;
+  }
+
+  .admin-table th {
+    @apply px-4 py-3;
+  }
+
+  .admin-table tbody tr {
+    @apply border-b border-ink-ghost/60 transition last:border-b-0 hover:bg-bg-muted/30;
+  }
+
+  .admin-table td {
+    @apply px-4 py-3.5 align-middle;
+  }
+
+  .admin-chip {
+    @apply shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition;
+  }
+
+  .admin-chip-active {
+    @apply admin-chip border-accent bg-accent text-white shadow-sm;
+  }
+
+  .admin-chip-inactive {
+    @apply admin-chip border-ink-ghost bg-bg-surface text-ink-secondary hover:border-ink-faint hover:text-ink;
+  }
+
+  .admin-toggle {
+    @apply relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft;
+  }
+
+  .admin-toggle-on {
+    @apply admin-toggle bg-accent;
+  }
+
+  .admin-toggle-off {
+    @apply admin-toggle bg-ink-ghost;
+  }
+
+  .admin-toggle-thumb {
+    @apply inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform;
+  }
+
+  .admin-drag-handle {
+    @apply flex h-8 w-8 cursor-grab items-center justify-center rounded-md text-ink-faint transition hover:bg-bg-muted hover:text-ink-muted active:cursor-grabbing;
+  }
+
+  .admin-fieldset {
+    @apply admin-card p-5;
+  }
+
+  .admin-fieldset-legend {
+    @apply text-xs font-semibold uppercase tracking-wider text-ink-muted;
+  }
+
+  .admin-inline-input {
+    @apply rounded-lg border border-ink-ghost bg-bg-muted/50 px-2.5 py-1.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft;
+  }
+
+  .admin-select-trigger {
+    @apply flex cursor-pointer items-center justify-between gap-2 rounded-lg border border-ink-ghost bg-bg-surface px-3.5 py-2.5 text-left text-sm shadow-sm outline-none transition;
+  }
+
+  .admin-select-trigger-open {
+    @apply border-accent ring-2 ring-accent-soft;
+  }
+
+  .admin-select-menu {
+    @apply rounded-lg border border-ink-ghost bg-bg-surface shadow-lg;
+  }
+
+  .admin-select-option {
+    @apply cursor-pointer px-3.5 py-2.5 text-sm text-ink transition;
+  }
+
+  .admin-select-option-active {
+    @apply bg-accent text-white;
+  }
 }

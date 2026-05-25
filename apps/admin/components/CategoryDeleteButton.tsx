@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { Trash } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { deleteCategory } from "@/app/(protected)/cards/actions";
@@ -35,14 +36,11 @@ export function CategoryDeleteButton({ id, name, dishCount }: Props) {
       title="Excluir categoria"
       description={`Tem certeza que quer excluir "${name}"?${cascade} Esta ação não pode ser desfeita.`}
       confirmLabel="Excluir"
-      cancelLabel="Cancelar"
       pending={pending}
       onConfirm={onConfirm}
       trigger={
-        <button
-          type="button"
-          className="text-xs font-medium text-red-700 transition hover:opacity-80"
-        >
+        <button type="button" className="admin-btn-danger">
+          <Trash size={16} />
           Excluir
         </button>
       }

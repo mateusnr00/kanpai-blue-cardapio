@@ -16,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { DragHandle } from "./DragHandle";
 import type { SectionRow } from "@/lib/data/sections";
 
 type LocalSection = {
@@ -43,16 +44,16 @@ function SortableSection({
   };
 
   return (
-    <li ref={setNodeRef} style={style} className="rounded-md border border-ink-faint bg-bg-card p-3">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
+    <li ref={setNodeRef} style={style} className="rounded-xl border border-ink-ghost bg-bg-muted/30 p-4">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <button
           type="button"
           {...attributes}
           {...listeners}
-          className="cursor-grab select-none text-ink-faint"
+          className="cursor-grab active:cursor-grabbing"
           aria-label="Arrastar seção"
         >
-          ⋮⋮
+          <DragHandle />
         </button>
         <input
           type="text"
@@ -60,13 +61,9 @@ function SortableSection({
           value={s.label}
           onChange={(e) => onChange(idx, "label", e.target.value)}
           placeholder="Título da seção (ex: Entradas Da Cozinha)"
-          className="min-w-0 flex-1 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm font-medium"
+          className="admin-inline-input min-w-0 flex-1 font-medium"
         />
-        <button
-          type="button"
-          onClick={() => onRemove(idx)}
-          className="text-xs font-medium text-red-700 hover:opacity-80"
-        >
+        <button type="button" onClick={() => onRemove(idx)} className="admin-btn-ghost text-xs text-danger">
           Remover
         </button>
       </div>
@@ -76,7 +73,7 @@ function SortableSection({
         onChange={(e) => onChange(idx, "description", e.target.value)}
         rows={3}
         placeholder="Conteúdo da seção"
-        className="w-full rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm"
+        className="admin-inline-input w-full"
       />
     </li>
   );
@@ -117,21 +114,19 @@ export function SectionsEditor({ initial }: Props) {
   }
 
   return (
-    <fieldset className="rounded-md border border-ink-faint p-4">
-      <legend className="px-2 text-xs font-medium uppercase tracking-wide text-ink-soft">
-        Seções (modal de detalhes)
-      </legend>
+    <fieldset className="admin-fieldset">
+      <legend className="admin-fieldset-legend">Seções (modal de detalhes)</legend>
 
-      <p className="mb-3 text-xs text-ink-soft">
-        Cada seção aparece como bloco do modal "Ver itens". Use pra menus como Festival Premium.
+      <p className="mb-4 text-xs text-ink-muted">
+        Cada seção aparece como bloco do modal &quot;Ver itens&quot;. Use para menus como Festival Premium.
       </p>
 
       <input type="hidden" name="sections_count" value={items.length} />
 
       {items.length === 0 ? (
-        <p className="text-xs italic text-ink-soft">Nenhuma seção. Adicione abaixo pra ativar o modal.</p>
+        <p className="text-xs italic text-ink-muted">Nenhuma seção. Adicione abaixo para ativar o modal.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-3">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             <SortableContext items={items.map((s) => s.uid)} strategy={verticalListSortingStrategy}>
               {items.map((s, idx) => (
@@ -142,11 +137,7 @@ export function SectionsEditor({ initial }: Props) {
         </ul>
       )}
 
-      <button
-        type="button"
-        onClick={add}
-        className="mt-3 rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink"
-      >
+      <button type="button" onClick={add} className="admin-btn-secondary mt-4 text-xs">
         + Adicionar seção
       </button>
     </fieldset>

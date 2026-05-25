@@ -33,36 +33,36 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
   }
 
   return (
-    <form action={action} className="flex flex-col gap-6">
+    <form action={action} className="flex w-full flex-col gap-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_8rem]">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="name" className="text-xs font-medium text-ink-soft">Nome</label>
+          <label htmlFor="name" className="admin-label">Nome</label>
           <input
             id="name"
             name="name"
             type="text"
             required
             defaultValue={initial?.name ?? ""}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="number" className="text-xs font-medium text-ink-soft">Número (ex: 01)</label>
+          <label htmlFor="number" className="admin-label">Número (ex: 01)</label>
           <input
             id="number"
             name="number"
             type="text"
             required
             defaultValue={initial?.number ?? ""}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
       </div>
 
       {mode === "create" ? (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="id" className="text-xs font-medium text-ink-soft">
+          <label htmlFor="id" className="admin-label">
             Slug (deixa vazio pra gerar do nome — imutável depois)
           </label>
           <input
@@ -71,20 +71,20 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
             type="text"
             pattern="[a-z0-9-]+"
             placeholder="ex: festival"
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 font-mono text-sm"
+            className="admin-input font-mono"
           />
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-ink-soft">Slug (imutável)</span>
-          <code className="rounded-md border border-ink-faint bg-ink-trace px-3 py-2 font-mono text-sm">
+          <span className="admin-label">Slug (imutável)</span>
+          <code className="admin-input block font-mono text-ink">
             {initial?.id}
           </code>
         </div>
       )}
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="description" className="text-xs font-medium text-ink-soft">Descrição (microcopy do card)</label>
+        <label htmlFor="description" className="admin-label">Descrição (microcopy do card)</label>
         <input
           id="description"
           name="description"
@@ -92,52 +92,52 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
           required
           defaultValue={initial?.description ?? ""}
           placeholder='ex: "2 menus · principal experiência da casa"'
-          className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+          className="admin-input"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="item_count" className="text-xs font-medium text-ink-soft">Item count (opcional)</label>
+          <label htmlFor="item_count" className="admin-label">Item count (opcional)</label>
           <input
             id="item_count"
             name="item_count"
             type="text"
             defaultValue={initial?.item_count ?? ""}
             placeholder='ex: "2 menus"'
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="detail" className="text-xs font-medium text-ink-soft">Detalhe (opcional)</label>
+          <label htmlFor="detail" className="admin-label">Detalhe (opcional)</label>
           <input
             id="detail"
             name="detail"
             type="text"
             defaultValue={initial?.detail ?? ""}
             placeholder='ex: "começo da refeição"'
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="short_name" className="text-xs font-medium text-ink-soft">Nome curto (opcional)</label>
+          <label htmlFor="short_name" className="admin-label">Nome curto (opcional)</label>
           <input
             id="short_name"
             name="short_name"
             type="text"
             defaultValue={initial?.short_name ?? ""}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-ink-soft">Foto da categoria (opcional — sobrescreve o gradient na home)</span>
+        <span className="admin-label">Foto da categoria (opcional — sobrescreve o gradient na home)</span>
         <ImageUpload name="image" initialPath={initial?.image_path ?? null} />
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-ink-soft">Gradient (CSS) — fallback quando não tem foto</span>
+        <span className="admin-label">Gradient (CSS) — fallback quando não tem foto</span>
         <GradientInput name="gradient" defaultValue={initial?.gradient ?? "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)"} />
       </div>
 
@@ -153,21 +153,15 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
         Card ocupa a fileira inteira na home (empurra os próximos pra próxima linha)
       </label>
 
-      {error ? <p className="text-xs text-red-700">{error}</p> : null}
+      {error ? (
+        <p className="rounded-lg bg-danger-soft px-3 py-2 text-xs font-medium text-danger">{error}</p>
+      ) : null}
 
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-        >
+      <div className="flex flex-wrap gap-3">
+        <button type="submit" disabled={pending} className="admin-btn-primary">
           {pending ? "Salvando..." : mode === "create" ? "Criar categoria" : "Salvar"}
         </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="rounded-md border border-ink-faint px-4 py-2 text-sm font-medium hover:border-ink"
-        >
+        <button type="button" onClick={() => router.back()} className="admin-btn-secondary">
           Cancelar
         </button>
       </div>

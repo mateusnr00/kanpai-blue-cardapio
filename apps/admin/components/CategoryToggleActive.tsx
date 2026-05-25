@@ -11,7 +11,7 @@ type Props = {
 
 export function CategoryToggleActive({ id, active }: Props) {
   const [optimistic, setOptimistic] = useState(active);
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     setOptimistic(active);
@@ -24,21 +24,22 @@ export function CategoryToggleActive({ id, active }: Props) {
       const res = await toggleCategoryActive(id, next);
       if ("error" in res) {
         setOptimistic(!next);
-        toast.error(`Falha: ${res.error}`);
+        toast.error(`Falha ao atualizar: ${res.error}`);
       } else {
-        toast.success(next ? "Categoria ativada" : "Categoria desativada");
+        toast.success(next ? "Ativado" : "Desativado");
       }
     });
   }
 
   return (
-    <input
-      type="checkbox"
-      className="switch"
-      checked={optimistic}
-      onChange={onToggle}
-      disabled={pending}
+    <button
+      type="button"
+      onClick={onToggle}
+      className={optimistic ? "admin-toggle-on" : "admin-toggle-off"}
+      aria-pressed={optimistic}
       aria-label={optimistic ? "Desativar categoria" : "Ativar categoria"}
-    />
+    >
+      <span className={"admin-toggle-thumb " + (optimistic ? "translate-x-5" : "translate-x-0.5")} />
+    </button>
   );
 }

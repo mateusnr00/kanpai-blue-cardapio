@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { listCategoriesAll } from "@/lib/data/categories";
 import { createServerClient } from "@/lib/supabase-server";
 import { CategoriesTable } from "@/components/CategoriesTable";
+import { PageHeader } from "@/components/PageHeader";
 
 async function countByCategory(): Promise<Record<string, number>> {
   const supabase = createServerClient();
@@ -21,21 +23,17 @@ export default async function CardsPage() {
   ]);
 
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Cards da home</h1>
-          <p className="text-xs text-ink-soft">
-            {categories.length} categoria{categories.length === 1 ? "" : "s"} · arraste pra reordenar.
-          </p>
-        </div>
-        <Link
-          href="/cards/new"
-          className="self-start rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:opacity-90 sm:self-auto"
-        >
-          + Nova categoria
-        </Link>
-      </div>
+    <section className="flex w-full flex-col gap-6">
+      <PageHeader
+        title="Cards da home"
+        description={`${categories.length} categoria${categories.length === 1 ? "" : "s"} · arraste para reordenar`}
+        action={
+          <Link href="/cards/new" className="admin-btn-primary">
+            <Plus size={18} weight="bold" />
+            Nova categoria
+          </Link>
+        }
+      />
 
       <CategoriesTable initial={categories} dishCounts={dishCounts} />
     </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { Trash } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { deleteExecutivo } from "@/app/(protected)/executivos/actions";
@@ -27,16 +28,13 @@ export function ExecutivoDeleteButton({ id, name }: Props) {
   return (
     <ConfirmDialog
       title="Excluir executivo"
-      description={`Tem certeza que quer excluir "${name}"? Os itens (entradas/principais/sobremesas) também serão removidos.`}
+      description={`Tem certeza que quer excluir "${name}"? Os itens também serão removidos.`}
       confirmLabel="Excluir"
-      cancelLabel="Cancelar"
       pending={pending}
       onConfirm={onConfirm}
       trigger={
-        <button
-          type="button"
-          className="text-xs font-medium text-red-700 transition hover:opacity-80"
-        >
+        <button type="button" className="admin-btn-danger">
+          <Trash size={16} />
           Excluir
         </button>
       }

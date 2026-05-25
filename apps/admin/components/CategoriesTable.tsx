@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { PencilSimple, SquaresFour } from "@phosphor-icons/react";
 import {
   DndContext,
   closestCenter,
@@ -18,6 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
+import { DragHandle } from "./DragHandle";
 import { CategoryPreview } from "./CategoryPreview";
 import { CategoryToggleActive } from "./CategoryToggleActive";
 import { CategoryDeleteButton } from "./CategoryDeleteButton";
@@ -30,40 +32,44 @@ type Props = {
 };
 
 function SortableRow({ cat, dishCount }: { cat: CategoryRow; dishCount: number }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cat.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: cat.id,
+  });
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.6 : 1,
   };
 
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-ink-trace last:border-b-0">
-      <td className="w-8 cursor-grab select-none py-3 pr-2 text-center text-ink-faint" {...attributes} {...listeners}>
-        ⋮⋮
+    <tr ref={setNodeRef} style={style}>
+      <td className="w-10">
+        <div {...attributes} {...listeners}>
+          <DragHandle />
+        </div>
       </td>
-      <td className="hidden w-28 py-3 pr-3 sm:table-cell">
+      <td className="hidden w-28 sm:table-cell">
         <CategoryPreview gradient={cat.gradient} label={cat.name} imagePath={cat.image_path} />
       </td>
-      <td className="py-3 pr-3 sm:pr-4">
-        <div className="text-sm font-medium">{cat.name}</div>
-        <div className="text-xs text-ink-soft">
-          {cat.featured ? "featured · " : ""}#{cat.number} · {dishCount} prato{dishCount === 1 ? "" : "s"}
+      <td>
+        <div className="font-medium text-ink">{cat.name}</div>
+        <div className="text-xs text-ink-muted">
+          {cat.featured ? "Destaque · " : ""}#{cat.number} · {dishCount} prato{dishCount === 1 ? "" : "s"}
         </div>
-        <div className="mt-1 font-mono text-[10px] text-ink-soft md:hidden">#{cat.id}</div>
+        <div className="mt-1 font-mono text-[10px] text-ink-muted md:hidden">#{cat.id}</div>
       </td>
-      <td className="hidden w-48 whitespace-nowrap py-3 pr-4 font-mono text-xs text-ink-soft md:table-cell">#{cat.id}</td>
-      <td className="w-16 py-3 pr-3">
+      <td className="hidden w-48 font-mono text-xs text-ink-muted md:table-cell">#{cat.id}</td>
+      <td className="w-20">
         <CategoryToggleActive id={cat.id} active={cat.active} />
       </td>
-      <td className="w-28 py-3 pr-2 text-right sm:w-32">
-        <Link
-          href={`/cards/${cat.id}`}
-          className="mr-2 inline-block rounded-md border border-ink-faint px-2 py-1 text-xs font-medium hover:border-ink sm:mr-3 sm:px-3"
-        >
-          Editar
-        </Link>
-        <CategoryDeleteButton id={cat.id} name={cat.name} dishCount={dishCount} />
+      <td className="text-right">
+        <div className="flex flex-wrap items-center justify-end gap-1">
+          <Link href={`/cards/${cat.id}`} className="admin-btn-ghost">
+            <PencilSimple size={16} />
+            Editar
+          </Link>
+          <CategoryDeleteButton id={cat.id} name={cat.name} dishCount={dishCount} />
+        </div>
       </td>
     </tr>
   );
@@ -95,23 +101,24 @@ export function CategoriesTable({ initial, dishCounts }: Props) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-md border border-ink-faint bg-bg-card p-6 text-sm text-ink-soft">
-        Nenhuma categoria. Crie a primeira em + Nova categoria.
+      <div className="admin-empty">
+        <SquaresFour size={32} className="mx-auto mb-2 text-ink-faint" weight="duotone" />
+        Nenhuma categoria. Crie a primeira em Nova categoria.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border border-ink-faint bg-bg-card">
-      <table className="w-full min-w-[480px] text-sm">
-        <thead className="bg-ink-trace text-left text-xs uppercase tracking-wide text-ink-soft">
+    <div className="admin-table-wrap">
+      <table className="admin-table">
+        <thead>
           <tr>
-            <th className="w-8 px-2 py-2"></th>
-            <th className="hidden w-28 px-2 py-2 sm:table-cell">Preview</th>
-            <th className="py-2">Categoria</th>
-            <th className="hidden w-48 py-2 md:table-cell">Slug</th>
-            <th className="w-16 py-2">Ativo</th>
-            <th className="w-28 py-2 text-right pr-2 sm:w-32">Ações</th>
+            <th className="w-10" />
+            <th className="hidden w-28 sm:table-cell">Preview</th>
+            <th>Categoria</th>
+            <th className="hidden w-48 md:table-cell">Slug</th>
+            <th className="w-20">Ativo</th>
+            <th className="text-right">Ações</th>
           </tr>
         </thead>
         <tbody>

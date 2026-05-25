@@ -31,9 +31,9 @@ export function DishDetailsForm({ initialLongDescription, initialSections, onSub
   }
 
   return (
-    <form action={action} className="flex flex-col gap-6">
+    <form action={action} className="flex flex-col gap-8">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="long_description" className="text-xs font-medium text-ink-soft">
+        <label htmlFor="long_description" className="admin-label">
           Descrição longa (texto principal do modal)
         </label>
         <textarea
@@ -42,27 +42,21 @@ export function DishDetailsForm({ initialLongDescription, initialSections, onSub
           rows={5}
           defaultValue={initialLongDescription}
           placeholder="Apresentação geral do menu/prato que aparece no topo do modal."
-          className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+          className="admin-input"
         />
       </div>
 
       <SectionsEditor initial={initialSections} />
 
-      {error ? <p className="text-xs text-red-700">{error}</p> : null}
+      {error ? (
+        <p className="rounded-lg bg-danger-soft px-3 py-2 text-xs font-medium text-danger">{error}</p>
+      ) : null}
 
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-        >
+      <div className="flex flex-wrap gap-3 border-t border-ink-ghost pt-6">
+        <button type="submit" disabled={pending} className="admin-btn-primary">
           {pending ? "Salvando..." : "Salvar"}
         </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="rounded-md border border-ink-faint px-4 py-2 text-sm font-medium hover:border-ink"
-        >
+        <button type="button" onClick={() => router.back()} className="admin-btn-secondary">
           Cancelar
         </button>
       </div>

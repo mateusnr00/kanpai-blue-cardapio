@@ -24,16 +24,20 @@ export function BadgeCheckboxes({ initial }: Props) {
         return (
           <label
             key={b}
-            className="flex cursor-pointer items-center gap-2 rounded-md border border-ink-faint bg-bg-card px-3 py-1.5"
+            className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition ${
+              checked
+                ? "border-accent bg-accent-soft text-accent"
+                : "border-ink-ghost bg-bg-surface text-ink-secondary hover:border-ink-faint"
+            }`}
           >
             <input
               type="checkbox"
               name="badges"
               value={b}
               defaultChecked={checked}
-              className="h-3 w-3"
+              className="h-3.5 w-3.5 rounded border-ink-ghost text-accent focus:ring-accent/30"
             />
-            <span className="text-xs">{b}</span>
+            <span>{b}</span>
           </label>
         );
       })}

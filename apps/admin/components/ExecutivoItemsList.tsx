@@ -16,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { DragHandle } from "./DragHandle";
 import type { ExecutivoItemRow } from "@/lib/data/executivos";
 
 type Kind = "entrada" | "principal" | "sobremesa";
@@ -57,16 +58,24 @@ function SortableItem({
   };
 
   return (
-    <li ref={setNodeRef} style={style} className="rounded-md border border-ink-faint bg-bg-card p-3">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <button type="button" {...attributes} {...listeners} className="cursor-grab text-ink-faint" aria-label="Arrastar">⋮⋮</button>
+    <li ref={setNodeRef} style={style} className="rounded-xl border border-ink-ghost bg-bg-muted/30 p-4">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing"
+          aria-label="Arrastar item"
+        >
+          <DragHandle />
+        </button>
         <input
           type="text"
           name={`${kind}_${idx}_name`}
           value={it.name}
           onChange={(e) => onChange(idx, "name", e.target.value)}
           placeholder="Nome do item"
-          className="min-w-0 flex-1 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm font-medium"
+          className="admin-inline-input min-w-0 flex-1 font-medium"
         />
         {showPrice ? (
           <input
@@ -75,10 +84,10 @@ function SortableItem({
             value={it.price}
             onChange={(e) => onChange(idx, "price", e.target.value)}
             placeholder="R$"
-            className="w-20 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm sm:w-24"
+            className="admin-inline-input w-20 sm:w-24"
           />
         ) : null}
-        <button type="button" onClick={() => onRemove(idx)} className="text-xs font-medium text-red-700 hover:opacity-80">
+        <button type="button" onClick={() => onRemove(idx)} className="admin-btn-ghost text-xs text-danger">
           Remover
         </button>
       </div>
@@ -88,7 +97,7 @@ function SortableItem({
         onChange={(e) => onChange(idx, "description", e.target.value)}
         rows={2}
         placeholder="Descrição do item"
-        className="w-full rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm"
+        className="admin-inline-input w-full"
       />
     </li>
   );
@@ -124,15 +133,15 @@ export function ExecutivoItemsList({ kind, initial, title, showPrice }: Props) {
   }
 
   return (
-    <fieldset className="rounded-md border border-ink-faint p-4">
-      <legend className="px-2 text-xs font-medium uppercase tracking-wide text-ink-soft">{title}</legend>
+    <fieldset className="admin-fieldset">
+      <legend className="admin-fieldset-legend">{title}</legend>
 
       <input type="hidden" name={`${kind}_count`} value={items.length} />
 
       {items.length === 0 ? (
-        <p className="text-xs italic text-ink-soft">Nenhum item ainda.</p>
+        <p className="text-xs italic text-ink-muted">Nenhum item ainda.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-3">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             <SortableContext items={items.map((it) => it.uid)} strategy={verticalListSortingStrategy}>
               {items.map((it, idx) => (
@@ -151,11 +160,7 @@ export function ExecutivoItemsList({ kind, initial, title, showPrice }: Props) {
         </ul>
       )}
 
-      <button
-        type="button"
-        onClick={add}
-        className="mt-3 rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink"
-      >
+      <button type="button" onClick={add} className="admin-btn-secondary mt-4 text-xs">
         + Adicionar
       </button>
     </fieldset>

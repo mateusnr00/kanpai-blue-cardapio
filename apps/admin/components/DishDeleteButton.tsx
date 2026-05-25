@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { Trash } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { deleteDish } from "@/app/(protected)/dishes/actions";
@@ -29,14 +30,11 @@ export function DishDeleteButton({ id, name }: Props) {
       title="Excluir prato"
       description={`Tem certeza que quer excluir "${name}"? Esta ação não pode ser desfeita.`}
       confirmLabel="Excluir"
-      cancelLabel="Cancelar"
       pending={pending}
       onConfirm={onConfirm}
       trigger={
-        <button
-          type="button"
-          className="text-xs font-medium text-red-700 transition hover:opacity-80"
-        >
+        <button type="button" className="admin-btn-danger">
+          <Trash size={16} />
           Excluir
         </button>
       }

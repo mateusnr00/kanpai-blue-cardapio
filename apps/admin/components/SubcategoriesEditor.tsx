@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "@phosphor-icons/react";
 
 type Props = {
   initial: string[];
@@ -26,38 +27,36 @@ export function SubcategoriesEditor({ initial }: Props) {
   }
 
   return (
-    <fieldset className="rounded-md border border-ink-faint p-4">
-      <legend className="px-2 text-xs font-medium uppercase tracking-wide text-ink-soft">
-        Subcategorias (chips do filtro)
-      </legend>
+    <fieldset className="admin-fieldset">
+      <legend className="admin-fieldset-legend">Subcategorias (chips do filtro)</legend>
 
-      <p className="mb-3 text-xs text-ink-soft">
-        Ex: "Todos", "Quentes", "Frias". Aparecem como filtro acima da lista de pratos no site.
+      <p className="mb-4 text-xs text-ink-muted">
+        Ex: &quot;Todos&quot;, &quot;Quentes&quot;, &quot;Frias&quot;. Aparecem como filtro acima da lista de pratos no site.
       </p>
 
       {items.map((s) => (
         <input key={s} type="hidden" name="subcategory" value={s} />
       ))}
 
-      <ul className="mb-3 flex flex-wrap gap-2">
+      <ul className="mb-4 flex flex-wrap gap-2">
         {items.map((s, idx) => (
           <li
             key={s}
-            className="inline-flex items-center gap-1.5 rounded-full border border-ink-faint bg-bg-card px-3 py-1 text-xs"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ink-ghost bg-bg-surface px-3 py-1.5 text-xs font-medium text-ink"
           >
             <span>{s}</span>
             <button
               type="button"
               onClick={() => remove(idx)}
               aria-label={`Remover ${s}`}
-              className="text-ink-soft hover:text-red-700"
+              className="text-ink-muted transition hover:text-danger"
             >
-              ×
+              <X size={14} weight="bold" />
             </button>
           </li>
         ))}
         {items.length === 0 ? (
-          <li className="text-xs italic text-ink-soft">Nenhuma subcategoria.</li>
+          <li className="text-xs italic text-ink-muted">Nenhuma subcategoria.</li>
         ) : null}
       </ul>
 
@@ -73,13 +72,9 @@ export function SubcategoriesEditor({ initial }: Props) {
             }
           }}
           placeholder="Digite e Enter"
-          className="flex-1 rounded-md border border-ink-faint bg-bg-card px-3 py-1.5 text-sm"
+          className="admin-input flex-1"
         />
-        <button
-          type="button"
-          onClick={add}
-          className="rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink"
-        >
+        <button type="button" onClick={add} className="admin-btn-secondary shrink-0 text-xs">
           + Adicionar
         </button>
       </div>

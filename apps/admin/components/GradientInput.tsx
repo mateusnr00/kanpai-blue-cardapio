@@ -18,9 +18,9 @@ export function GradientInput({ name, defaultValue }: Props) {
   const [value, setValue] = useState(defaultValue);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <div
-        className="h-16 w-full rounded-md border border-ink-faint"
+        className="h-16 w-full rounded-xl border border-ink-ghost shadow-inner"
         style={{ background: value || "#fff" }}
       />
       <textarea
@@ -31,16 +31,11 @@ export function GradientInput({ name, defaultValue }: Props) {
         required
         spellCheck={false}
         placeholder="linear-gradient(135deg, #COR1 0%, #COR2 100%)"
-        className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 font-mono text-xs"
+        className="admin-input font-mono text-xs"
       />
       <div className="flex flex-wrap gap-2">
         {PRESETS.map((p) => (
-          <button
-            key={p.label}
-            type="button"
-            onClick={() => setValue(p.value)}
-            className="rounded-md border border-ink-faint px-2 py-1 text-xs hover:border-ink"
-          >
+          <button key={p.label} type="button" onClick={() => setValue(p.value)} className="admin-btn-secondary text-xs">
             {p.label}
           </button>
         ))}

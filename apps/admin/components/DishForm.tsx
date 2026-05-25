@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { AdminSelect } from "./AdminSelect";
 import { ImageUpload } from "./ImageUpload";
 import { BadgeCheckboxes } from "./BadgeCheckboxes";
 import { VariantsEditor } from "./VariantsEditor";
@@ -39,129 +40,127 @@ export function DishForm({ mode, initial, variants = [], categories, defaultCate
   const currentCategoryId = initial?.category_id ?? defaultCategoryId ?? categories[0]?.id ?? "";
 
   return (
-    <form action={action} className="flex flex-col gap-6">
+    <form action={action} className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">
+        <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="name" className="text-xs font-medium text-ink-soft">Nome</label>
+          <label htmlFor="name" className="admin-label">Nome</label>
           <input
             id="name"
             name="name"
             type="text"
             required
             defaultValue={initial?.name ?? ""}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="category_id" className="text-xs font-medium text-ink-soft">Categoria</label>
-          <select
+          <label htmlFor="category_id" className="admin-label">Categoria</label>
+          <AdminSelect
             id="category_id"
             name="category_id"
             required
             defaultValue={currentCategoryId}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
-          >
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
+            options={categories.map((c) => ({ value: c.id, label: c.name }))}
+          />
         </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="description" className="text-xs font-medium text-ink-soft">Descrição</label>
+        <label htmlFor="description" className="admin-label">Descrição</label>
         <textarea
           id="description"
           name="description"
           rows={3}
           defaultValue={initial?.description ?? ""}
-          className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+          className="admin-input"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="price" className="text-xs font-medium text-ink-soft">Preço (texto, ex: R$ 82,90)</label>
+          <label htmlFor="price" className="admin-label">Preço (texto, ex: R$ 82,90)</label>
           <input
             id="price"
             name="price"
             type="text"
             defaultValue={initial?.price ?? ""}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="original_price" className="text-xs font-medium text-ink-soft">Preço antes (promo, opcional)</label>
+          <label htmlFor="original_price" className="admin-label">Preço antes (promo, opcional)</label>
           <input
             id="original_price"
             name="original_price"
             type="text"
             defaultValue={initial?.original_price ?? ""}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="subcategory" className="text-xs font-medium text-ink-soft">Subcategoria (opcional)</label>
+          <label htmlFor="subcategory" className="admin-label">Subcategoria (opcional)</label>
           <input
             id="subcategory"
             name="subcategory"
             type="text"
             defaultValue={initial?.subcategory ?? ""}
-            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="admin-input"
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-ink-soft">Foto</span>
-        <ImageUpload name="image" initialPath={initial?.image_path ?? null} />
-      </div>
+      <VariantsEditor initial={variants} />
 
-      <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-ink-soft">Badges</span>
-        <BadgeCheckboxes initial={initial?.badges ?? []} />
+      <label className="flex items-center gap-2.5 text-sm text-ink">
+        <input
+          type="checkbox"
+          name="featured"
+          defaultChecked={initial?.featured ?? false}
+          className="h-4 w-4 rounded border-ink-ghost text-accent focus:ring-accent/30"
+        />
+        Prato em destaque (linha cheia + badge DESTAQUE)
+      </label>
+
+        </div>
+
+        <aside className="flex flex-col gap-6 xl:sticky xl:top-20">
+          <div className="flex flex-col gap-2">
+            <span className="admin-label">Foto</span>
+            <ImageUpload name="image" initialPath={initial?.image_path ?? null} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="admin-label">Badges</span>
+            <BadgeCheckboxes initial={initial?.badges ?? []} />
+          </div>
+        </aside>
       </div>
 
       {mode === "edit" && initial ? (
-        <div className="flex flex-col gap-3 rounded-md border border-ink-faint bg-bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-xl border border-ink-ghost bg-bg-muted/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium">Detalhes (texto longo + seções)</p>
-            <p className="text-xs text-ink-soft">
-              Modal "Ver itens" no cardápio. Use pra Festival Premium e menus com mais texto.
+            <p className="text-sm font-medium text-ink">Detalhes (texto longo + seções)</p>
+            <p className="text-xs text-ink-muted">
+              Modal &quot;Ver itens&quot; no cardápio. Use para Festival Premium e menus com mais texto.
             </p>
           </div>
-          <a
-            href={`/dishes/${initial.id}/details`}
-            className="self-start rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink sm:self-auto"
-          >
-            Editar detalhes →
+          <a href={`/dishes/${initial.id}/details`} className="admin-btn-secondary shrink-0 self-start sm:self-auto">
+            Editar detalhes
           </a>
         </div>
       ) : null}
 
-      <VariantsEditor initial={variants} />
+      {error ? (
+        <p className="rounded-lg bg-danger-soft px-3 py-2 text-xs font-medium text-danger">{error}</p>
+      ) : null}
 
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="featured" defaultChecked={initial?.featured ?? false} />
-        Prato em destaque (linha cheia + badge DESTAQUE)
-      </label>
-
-      {error ? <p className="text-xs text-red-700">{error}</p> : null}
-
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-        >
+      <div className="flex flex-wrap gap-3 border-t border-ink-ghost pt-6">
+        <button type="submit" disabled={pending} className="admin-btn-primary">
           {pending ? "Salvando..." : mode === "create" ? "Criar item" : "Salvar"}
         </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="rounded-md border border-ink-faint px-4 py-2 text-sm font-medium hover:border-ink"
-        >
+        <button type="button" onClick={() => router.back()} className="admin-btn-secondary">
           Cancelar
         </button>
       </div>

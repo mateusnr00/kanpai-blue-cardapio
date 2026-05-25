@@ -1,36 +1,40 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AdminSelect } from "./AdminSelect";
 import type { CategoryListItem } from "@/lib/data/categories";
 
 type Props = {
   categories: CategoryListItem[];
+  selectedId?: string;
 };
 
-export function CategoryChips({ categories }: Props) {
+export function CategoryChips({ categories, selectedId: selectedIdProp }: Props) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const selected = searchParams.get("cat") ?? categories[0]?.id;
+  const selectedId = selectedIdProp ?? searchParams.get("cat") ?? categories[0]?.id ?? "";
+
+  function onCategoryChange(catId: string) {
+    router.push(`/?cat=${catId}`);
+  }
+
+  if (categories.length === 0) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2">
-      {categories.map((cat) => {
-        const active = cat.id === selected;
-        return (
-          <Link
-            key={cat.id}
-            href={`/?cat=${cat.id}`}
-            className={
-              "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition " +
-              (active
-                ? "border-ink bg-ink text-white"
-                : "border-ink-faint bg-bg-card text-ink hover:border-ink")
-            }
-          >
-            {cat.name} <span className="ml-1 opacity-70">{cat.active}/{cat.total}</span>
-          </Link>
-        );
-      })}
+    <div className="max-w-md">
+      <label htmlFor="cardapio-category" className="admin-label">
+        Categoria
+      </label>
+      <AdminSelect
+        id="cardapio-category"
+        value={selectedId}
+        onChange={onCategoryChange}
+        options={categories.map((cat) => ({
+          value: cat.id,
+          label: `${cat.name} (${cat.active}/${cat.total})`,
+        }))}
+        className="mt-1.5"
+      />
     </div>
   );
 }
