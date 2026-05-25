@@ -14,7 +14,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t border-ink-ghost bg-bg-surface md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex h-16 items-center justify-around border-t border-ink-ghost bg-bg-surface/95 shadow-[0_-4px_24px_rgba(26,14,110,0.06)] backdrop-blur-md md:hidden">
       {NAV.map(({ href, label, icon: Icon, exact }) => {
         const active = exact
           ? pathname === href
@@ -25,7 +25,7 @@ export function BottomNav() {
             href={href}
             className={
               "flex flex-col items-center gap-1 px-3 py-1 text-center transition " +
-              (active ? "text-accent" : "text-ink-muted")
+              (active ? "text-accent" : "text-ink-secondary")
             }
           >
             <Icon size={20} weight={active ? "fill" : "duotone"} />

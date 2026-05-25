@@ -4,7 +4,7 @@ type Props = {
   label: string;
   value: string;
   hint?: string;
-  delta?: number | null; // -1..+inf (-0.42 = -42%)
+  delta?: number | null;
 };
 
 function fmtDelta(d: number): string {
@@ -17,31 +17,31 @@ export function StatCard({ label, value, hint, delta }: Props) {
   if (delta != null && Number.isFinite(delta)) {
     if (Math.abs(delta) < 0.005) {
       deltaNode = (
-        <span className="inline-flex items-center gap-1 text-xs text-ink-muted">
-          <Minus size={12} weight="bold" /> sem mudança
+        <span className="inline-flex items-center gap-1 rounded-full bg-bg-muted px-2 py-0.5 text-xs text-ink-muted">
+          <Minus size={12} weight="bold" /> estável
         </span>
       );
     } else if (delta > 0) {
       deltaNode = (
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
-          <ArrowUp size={12} weight="bold" /> {fmtDelta(delta)} vs período anterior
+        <span className="inline-flex items-center gap-1 rounded-full bg-success-soft px-2 py-0.5 text-xs font-medium text-success">
+          <ArrowUp size={12} weight="bold" /> {fmtDelta(delta)} vs anterior
         </span>
       );
     } else {
       deltaNode = (
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-red-700">
-          <ArrowDown size={12} weight="bold" /> {fmtDelta(delta)} vs período anterior
+        <span className="inline-flex items-center gap-1 rounded-full bg-danger-soft px-2 py-0.5 text-xs font-medium text-danger">
+          <ArrowDown size={12} weight="bold" /> {fmtDelta(delta)} vs anterior
         </span>
       );
     }
   }
 
   return (
-    <div className="rounded-2xl border border-ink-faint bg-bg-card p-5">
-      <div className="text-xs font-medium uppercase tracking-wider text-ink-muted">{label}</div>
-      <div className="mt-1.5 text-3xl font-semibold tracking-tight text-ink">{value}</div>
-      {hint ? <div className="mt-1 text-xs text-ink-muted">{hint}</div> : null}
-      {deltaNode ? <div className="mt-2">{deltaNode}</div> : null}
+    <div className="admin-stat-card">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">{label}</div>
+      <div className="mt-2 text-3xl font-semibold tracking-tight text-ink">{value}</div>
+      {hint ? <div className="mt-1.5 text-xs leading-relaxed text-ink-muted">{hint}</div> : null}
+      {deltaNode ? <div className="mt-3">{deltaNode}</div> : null}
     </div>
   );
 }

@@ -32,6 +32,10 @@ const config: Config = {
           DEFAULT: "#dc2626",
           soft: "rgba(220, 38, 38, 0.08)",
         },
+        success: {
+          DEFAULT: "#059669",
+          soft: "rgba(5, 150, 105, 0.1)",
+        },
         tremor: {
           brand: {
             faint: "rgba(45, 74, 232, 0.05)",

@@ -8,6 +8,7 @@ import {
   CaretDown,
   SquaresFour,
   ArrowsClockwise,
+  type Icon,
 } from "@phosphor-icons/react";
 import { RANGE_LABELS, RANGE_ORDER, type Range } from "@/lib/data/analytics-shared";
 
@@ -19,13 +20,13 @@ type Props = {
   categories: CategoryOption[];
 };
 
-function Dropdown({
+function FilterDropdown({
   label,
-  icon: Icon,
+  icon: IconComponent,
   children,
 }: {
   label: string;
-  icon: React.ComponentType<any>;
+  icon: Icon;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -47,21 +48,42 @@ function Dropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 rounded-full border border-ink-ghost bg-bg-surface px-4 py-2 text-sm text-ink transition hover:border-ink-faint"
+        className={
+          "inline-flex items-center gap-2 rounded-lg border border-ink-ghost bg-bg-surface px-3.5 py-2 text-sm font-medium text-ink shadow-sm transition hover:border-accent/40 hover:bg-accent-soft/30 " +
+          (open ? "border-accent ring-2 ring-accent-soft" : "")
+        }
       >
-        <Icon size={16} weight="duotone" />
+        <IconComponent size={16} weight="duotone" className="text-accent" />
         <span>{label}</span>
-        <CaretDown size={14} weight="bold" className={open ? "rotate-180 transition" : "transition"} />
+        <CaretDown
+          size={14}
+          weight="bold"
+          className={"text-ink-muted transition " + (open ? "rotate-180" : "")}
+        />
       </button>
       {open ? (
         <div
-          className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-ink-ghost bg-bg-surface py-1 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-ink-ghost bg-bg-surface py-1 shadow-lg"
           onClick={() => setOpen(false)}
         >
           {children}
         </div>
       ) : null}
     </div>
+  );
+}
+
+function FilterLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className={
+        "block px-4 py-2.5 text-sm transition " +
+        (active ? "bg-accent font-medium text-white" : "text-ink hover:bg-bg-muted")
+      }
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -82,25 +104,15 @@ export function AnalyticsFilters({ activeRange, activeCategory, categories }: Pr
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Dropdown
-        label={RANGE_LABELS[activeRange]}
-        icon={CalendarBlank}
-      >
+      <FilterDropdown label={RANGE_LABELS[activeRange]} icon={CalendarBlank}>
         {RANGE_ORDER.map((r) => (
-          <Link
-            key={r}
-            href={buildHref(r, activeCategory)}
-            className={
-              "block px-4 py-2 text-sm transition hover:bg-bg-muted " +
-              (r === activeRange ? "bg-accent-soft font-medium text-accent" : "text-ink")
-            }
-          >
+          <FilterLink key={r} href={buildHref(r, activeCategory)} active={r === activeRange}>
             {RANGE_LABELS[r]}
-          </Link>
+          </FilterLink>
         ))}
-      </Dropdown>
+      </FilterDropdown>
 
-      <Dropdown
+      <FilterDropdown
         label={
           activeCategory
             ? categories.find((c) => c.slug === activeCategory)?.name ?? "Categoria"
@@ -108,37 +120,28 @@ export function AnalyticsFilters({ activeRange, activeCategory, categories }: Pr
         }
         icon={SquaresFour}
       >
-        <Link
-          href={buildHref(activeRange, null)}
-          className={
-            "block px-4 py-2 text-sm transition hover:bg-bg-muted " +
-            (!activeCategory ? "bg-accent-soft font-medium text-accent" : "text-ink")
-          }
-        >
+        <FilterLink href={buildHref(activeRange, null)} active={!activeCategory}>
           Todas categorias
-        </Link>
+        </FilterLink>
         {categories.map((c) => (
-          <Link
+          <FilterLink
             key={c.slug}
             href={buildHref(activeRange, c.slug)}
-            className={
-              "block px-4 py-2 text-sm transition hover:bg-bg-muted " +
-              (activeCategory === c.slug ? "bg-accent-soft font-medium text-accent" : "text-ink")
-            }
+            active={activeCategory === c.slug}
           >
             {c.name}
-          </Link>
+          </FilterLink>
         ))}
-      </Dropdown>
+      </FilterDropdown>
 
       <button
         type="button"
         onClick={refresh}
         disabled={pending}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-ink-ghost bg-bg-surface text-ink-muted transition hover:border-ink-faint hover:text-ink disabled:opacity-50"
-        aria-label="Atualizar"
+        className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-lg border border-ink-ghost bg-bg-surface text-ink-muted shadow-sm transition hover:border-accent/40 hover:bg-accent-soft/30 hover:text-accent disabled:opacity-50"
+        aria-label="Atualizar dados"
       >
-        <ArrowsClockwise size={16} weight="bold" className={pending ? "animate-spin" : ""} />
+        <ArrowsClockwise size={18} weight="bold" className={pending ? "animate-spin" : ""} />
       </button>
     </div>
   );

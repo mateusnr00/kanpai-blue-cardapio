@@ -11,10 +11,8 @@ import {
 } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
+import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import type { RestaurantRow } from "@/lib/active-restaurant";
-
-const LOGO_URL =
-  "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
 
 const NAV = [
   { href: "/", label: "Cardápio", icon: BookOpenText, exact: true },
@@ -30,16 +28,23 @@ type Props = {
 
 export function AdminSidebar({ email, activeRestaurant, restaurants }: Props) {
   return (
-    <aside className="hidden md:flex md:w-60 md:shrink-0 md:flex-col md:border-r md:border-ink-ghost md:bg-bg-surface">
+    <aside className="admin-sidebar">
       <div className="sticky top-0 flex h-screen flex-col">
-        <Link href="/" className="flex items-center gap-2.5 px-5 py-5">
-          <Image src={LOGO_URL} alt="" width={28} height={28} className="rounded-md" />
-          <span className="text-sm font-semibold text-ink">Kanpai Admin</span>
+        <Link href="/" className="admin-sidebar-brand" aria-label="Kanpai Blue Admin">
+          <Image
+            src={KANPAI_BLUE_LOGO_URL}
+            alt="Kanpai Blue"
+            width={KANPAI_BLUE_LOGO_WIDTH}
+            height={KANPAI_BLUE_LOGO_HEIGHT}
+            className="h-8 w-auto"
+            priority
+          />
         </Link>
 
-        <nav className="flex flex-col gap-1 px-3">
+        <p className="px-5 pb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-faint">Menu</p>
+        <nav className="admin-sidebar-nav">
           {NAV.map(({ href, label, icon, ...rest }) => (
-            <NavLink key={href} href={href} icon={icon} {...rest}>
+            <NavLink key={href} href={href} icon={icon} layout="sidebar" {...rest}>
               {label}
             </NavLink>
           ))}
@@ -47,29 +52,29 @@ export function AdminSidebar({ email, activeRestaurant, restaurants }: Props) {
 
         <div className="flex-1" />
 
-        <div className="flex flex-col gap-3 border-t border-ink-ghost px-4 py-4">
+        <div className="admin-sidebar-footer">
+          <RestaurantSelector active={activeRestaurant} restaurants={restaurants} fullWidth />
+
           <a
             href="https://kanpai-blue.com"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink-muted transition hover:bg-bg-muted hover:text-ink"
+            className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-ink-muted transition hover:bg-bg-surface hover:text-ink"
           >
             <ArrowSquareOut size={16} weight="duotone" />
-            Ver site
+            Ver site público
           </a>
 
-          <RestaurantSelector active={activeRestaurant} restaurants={restaurants} />
-
-          <div className="border-t border-ink-ghost pt-3">
+          <div className="rounded-lg bg-bg-surface px-3 py-3 ring-1 ring-ink-ghost/80">
             {email ? (
-              <p className="mb-2 truncate px-2 text-xs text-ink-faint" title={email}>
+              <p className="mb-2 truncate text-xs text-ink-muted" title={email}>
                 {email}
               </p>
             ) : null}
             <form action="/auth/sign-out" method="post">
               <button
                 type="submit"
-                className="inline-flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-ink-secondary transition hover:bg-bg-muted hover:text-ink"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-ink-ghost bg-bg-surface px-3 py-2 text-sm font-medium text-ink-secondary transition hover:border-ink-faint hover:bg-bg-muted hover:text-ink"
               >
                 <SignOut size={16} weight="duotone" />
                 Sair

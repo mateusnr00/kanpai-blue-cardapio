@@ -1,6 +1,8 @@
 "use client";
 
 import { BarChart } from "@tremor/react";
+import { CHART_SERIES_ONE } from "@/lib/analytics-theme";
+import { ChartEmpty, ChartPanel } from "./ChartPanel";
 
 type Props = {
   hours: number[];
@@ -11,9 +13,9 @@ export function HourBarChart({ hours }: Props) {
 
   if (total === 0) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-2xl border border-ink-faint bg-bg-card text-sm text-ink-muted">
-        Sem dados no período.
-      </div>
+      <ChartPanel title="Horários de pico" description="Distribuição por hora do dia">
+        <ChartEmpty message="Sem dados no período." />
+      </ChartPanel>
     );
   }
 
@@ -23,17 +25,16 @@ export function HourBarChart({ hours }: Props) {
   }));
 
   return (
-    <div className="rounded-2xl border border-ink-faint bg-bg-card p-5">
-      <h3 className="mb-4 text-sm font-medium text-ink">Horários de pico</h3>
+    <ChartPanel title="Horários de pico" description="Distribuição por hora do dia">
       <BarChart
         data={data}
         index="hora"
         categories={["Eventos"]}
-        colors={["blue"]}
-        yAxisWidth={40}
+        colors={[...CHART_SERIES_ONE]}
+        yAxisWidth={44}
         showAnimation
-        className="h-52"
+        className="h-56 [&_.recharts-bar-rectangle]:fill-[#2d4ae8] [&_.recharts-bar-rectangle]:opacity-90"
       />
-    </div>
+    </ChartPanel>
   );
 }

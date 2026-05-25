@@ -10,11 +10,9 @@ import {
   SignOut,
   X,
 } from "@phosphor-icons/react";
+import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import { RestaurantSelector } from "./RestaurantSelector";
 import type { RestaurantRow } from "@/lib/active-restaurant";
-
-const LOGO_URL =
-  "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
 
 type Props = {
   email: string | null;
@@ -40,11 +38,17 @@ export function MobileTopBar({ email, activeRestaurant, restaurants }: Props) {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-ghost/80 bg-bg-surface/95 backdrop-blur-md md:hidden">
+    <header className="sticky top-0 z-40 border-b border-ink-ghost bg-bg-surface/95 shadow-sm backdrop-blur-md md:hidden">
       <div className="flex h-14 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2.5" aria-label="Kanpai Admin">
-          <Image src={LOGO_URL} alt="" width={28} height={28} className="rounded-md" />
-          <span className="text-sm font-semibold text-ink">Kanpai Admin</span>
+        <Link href="/" className="inline-flex items-center" aria-label="Kanpai Blue Admin">
+          <Image
+            src={KANPAI_BLUE_LOGO_URL}
+            alt="Kanpai Blue"
+            width={KANPAI_BLUE_LOGO_WIDTH}
+            height={KANPAI_BLUE_LOGO_HEIGHT}
+            className="h-6 w-auto"
+            priority
+          />
         </Link>
 
         <button

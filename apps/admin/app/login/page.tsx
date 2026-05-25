@@ -1,15 +1,20 @@
 import Image from "next/image";
 import { LockKey } from "@phosphor-icons/react/dist/ssr";
 import { LoginForm } from "@/components/LoginForm";
-
-const LOGO_URL =
-  "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
+import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 
 export default function LoginPage() {
   return (
     <main className="flex min-h-screen">
       <div className="hidden flex-1 flex-col justify-between bg-ink p-12 text-white lg:flex">
-        <Image src={LOGO_URL} alt="Kanpai Blue" width={48} height={48} className="rounded-xl" />
+        <Image
+          src={KANPAI_BLUE_LOGO_URL}
+          alt="Kanpai Blue"
+          width={KANPAI_BLUE_LOGO_WIDTH}
+          height={KANPAI_BLUE_LOGO_HEIGHT}
+          className="h-10 w-auto brightness-0 invert"
+          priority
+        />
         <div>
           <h2 className="text-3xl font-semibold leading-tight tracking-tight">
             Gestão do cardápio
@@ -25,12 +30,12 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="mb-8 flex flex-col items-center gap-4 lg:items-start">
             <Image
-              src={LOGO_URL}
+              src={KANPAI_BLUE_LOGO_URL}
               alt="Kanpai Blue"
-              width={56}
-              height={56}
+              width={KANPAI_BLUE_LOGO_WIDTH}
+              height={KANPAI_BLUE_LOGO_HEIGHT}
               priority
-              className="rounded-xl lg:hidden"
+              className="h-8 w-auto lg:hidden"
             />
             <div className="flex items-center gap-2 text-ink-muted">
               <LockKey size={20} weight="duotone" />
