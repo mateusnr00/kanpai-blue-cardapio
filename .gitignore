@@ -41,6 +41,9 @@ pnpm-debug.log*
 tmp-*.mjs
 admin-*.png
 
+# superpowers tooling cache
+.superpowers/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
