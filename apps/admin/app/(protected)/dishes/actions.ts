@@ -148,84 +148,22 @@ async function handleImage(
   return currentPath;
 }
 
-export type QuickCreateInput = {
-  name: string;
-  price: string | null;
-  categoryId: string;
-};
-
-export type QuickCreateResult =
+type CreateDishCoreResult =
   | { error: string }
   | {
       ok: true;
-      dish: {
-        id: string;
-        name: string;
-        category: string;
-        image_path: string | null;
-        price: string | null;
-      };
+      id: string;
+      categorySlug: string;
+      categoryName: string;
+      name: string;
+      price: string | null;
+      imagePath: string | null;
     };
 
-export async function quickCreateDishForComponent(
-  input: QuickCreateInput,
-): Promise<QuickCreateResult> {
-  const name = input.name.trim();
-  const price = input.price?.trim() || null;
-  const categoryId = input.categoryId.trim();
-  if (!name || !categoryId) return { error: "Nome e categoria obrigatórios." };
-
-  const supabase = createServerClient();
-  const { data: cat } = await supabase
-    .from("categories")
-    .select("restaurant_id, name")
-    .eq("id", categoryId)
-    .maybeSingle();
-  if (!cat) return { error: "Categoria inválida." };
-
-  const { data: maxRow } = await supabase
-    .from("dishes")
-    .select("position")
-    .eq("category_id", categoryId)
-    .order("position", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const position = (maxRow?.position ?? -1) + 1;
-
-  const slug = `${slugify(name)}-${Date.now().toString(36)}`;
-
-  const { data: inserted, error } = await supabase
-    .from("dishes")
-    .insert({
-      slug,
-      category_id: categoryId,
-      restaurant_id: cat.restaurant_id,
-      name,
-      price,
-      active: true,
-      position,
-    })
-    .select("id")
-    .single();
-
-  if (error || !inserted) return { error: error?.message ?? "Falha ao criar." };
-
-  revalidatePath("/dishes");
-  revalidateMenu();
-
-  return {
-    ok: true,
-    dish: {
-      id: inserted.id,
-      name,
-      category: cat.name,
-      image_path: null,
-      price,
-    },
-  };
-}
-
-export async function createDish(formData: FormData): Promise<{ error?: string }> {
+async function createDishCore(
+  formData: FormData,
+  opts: { isComponentOnly: boolean },
+): Promise<CreateDishCoreResult> {
   const supabase = createServerClient();
   const categoryId = String(formData.get("category_id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -241,10 +179,9 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
   let slug = String(formData.get("slug") ?? "").trim();
   if (!slug) slug = slugify(name);
 
-  // restaurant_id deriva da categoria escolhida (consistencia garantida)
   const { data: cat } = await supabase
     .from("categories")
-    .select("restaurant_id, slug")
+    .select("restaurant_id, slug, name")
     .eq("id", categoryId)
     .maybeSingle();
   if (!cat) return { error: "Categoria inválida." };
@@ -273,6 +210,7 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
       badges,
       active: true,
       position,
+      is_component_only: opts.isComponentOnly,
     })
     .select("id")
     .single();
@@ -282,10 +220,11 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
   const variants = parseVariants(formData);
   const components = parseComponents(formData);
 
+  let imagePath: string | null = null;
   const imagePromise = (async () => {
-    const newPath = await handleImage(formData, "image", inserted.id, null);
-    if (newPath) {
-      await supabase.from("dishes").update({ image_path: newPath }).eq("id", inserted.id);
+    imagePath = await handleImage(formData, "image", inserted.id, null);
+    if (imagePath) {
+      await supabase.from("dishes").update({ image_path: imagePath }).eq("id", inserted.id);
     }
   })();
 
@@ -301,7 +240,52 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
 
   revalidatePath("/");
   revalidateMenu();
-  redirect(`/?cat=${cat.slug}`);
+
+  return {
+    ok: true,
+    id: inserted.id,
+    categorySlug: cat.slug,
+    categoryName: cat.name,
+    name,
+    price,
+    imagePath,
+  };
+}
+
+export async function createDish(formData: FormData): Promise<{ error?: string }> {
+  const res = await createDishCore(formData, { isComponentOnly: false });
+  if ("error" in res) return { error: res.error };
+  redirect(`/?cat=${res.categorySlug}`);
+}
+
+export type CreateDishForComponentResult =
+  | { error: string }
+  | {
+      ok: true;
+      dish: {
+        id: string;
+        name: string;
+        category: string;
+        image_path: string | null;
+        price: string | null;
+      };
+    };
+
+export async function createDishForComponent(
+  formData: FormData,
+): Promise<CreateDishForComponentResult> {
+  const res = await createDishCore(formData, { isComponentOnly: true });
+  if ("error" in res) return { error: res.error };
+  return {
+    ok: true,
+    dish: {
+      id: res.id,
+      name: res.name,
+      category: res.categoryName,
+      image_path: res.imagePath,
+      price: res.price,
+    },
+  };
 }
 
 export async function updateDish(id: string, formData: FormData): Promise<{ error?: string }> {

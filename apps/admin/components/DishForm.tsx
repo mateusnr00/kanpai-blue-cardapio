@@ -28,6 +28,13 @@ type Props = {
   categories: CategoryListItem[];
   defaultCategoryId?: string;
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
+  /** Quando true: oculta editor de componentes aninhados e o link "Editar detalhes". Usado no modal. */
+  embedded?: boolean;
+  /** Override do botao Cancelar. Default: router.back(). */
+  onCancel?: () => void;
+  /** Disparado apos submit OK. Util pro modal fechar e adicionar o prato criado como componente. */
+  onSuccess?: () => void;
+  submitLabel?: string;
 };
 
 export function DishForm({
@@ -39,6 +46,10 @@ export function DishForm({
   categories,
   defaultCategoryId,
   onSubmit,
+  embedded = false,
+  onCancel,
+  onSuccess,
+  submitLabel,
 }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +64,7 @@ export function DishForm({
         toast.error(res.error);
       } else {
         toast.success(mode === "create" ? "Prato criado" : "Salvo");
+        onSuccess?.();
       }
     });
   }
@@ -136,12 +148,14 @@ export function DishForm({
 
       <VariantsEditor initial={variants} />
 
-      <DishComponentsEditor
-        initial={components}
-        choices={componentChoices}
-        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
-        parentCategoryId={currentCategoryId}
-      />
+      {embedded ? null : (
+        <DishComponentsEditor
+          initial={components}
+          choices={componentChoices}
+          categories={categories}
+          parentCategoryId={currentCategoryId}
+        />
+      )}
 
       <label className="flex items-center gap-2.5 text-sm text-ink">
         <input
@@ -167,7 +181,7 @@ export function DishForm({
         </aside>
       </div>
 
-      {mode === "edit" && initial ? (
+      {!embedded && mode === "edit" && initial ? (
         <div className="flex flex-col gap-3 rounded-xl border border-ink-ghost bg-bg-muted/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-ink">Detalhes (texto longo + seções)</p>
@@ -187,9 +201,13 @@ export function DishForm({
 
       <div className="flex flex-wrap gap-3 border-t border-ink-ghost pt-6">
         <button type="submit" disabled={pending} className="admin-btn-primary">
-          {pending ? "Salvando..." : mode === "create" ? "Criar item" : "Salvar"}
+          {pending ? "Salvando..." : submitLabel ?? (mode === "create" ? "Criar item" : "Salvar")}
         </button>
-        <button type="button" onClick={() => router.back()} className="admin-btn-secondary">
+        <button
+          type="button"
+          onClick={() => (onCancel ? onCancel() : router.back())}
+          className="admin-btn-secondary"
+        >
           Cancelar
         </button>
       </div>

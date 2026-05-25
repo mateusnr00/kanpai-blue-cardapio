@@ -69,7 +69,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .order("position"),
     supabase
       .from("dishes")
-      .select("id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, position, badges")
+      .select("id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, position, badges, is_component_only")
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
@@ -119,6 +119,9 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
 
   const dishesByCategoryUuid = new Map<string, Dish[]>();
   for (const d of dishesRes.data ?? []) {
+    // pratos marcados como componente-only nao aparecem na listagem da categoria
+    // (continuam disponiveis via componentsByParent quando referenciados)
+    if (d.is_component_only) continue;
     const sections = sectionsByDish.get(d.id) ?? [];
     const components = componentsByParent.get(d.id);
     const dish: Dish = {

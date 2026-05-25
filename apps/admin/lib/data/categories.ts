@@ -44,7 +44,8 @@ export async function listCategoriesWithCounts(restaurantId: string): Promise<Ca
     supabase
       .from("dishes")
       .select("category_id, active")
-      .eq("restaurant_id", restaurantId),
+      .eq("restaurant_id", restaurantId)
+      .eq("is_component_only", false),
   ]);
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;

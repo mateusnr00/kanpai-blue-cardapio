@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Plus, Trash, MagnifyingGlass, Sparkle } from "@phosphor-icons/react";
-import { toast } from "sonner";
 import { publicImageUrl } from "@/lib/storage";
 import type { DishComponentRow } from "@/lib/data/dishes";
-import { quickCreateDishForComponent } from "@/app/(protected)/dishes/actions";
-import { AdminSelect } from "./AdminSelect";
+import type { CategoryListItem } from "@/lib/data/categories";
+import { createDishForComponent } from "@/app/(protected)/dishes/actions";
+import { DishCreateModal } from "./DishCreateModal";
 
 type Kind = "entrada" | "principal" | "sobremesa";
 
@@ -22,18 +22,15 @@ type ChoiceItem = {
 type LocalComponent = {
   childId: string;
   kind: Kind;
-  // snapshot só pra render local — não vai pra FormData
   name: string;
   image_path: string | null;
   price: string | null;
 };
 
-type CategoryOption = { id: string; name: string };
-
 type Props = {
   initial: DishComponentRow[];
   choices: ChoiceItem[];
-  categories: CategoryOption[];
+  categories: CategoryListItem[];
   parentCategoryId: string;
 };
 
@@ -44,6 +41,10 @@ const TAB_LABEL: Record<Kind, string> = {
 };
 
 const TAB_ORDER: Kind[] = ["entrada", "principal", "sobremesa"];
+
+function kindSingular(kind: Kind): string {
+  return TAB_LABEL[kind].toLowerCase().slice(0, -1);
+}
 
 export function DishComponentsEditor({
   initial,
@@ -65,22 +66,13 @@ export function DishComponentsEditor({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newPrice, setNewPrice] = useState("");
-  const [newCategoryId, setNewCategoryId] = useState<string>("");
-  const [creating, startCreate] = useTransition();
+  const pendingCreatedRef = useRef<ChoiceItem | null>(null);
 
   const itemsByKind = useMemo(() => {
     const map: Record<Kind, LocalComponent[]> = { entrada: [], principal: [], sobremesa: [] };
     for (const it of items) map[it.kind].push(it);
     return map;
   }, [items]);
-
-  const choicesById = useMemo(() => {
-    const m = new Map<string, ChoiceItem>();
-    for (const c of choices) m.set(c.id, c);
-    return m;
-  }, [choices]);
 
   function add(choice: ChoiceItem) {
     if (items.some((it) => it.childId === choice.id && it.kind === activeTab)) {
@@ -105,48 +97,41 @@ export function DishComponentsEditor({
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  function submitCreate() {
-    if (!newName.trim()) return;
-    startCreate(async () => {
-      const res = await quickCreateDishForComponent({
-        name: newName.trim(),
-        price: newPrice.trim() || null,
-        categoryId: newCategoryId || parentCategoryId,
-      });
-      if ("error" in res) {
-        toast.error(res.error);
-        return;
-      }
-      const created = res.dish;
-      setChoices((prev) => [created, ...prev]);
-      setItems((prev) => [
-        ...prev,
-        {
-          childId: created.id,
-          kind: activeTab,
-          name: created.name,
-          image_path: created.image_path,
-          price: created.price,
-        },
-      ]);
-      setCreateOpen(false);
-      setPickerOpen(false);
-      setNewName("");
-      setNewPrice("");
-      toast.success("Prato criado e adicionado.");
-    });
-  }
-
   function move(idx: number, dir: -1 | 1) {
     setItems((prev) => {
       const next = [...prev];
       const target = idx + dir;
       if (target < 0 || target >= next.length) return prev;
-      // só permite mover dentro do mesmo kind
       if (next[target].kind !== next[idx].kind) return prev;
       [next[idx], next[target]] = [next[target], next[idx]];
       return next;
     });
+  }
+
+  async function handleCreateSubmit(formData: FormData): Promise<{ error?: string }> {
+    const res = await createDishForComponent(formData);
+    if ("error" in res) return { error: res.error };
+    pendingCreatedRef.current = res.dish;
+    return {};
+  }
+
+  function onCreated() {
+    const created = pendingCreatedRef.current;
+    pendingCreatedRef.current = null;
+    if (!created) return;
+    setChoices((prev) => [created, ...prev]);
+    setItems((prev) => [
+      ...prev,
+      {
+        childId: created.id,
+        kind: activeTab,
+        name: created.name,
+        image_path: created.image_path,
+        price: created.price,
+      },
+    ]);
+    setCreateOpen(false);
+    setPickerOpen(false);
   }
 
   const filteredChoices = useMemo(() => {
@@ -270,24 +255,32 @@ export function DishComponentsEditor({
         </ul>
       )}
 
-      <button
-        type="button"
-        onClick={() => setPickerOpen(true)}
-        className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink"
-      >
-        <Plus size={14} weight="bold" />
-        Adicionar {TAB_LABEL[activeTab].toLowerCase().slice(0, -1)}
-      </button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium hover:border-ink"
+        >
+          <Plus size={14} weight="bold" />
+          Adicionar {kindSingular(activeTab)}
+        </button>
+        <button
+          type="button"
+          onClick={() => setCreateOpen(true)}
+          disabled={categories.length === 0}
+          className="inline-flex items-center gap-1.5 rounded-md border border-ink-faint px-3 py-1.5 text-xs font-medium text-ink hover:border-ink disabled:opacity-50"
+        >
+          <Sparkle size={14} weight="bold" className="text-accent" />
+          Criar novo prato
+        </button>
+      </div>
 
       {pickerOpen ? (
         <div
           role="dialog"
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 sm:items-center"
-          onClick={() => {
-            setPickerOpen(false);
-            setCreateOpen(false);
-          }}
+          onClick={() => setPickerOpen(false)}
         >
           <div
             className="flex max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-xl bg-bg-warm shadow-lg"
@@ -302,90 +295,29 @@ export function DishComponentsEditor({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={`Buscar prato pra ${TAB_LABEL[activeTab].toLowerCase()}...`}
                 className="flex-1 bg-transparent text-sm outline-none"
-                disabled={createOpen}
               />
               <button
                 type="button"
-                onClick={() => {
-                  setPickerOpen(false);
-                  setCreateOpen(false);
-                }}
+                onClick={() => setPickerOpen(false)}
                 className="text-xs text-ink-soft hover:text-ink"
               >
                 Fechar
               </button>
             </div>
 
-            {createOpen ? (
-              <div className="flex flex-col gap-3 border-b border-ink-faint bg-bg-card/60 px-4 py-3">
-                <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">
-                  Novo prato
-                </p>
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Nome do prato"
-                  className="admin-input text-sm"
-                  autoFocus
-                />
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="component-new-price" className="admin-label">
-                      Preço (opcional)
-                    </label>
-                    <input
-                      id="component-new-price"
-                      type="text"
-                      value={newPrice}
-                      onChange={(e) => setNewPrice(e.target.value)}
-                      placeholder="ex: R$ 42,90"
-                      className="admin-input text-sm"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="component-new-category" className="admin-label">
-                      Categoria <span className="text-ink-soft">(opcional)</span>
-                    </label>
-                    <AdminSelect
-                      id="component-new-category"
-                      value={newCategoryId}
-                      onChange={setNewCategoryId}
-                      disabled={creating}
-                      placeholder="Mesma do prato atual"
-                      options={categories.map((c) => ({ value: c.id, label: c.name }))}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCreateOpen(false)}
-                    className="rounded-md border border-ink-faint px-3 py-1.5 text-xs hover:border-ink"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={submitCreate}
-                    disabled={creating || !newName.trim()}
-                    className="rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-                  >
-                    {creating ? "Criando..." : `Criar e adicionar como ${TAB_LABEL[activeTab].toLowerCase().slice(0, -1)}`}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setCreateOpen(true)}
-                disabled={categories.length === 0}
-                className="flex items-center gap-2 border-b border-ink-faint bg-bg-card/40 px-4 py-2.5 text-left text-xs font-medium text-ink hover:bg-bg-card disabled:opacity-50"
-              >
-                <Sparkle size={14} weight="bold" className="text-accent" />
-                Criar novo prato…
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                setPickerOpen(false);
+                setCreateOpen(true);
+              }}
+              disabled={categories.length === 0}
+              className="flex items-center gap-2 border-b border-ink-faint bg-bg-card/40 px-4 py-2.5 text-left text-xs font-medium text-ink hover:bg-bg-card disabled:opacity-50"
+            >
+              <Sparkle size={14} weight="bold" className="text-accent" />
+              Criar novo prato…
+            </button>
+
             <ul className="flex-1 overflow-y-auto">
               {filteredChoices.length === 0 ? (
                 <li className="px-4 py-6 text-center text-xs text-ink-muted">Nenhum prato encontrado.</li>
@@ -419,6 +351,16 @@ export function DishComponentsEditor({
           </div>
         </div>
       ) : null}
+
+      <DishCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        categories={categories}
+        defaultCategoryId={parentCategoryId}
+        onSubmit={handleCreateSubmit}
+        onCreated={onCreated}
+        kindLabel={kindSingular(activeTab)}
+      />
     </fieldset>
   );
 }

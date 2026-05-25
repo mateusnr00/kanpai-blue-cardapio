@@ -11,6 +11,7 @@ export type DishListRow = {
   position: number;
   subcategory: string | null;
   featured: boolean;
+  is_component_only: boolean;
 };
 
 export type DishDetail = DishListRow & {
@@ -21,6 +22,7 @@ export type DishDetail = DishListRow & {
   featured: boolean;
   original_price: string | null;
   badges: string[];
+  is_component_only: boolean;
 };
 
 export type DishVariantRow = {
@@ -31,13 +33,17 @@ export type DishVariantRow = {
   position: number;
 };
 
-export async function listDishesByCategory(categoryId: string): Promise<DishListRow[]> {
+export async function listDishesByCategory(
+  categoryId: string,
+  opts: { includeComponentOnly?: boolean } = {},
+): Promise<DishListRow[]> {
   const supabase = createServerClient();
-  const { data, error } = await supabase
+  let q = supabase
     .from("dishes")
-    .select("id, slug, name, description, price, image_path, active, position, subcategory, featured")
-    .eq("category_id", categoryId)
-    .order("position");
+    .select("id, slug, name, description, price, image_path, active, position, subcategory, featured, is_component_only")
+    .eq("category_id", categoryId);
+  if (!opts.includeComponentOnly) q = q.eq("is_component_only", false);
+  const { data, error } = await q.order("position");
   if (error) throw error;
   return data ?? [];
 }
@@ -47,7 +53,7 @@ export async function getDish(id: string): Promise<DishDetail | null> {
   const { data, error } = await supabase
     .from("dishes")
     .select(
-      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, original_price, image_path, active, position, badges"
+      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, original_price, image_path, active, position, badges, is_component_only"
     )
     .eq("id", id)
     .maybeSingle();
