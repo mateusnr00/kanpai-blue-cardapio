@@ -35,60 +35,62 @@ input, textarea, select {
   color: inherit;
 }
 
-/* Toggle switch (Uiverse / gharsh11032000) — usado em DishToggleActive
-   e CategoryToggleActive. Mantemos como CSS puro pelo uso de
-   :checked + .slider:before, que Tailwind não cobre. */
+/* Toggle switch (Uiverse / Yaya12085) — usado em DishToggleActive
+   e CategoryToggleActive. Aplicado direto no <input type="checkbox">
+   com appearance:none. */
 .switch {
-  font-size: 14px;
   position: relative;
-  display: inline-block;
-  width: 3.5em;
-  height: 2em;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  margin: 0;
-}
-
-.switch .slider {
-  position: absolute;
+  height: 1.5rem;
+  width: 3rem;
   cursor: pointer;
-  inset: 0;
-  border: 2px solid #414141;
-  border-radius: 50px;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 9999px;
+  background-color: rgba(100, 116, 139, 0.377);
+  transition: all 0.3s ease;
+  margin: 0;
+  flex-shrink: 0;
 }
 
-.switch .slider::before {
+.switch:checked {
+  background-color: rgba(32, 151, 243, 1);
+}
+
+.switch::before {
   position: absolute;
   content: "";
-  height: 1.4em;
-  width: 1.4em;
-  left: 0.2em;
-  bottom: 0.2em;
-  background-color: white;
-  border-radius: inherit;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  left: calc(1.5rem - 1.6rem);
+  top: calc(1.5rem - 1.6rem);
+  display: block;
+  height: 1.6rem;
+  width: 1.6rem;
+  cursor: pointer;
+  border: 1px solid rgba(100, 116, 139, 0.527);
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 3px 10px rgba(100, 116, 139, 0.327);
+  transition: all 0.3s ease;
 }
 
-.switch input:checked + .slider {
-  box-shadow: 0 0 20px rgba(9, 117, 241, 0.8);
-  border: 2px solid #0974f1;
+.switch:hover::before {
+  box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
-.switch input:checked + .slider::before {
-  transform: translateX(1.5em);
+.switch:checked:hover::before {
+  box-shadow: 0 0 0 8px rgba(32, 151, 243, 0.15);
 }
 
-.switch input:focus-visible + .slider {
-  outline: 2px solid #0974f1;
+.switch:checked::before {
+  transform: translateX(100%);
+  border-color: rgba(32, 151, 243, 1);
+}
+
+.switch:focus-visible {
+  outline: 2px solid rgba(32, 151, 243, 1);
   outline-offset: 2px;
 }
 
-.switch input:disabled + .slider {
+.switch:disabled {
   cursor: wait;
   opacity: 0.6;
 }

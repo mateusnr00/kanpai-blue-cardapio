@@ -33,17 +33,13 @@ export function DishToggleActive({ id, active }: Props) {
   }
 
   return (
-    <label
+    <input
+      type="checkbox"
       className="switch"
+      checked={optimistic}
+      onChange={onToggle}
+      disabled={pending}
       aria-label={optimistic ? "Desativar prato" : "Ativar prato"}
-    >
-      <input
-        type="checkbox"
-        checked={optimistic}
-        onChange={onToggle}
-        disabled={pending}
-      />
-      <span className="slider" />
-    </label>
+    />
   );
 }

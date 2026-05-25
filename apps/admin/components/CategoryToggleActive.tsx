@@ -32,17 +32,13 @@ export function CategoryToggleActive({ id, active }: Props) {
   }
 
   return (
-    <label
+    <input
+      type="checkbox"
       className="switch"
+      checked={optimistic}
+      onChange={onToggle}
+      disabled={pending}
       aria-label={optimistic ? "Desativar categoria" : "Ativar categoria"}
-    >
-      <input
-        type="checkbox"
-        checked={optimistic}
-        onChange={onToggle}
-        disabled={pending}
-      />
-      <span className="slider" />
-    </label>
+    />
   );
 }
