@@ -1,13 +1,14 @@
 import { PageHeader } from "@/components/PageHeader";
-import { RangeSelector } from "@/components/analytics/RangeSelector";
+import { AnalyticsFilters } from "@/components/analytics/AnalyticsFilters";
 import { StatCard } from "@/components/analytics/StatCard";
-import { DayChart } from "@/components/analytics/DayChart";
-import { HourHistogram } from "@/components/analytics/HourHistogram";
-import { TopList } from "@/components/analytics/TopList";
-import { loadDashboard, type Range } from "@/lib/data/analytics";
+import { VisitsAreaChart } from "@/components/analytics/VisitsAreaChart";
+import { HourBarChart } from "@/components/analytics/HourBarChart";
+import { CategoriesDonutChart } from "@/components/analytics/CategoriesDonutChart";
+import { DishesBarList } from "@/components/analytics/DishesBarList";
+import { loadDashboard, loadCategoryOptions, type Range } from "@/lib/data/analytics";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
-type SearchParams = { range?: string };
+type SearchParams = { range?: string; category?: string };
 
 const VALID_RANGES: Range[] = ["today", "yesterday", "7d", "30d", "90d", "all"];
 
@@ -35,20 +36,32 @@ function delta(current: number, prev: number | undefined | null): number | null 
 
 export default async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   const range = asRange(searchParams.range);
+  const categorySlug = searchParams.category ?? null;
   const restaurantId = getActiveRestaurantId();
-  const data = await loadDashboard(range, restaurantId);
+
+  const filterCategories = await loadCategoryOptions(restaurantId);
+  const categoryId = categorySlug
+    ? filterCategories.find((c) => c.slug === categorySlug)?.id
+    : undefined;
+
+  const data = await loadDashboard(range, restaurantId, categoryId);
+
   const { stats, prevStats, insights, daySeries, hourHistogram, topCategories, topDishes } = data;
 
   return (
     <section className="flex w-full flex-col gap-8">
-      <PageHeader
-        title="Analytics"
-        description="Comportamento do cardápio digital — dados reais do site público."
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <PageHeader
+          title="Analytics"
+          description="Comportamento do cardápio digital — dados reais do site público."
+        />
+        <AnalyticsFilters
+          activeRange={range}
+          activeCategory={categorySlug}
+          categories={filterCategories}
+        />
+      </div>
 
-      <RangeSelector active={range} />
-
-      {/* 4 cards principais */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Visitantes únicos"
@@ -79,7 +92,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         />
       </div>
 
-      {/* Insights rapidos */}
       <div className="rounded-2xl border border-ink-faint bg-bg-card p-5">
         <h3 className="text-sm font-medium text-ink">Insights rápidos</h3>
         <ul className="mt-3 flex flex-col gap-2 text-sm text-ink-soft">
@@ -122,38 +134,14 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         ) : null}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
-        <DayChart points={daySeries} />
-        <HourHistogram hours={hourHistogram} />
+        <VisitsAreaChart points={daySeries} />
+        <HourBarChart hours={hourHistogram} />
       </div>
 
-      {/* Top lists */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <TopList
-          title="Top categorias por cliques"
-          emptyHint="Nenhuma categoria foi aberta no período."
-          items={topCategories.map((c) => ({
-            key: c.id,
-            label: c.name,
-            primary: c.clicks,
-            primaryLabel: c.clicks === 1 ? "clique" : "cliques",
-            secondary: c.people,
-            secondaryLabel: c.people === 1 ? "pessoa" : "pessoas",
-          }))}
-        />
-        <TopList
-          title="Top itens por views"
-          emptyHint="Nenhum item foi visualizado no período."
-          items={topDishes.map((d) => ({
-            key: d.slug,
-            label: d.name,
-            primary: d.impressions,
-            primaryLabel: d.impressions === 1 ? "view" : "views",
-            secondary: d.people,
-            secondaryLabel: d.people === 1 ? "pessoa" : "pessoas",
-          }))}
-        />
+        <CategoriesDonutChart categories={topCategories} />
+        <DishesBarList dishes={topDishes} />
       </div>
     </section>
   );
