@@ -14,7 +14,7 @@ export async function getCategories(): Promise<Category[]> {
   const [catsRes, dishesRes, sectionsRes, execMenusRes, execItemsRes] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories")
+      .select("id, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width")
       .eq("active", true)
       .order("position"),
     supabase
@@ -118,6 +118,8 @@ export async function getCategories(): Promise<Category[]> {
       featured: c.featured,
       subcategories: c.subcategories?.length ? c.subcategories : undefined,
       gradient: c.gradient,
+      image: imageUrl(c.image_path),
+      fullWidth: c.full_width,
       dishes: dishesByCategory.get(c.id) ?? [],
     };
     const execs = execsByCategory.get(c.id);

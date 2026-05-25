@@ -50,6 +50,8 @@ export type Category = {
   featured?: boolean;
   subcategories?: string[];
   gradient: string;
+  image?: string;
+  fullWidth?: boolean;
   dishes: Dish[];
   executivos?: ExecutivoMenu[];
 };

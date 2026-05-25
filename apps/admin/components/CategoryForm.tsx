@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { GradientInput } from "./GradientInput";
+import { ImageUpload } from "./ImageUpload";
 import { SubcategoriesEditor } from "./SubcategoriesEditor";
 import type { CategoryRow } from "@/lib/data/categories";
 
@@ -131,7 +132,12 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium text-ink-soft">Gradient (CSS)</span>
+        <span className="text-xs font-medium text-ink-soft">Foto da categoria (opcional — sobrescreve o gradient na home)</span>
+        <ImageUpload name="image" initialPath={initial?.image_path ?? null} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-medium text-ink-soft">Gradient (CSS) — fallback quando não tem foto</span>
         <GradientInput name="gradient" defaultValue={initial?.gradient ?? "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)"} />
       </div>
 
@@ -140,6 +146,11 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="featured" defaultChecked={initial?.featured ?? false} />
         Categoria em destaque (borda azul Kanpai + placeholder em gradiente azul)
+      </label>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="full_width" defaultChecked={initial?.full_width ?? false} />
+        Card ocupa a fileira inteira na home (empurra os próximos pra próxima linha)
       </label>
 
       {error ? <p className="text-xs text-red-700">{error}</p> : null}

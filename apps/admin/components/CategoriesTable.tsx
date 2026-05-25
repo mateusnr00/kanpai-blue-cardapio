@@ -43,7 +43,7 @@ function SortableRow({ cat, dishCount }: { cat: CategoryRow; dishCount: number }
         ⋮⋮
       </td>
       <td className="hidden w-28 py-3 pr-3 sm:table-cell">
-        <CategoryPreview gradient={cat.gradient} label={cat.name} />
+        <CategoryPreview gradient={cat.gradient} label={cat.name} imagePath={cat.image_path} />
       </td>
       <td className="py-3 pr-3 sm:pr-4">
         <div className="text-sm font-medium">{cat.name}</div>

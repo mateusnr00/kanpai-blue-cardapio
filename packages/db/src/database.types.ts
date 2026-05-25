@@ -21,8 +21,10 @@ export type Database = {
           description: string
           detail: string | null
           featured: boolean
+          full_width: boolean
           gradient: string
           id: string
+          image_path: string | null
           item_count: string | null
           name: string
           number: string
@@ -37,8 +39,10 @@ export type Database = {
           description: string
           detail?: string | null
           featured?: boolean
+          full_width?: boolean
           gradient: string
           id: string
+          image_path?: string | null
           item_count?: string | null
           name: string
           number: string
@@ -53,8 +57,10 @@ export type Database = {
           description?: string
           detail?: string | null
           featured?: boolean
+          full_width?: boolean
           gradient?: string
           id?: string
+          image_path?: string | null
           item_count?: string | null
           name?: string
           number?: string

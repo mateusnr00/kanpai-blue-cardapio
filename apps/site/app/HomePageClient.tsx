@@ -109,6 +109,7 @@ export function HomePageClient({ categories }: { categories: Category[] }) {
                       transition: { duration: 0.55, ease: [0.32, 0.72, 0, 1] },
                     },
                   }}
+                  style={category.fullWidth ? { gridColumn: "1 / -1" } : undefined}
                 >
                   <CategoryCard category={category} />
                 </motion.div>

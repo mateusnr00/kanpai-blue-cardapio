@@ -22,6 +22,8 @@ export type CategoryRow = {
   active: boolean;
   position: number;
   subcategories: string[];
+  image_path: string | null;
+  full_width: boolean;
 };
 
 export async function listCategoriesWithCounts(): Promise<CategoryListItem[]> {
@@ -58,7 +60,7 @@ export async function listCategoriesAll(): Promise<CategoryRow[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories")
+    .select("id, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, full_width")
     .order("position");
   if (error) throw error;
   return data ?? [];
@@ -68,7 +70,7 @@ export async function getCategory(id: string): Promise<CategoryRow | null> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories")
+    .select("id, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, full_width")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
