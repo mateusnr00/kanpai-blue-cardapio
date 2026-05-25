@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Image as ImageIcon, Trash, UploadSimple, Crop } from "@phosphor-icons/react";
 import { toast } from "sonner";
@@ -153,66 +152,66 @@ export function ImageUpload({ name, initialPath, aspect = 1, maxOutputSize = 120
     if (submitInputRef.current) submitInputRef.current.value = "";
   }
 
+  const cropLabel = aspect === 1
+    ? `${maxOutputSize}×${maxOutputSize}`
+    : `${maxOutputSize}×${Math.round(maxOutputSize / aspect)} (16:9)`;
+
   return (
     <>
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col gap-3">
         <div
-          className="flex h-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-ink-ghost bg-bg-muted"
-          style={{ width: `${Math.round(112 * aspect)}px` }}
+          className="flex w-full items-center justify-center overflow-hidden rounded-xl border border-ink-ghost bg-bg-muted"
+          style={{ aspectRatio: String(aspect) }}
         >
           {preview ? (
-            <Image
-              src={preview}
-              alt=""
-              width={Math.round(112 * aspect)}
-              height={112}
-              unoptimized
-              className="h-full w-full object-cover"
-            />
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={preview} alt="" className="h-full w-full object-cover" />
           ) : (
             <ImageIcon size={32} className="text-ink-faint" weight="duotone" />
           )}
         </div>
 
-        <div className="flex flex-col gap-3">
-          <label className="admin-btn-secondary cursor-pointer">
-            <UploadSimple size={18} />
-            {preparing ? "Carregando..." : "Escolher imagem"}
-            <input
-              ref={pickerInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/avif"
-              onChange={onPick}
+        <label className="admin-btn-secondary w-full cursor-pointer justify-center">
+          <UploadSimple size={16} />
+          {preparing ? "Carregando..." : preview ? "Trocar imagem" : "Escolher imagem"}
+          <input
+            ref={pickerInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            onChange={onPick}
+            disabled={preparing}
+            className="sr-only"
+          />
+        </label>
+        <input ref={submitInputRef} type="file" name={name} className="sr-only" tabIndex={-1} />
+
+        {preview ? (
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={openCropAgain}
               disabled={preparing}
-              className="sr-only"
-            />
-          </label>
-          {/* Este e o input que vai pro FormData; manipulado via DataTransfer */}
-          <input ref={submitInputRef} type="file" name={name} className="sr-only" tabIndex={-1} />
-          <p className="text-xs text-ink-muted">
-            JPEG, PNG, WebP ou AVIF · max. 8MB
-            <br />
-            Cortado pra {aspect === 1 ? `${maxOutputSize}x${maxOutputSize}` : `${maxOutputSize}x${Math.round(maxOutputSize / aspect)} (16:9)`}
-          </p>
-          {preview ? (
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={openCropAgain}
-                disabled={preparing}
-                className="admin-btn-secondary w-fit disabled:opacity-50"
-              >
-                <Crop size={16} />
-                Reajustar
-              </button>
-              <button type="button" onClick={onRemove} disabled={preparing} className="admin-btn-danger w-fit disabled:opacity-50">
-                <Trash size={16} />
-                Remover foto
-              </button>
-            </div>
-          ) : null}
-          <input type="hidden" name={`${name}__remove`} value={shouldRemove ? "true" : "false"} readOnly />
-        </div>
+              className="admin-btn-secondary justify-center disabled:opacity-50"
+            >
+              <Crop size={14} />
+              Reajustar
+            </button>
+            <button
+              type="button"
+              onClick={onRemove}
+              disabled={preparing}
+              className="admin-btn-danger justify-center disabled:opacity-50"
+            >
+              <Trash size={14} />
+              Remover
+            </button>
+          </div>
+        ) : null}
+
+        <p className="text-[11px] leading-snug text-ink-muted">
+          JPEG, PNG, WebP ou AVIF · max. 8MB · cortado pra {cropLabel}
+        </p>
+        <input type="hidden" name={`${name}__remove`} value={shouldRemove ? "true" : "false"} readOnly />
       </div>
 
       <ImageCropDialog
