@@ -18,9 +18,10 @@ type Props = {
   number: string;
   /** Forced gradient choice (alternated by parent for rhythm). */
   variant?: "blue" | "beige";
+  restaurantId: string;
 };
 
-export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
+export function DishCardFeatured({ dish, number, variant = "blue", restaurantId }: Props) {
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
   const hasPrice = dish.price && dish.price.length > 0;
@@ -28,14 +29,14 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const onImpression = useCallback(() => {
-    track({ event_type: "dish_impression", dish_slug: dish.id });
-  }, [dish.id]);
+    track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
+  }, [dish.id, restaurantId]);
   const ref = useImpressionOnce<HTMLElement>(onImpression);
 
   const openDetails = useCallback(() => {
     setDetailsOpen(true);
-    track({ event_type: "dish_view", dish_slug: dish.id });
-  }, [dish.id]);
+    track({ event_type: "dish_view", dish_slug: dish.id, restaurant_id: restaurantId });
+  }, [dish.id, restaurantId]);
 
   return (
     <>

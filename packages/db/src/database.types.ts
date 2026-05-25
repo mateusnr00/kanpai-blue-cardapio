@@ -23,6 +23,7 @@ export type Database = {
           id: string
           pathname: string | null
           referrer: string | null
+          restaurant_id: string
           session_id: string
           user_agent: string | null
           visitor_id: string
@@ -35,6 +36,7 @@ export type Database = {
           id?: string
           pathname?: string | null
           referrer?: string | null
+          restaurant_id: string
           session_id: string
           user_agent?: string | null
           visitor_id: string
@@ -47,11 +49,20 @@ export type Database = {
           id?: string
           pathname?: string | null
           referrer?: string | null
+          restaurant_id?: string
           session_id?: string
           user_agent?: string | null
           visitor_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
@@ -68,7 +79,9 @@ export type Database = {
           name: string
           number: string
           position: number
+          restaurant_id: string
           short_name: string | null
+          slug: string
           subcategories: string[]
           updated_at: string
         }
@@ -80,13 +93,15 @@ export type Database = {
           featured?: boolean
           full_width?: boolean
           gradient: string
-          id: string
+          id?: string
           image_path?: string | null
           item_count?: string | null
           name: string
           number: string
           position: number
+          restaurant_id: string
           short_name?: string | null
+          slug: string
           subcategories?: string[]
           updated_at?: string
         }
@@ -104,11 +119,21 @@ export type Database = {
           name?: string
           number?: string
           position?: number
+          restaurant_id?: string
           short_name?: string | null
+          slug?: string
           subcategories?: string[]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dish_detail_sections: {
         Row: {
@@ -211,6 +236,7 @@ export type Database = {
           original_price: string | null
           position: number
           price: string | null
+          restaurant_id: string
           slug: string
           subcategory: string | null
           unit: string | null
@@ -231,6 +257,7 @@ export type Database = {
           original_price?: string | null
           position: number
           price?: string | null
+          restaurant_id: string
           slug: string
           subcategory?: string | null
           unit?: string | null
@@ -251,6 +278,7 @@ export type Database = {
           original_price?: string | null
           position?: number
           price?: string | null
+          restaurant_id?: string
           slug?: string
           subcategory?: string | null
           unit?: string | null
@@ -262,6 +290,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dishes_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
             referencedColumns: ["id"]
           },
         ]
@@ -314,6 +349,7 @@ export type Database = {
           name: string
           position: number
           price: string
+          restaurant_id: string
           subcategory: string | null
           validity: string | null
         }
@@ -326,6 +362,7 @@ export type Database = {
           name: string
           position: number
           price: string
+          restaurant_id: string
           subcategory?: string | null
           validity?: string | null
         }
@@ -338,6 +375,7 @@ export type Database = {
           name?: string
           position?: number
           price?: string
+          restaurant_id?: string
           subcategory?: string | null
           validity?: string | null
         }
@@ -349,7 +387,44 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "executivo_menus_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      restaurants: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          position: number
+          short_name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id: string
+          name: string
+          position?: number
+          short_name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          short_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

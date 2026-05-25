@@ -14,6 +14,8 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
+import { RestaurantSelector } from "./RestaurantSelector";
+import type { RestaurantRow } from "@/lib/active-restaurant";
 
 const LOGO_URL =
   "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
@@ -26,9 +28,11 @@ const NAV = [
 
 type Props = {
   email: string | null;
+  activeRestaurant: string;
+  restaurants: RestaurantRow[];
 };
 
-export function AdminNavbar({ email }: Props) {
+export function AdminNavbar({ email, activeRestaurant, restaurants }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -62,6 +66,7 @@ export function AdminNavbar({ email }: Props) {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-2 md:flex">
+          <RestaurantSelector active={activeRestaurant} restaurants={restaurants} />
           <a
             href="https://kanpai-blue.com"
             target="_blank"
@@ -106,6 +111,9 @@ export function AdminNavbar({ email }: Props) {
                 {label}
               </NavLink>
             ))}
+            <div className="mt-2 border-t border-ink-ghost pt-3">
+              <RestaurantSelector active={activeRestaurant} restaurants={restaurants} />
+            </div>
             <a
               href="https://kanpai-blue.com"
               target="_blank"

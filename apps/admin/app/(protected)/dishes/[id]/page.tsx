@@ -5,12 +5,14 @@ import { DishForm } from "@/components/DishForm";
 import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/PageHeader";
 import { updateDish } from "../actions";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 type Params = { id: string };
 
 export default async function EditDishPage({ params }: { params: Params }) {
+  const restaurantId = getActiveRestaurantId();
   const [categories, dish] = await Promise.all([
-    listCategoriesWithCounts(),
+    listCategoriesWithCounts(restaurantId),
     getDish(params.id),
   ]);
 

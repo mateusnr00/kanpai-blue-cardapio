@@ -6,14 +6,19 @@ import type { Category } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { DishImage } from "./DishImage";
 
-export function CategoryCard({ category }: { category: Category }) {
+type CategoryCardProps = {
+  category: Category;
+  restaurantId: string;
+};
+
+export function CategoryCard({ category, restaurantId }: CategoryCardProps) {
   const isFeatured = !!category.featured;
   const borderStyle = isFeatured ? "1px solid var(--ink)" : "0.5px solid var(--ink-faint)";
 
   return (
     <motion.div whileTap={{ scale: 0.985 }} transition={{ duration: 0.15 }}>
       <Link
-        href={`/${category.id}`}
+        href={`/${restaurantId}/${category.id}`}
         aria-label={`Abrir categoria ${category.name}`}
         style={{
           display: "block",

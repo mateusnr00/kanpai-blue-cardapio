@@ -13,10 +13,13 @@ import { IntroAnimation } from "@/components/IntroAnimation";
 
 const SESSION_KEY = "kanpai-intro-seen";
 
-export function HomePageClient({ categories }: { categories: Category[] }) {
-  // Decisão sobre tocar a intro só rola no cliente (precisa de sessionStorage).
-  // Durante SSR / hidratação inicial, mantemos as cards "escondidas" (opacity 0)
-  // até o cliente decidir.
+type Props = {
+  categories: Category[];
+  restaurantId: string;
+  restaurantName: string;
+};
+
+export function HomePageClient({ categories, restaurantId, restaurantName }: Props) {
   const [decided, setDecided] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
 
@@ -27,8 +30,8 @@ export function HomePageClient({ categories }: { categories: Category[] }) {
     } catch {}
     setShowIntro(!seen);
     setDecided(true);
-    track({ event_type: "home_view" });
-  }, []);
+    track({ event_type: "home_view", restaurant_id: restaurantId });
+  }, [restaurantId]);
 
   const handleIntroDone = () => {
     try {
@@ -113,7 +116,7 @@ export function HomePageClient({ categories }: { categories: Category[] }) {
                   }}
                   style={category.fullWidth ? { gridColumn: "1 / -1" } : undefined}
                 >
-                  <CategoryCard category={category} />
+                  <CategoryCard category={category} restaurantId={restaurantId} />
                 </motion.div>
               ))}
             </motion.div>

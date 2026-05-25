@@ -3,9 +3,11 @@ import { DishForm } from "@/components/DishForm";
 import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/PageHeader";
 import { createDish } from "../actions";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 export default async function NewDishPage({ searchParams }: { searchParams: { cat?: string } }) {
-  const categories = await listCategoriesWithCounts();
+  const restaurantId = getActiveRestaurantId();
+  const categories = await listCategoriesWithCounts(restaurantId);
 
   return (
     <section className="flex w-full flex-col gap-6">

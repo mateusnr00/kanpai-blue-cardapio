@@ -7,16 +7,18 @@ import { CategoryChips } from "@/components/CategoryChips";
 import { DishesTableSortable } from "@/components/DishesTableSortable";
 import { ExecutivoDeleteButton } from "@/components/ExecutivoDeleteButton";
 import { PageHeader } from "@/components/PageHeader";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 type SearchParams = { cat?: string };
 
 const EXECUTIVO_CATEGORY_SLUG = "executivo";
 
 export default async function CardapioPage({ searchParams }: { searchParams: SearchParams }) {
-  const categories = await listCategoriesWithCounts();
-  const selectedId = searchParams.cat ?? categories[0]?.id ?? "";
-  const selected = categories.find((c) => c.id === selectedId) ?? categories[0];
-  const isExecutivoCategory = selected?.id === EXECUTIVO_CATEGORY_SLUG;
+  const restaurantId = getActiveRestaurantId();
+  const categories = await listCategoriesWithCounts(restaurantId);
+  const selectedSlug = searchParams.cat ?? categories[0]?.slug ?? "";
+  const selected = categories.find((c) => c.slug === selectedSlug) ?? categories[0];
+  const isExecutivoCategory = selected?.slug === EXECUTIVO_CATEGORY_SLUG;
 
   const [dishes, executivos] = selected
     ? await Promise.all([
@@ -51,7 +53,7 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
         }
       />
 
-      <CategoryChips categories={categories} selectedId={selectedId} />
+      <CategoryChips categories={categories} selectedSlug={selectedSlug} />
 
       {selected && !isExecutivoCategory ? (
         <DishesTableSortable key={selected.id} categoryId={selected.id} initial={dishes} />

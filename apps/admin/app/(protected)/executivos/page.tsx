@@ -3,9 +3,11 @@ import { Plus, PencilSimple, Briefcase } from "@phosphor-icons/react/dist/ssr";
 import { listExecutivos } from "@/lib/data/executivos";
 import { ExecutivoDeleteButton } from "@/components/ExecutivoDeleteButton";
 import { PageHeader } from "@/components/PageHeader";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 export default async function ExecutivosPage() {
-  const executivos = await listExecutivos();
+  const restaurantId = getActiveRestaurantId();
+  const executivos = await listExecutivos(restaurantId);
 
   return (
     <section className="flex w-full flex-col gap-6">

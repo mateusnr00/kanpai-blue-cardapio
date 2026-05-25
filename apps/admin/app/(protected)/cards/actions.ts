@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase-server";
 import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-actions";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 function slugify(input: string): string {
   return input
@@ -101,39 +102,47 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
     return { error: "Nome, número, descrição e gradient são obrigatórios." };
   }
 
-  let id = String(formData.get("id") ?? "").trim();
-  if (!id) id = slugify(name);
+  const restaurantId = getActiveRestaurantId();
+
+  let slug = String(formData.get("id") ?? "").trim();
+  if (!slug) slug = slugify(name);
 
   const { data: maxRow } = await supabase
     .from("categories")
     .select("position")
+    .eq("restaurant_id", restaurantId)
     .order("position", { ascending: false })
     .limit(1)
     .maybeSingle();
   const position = (maxRow?.position ?? -1) + 1;
 
-  const { error: insertErr } = await supabase.from("categories").insert({
-    id,
-    number,
-    name,
-    short_name,
-    description,
-    item_count,
-    detail,
-    gradient,
-    featured,
-    full_width,
-    active: true,
-    position,
-    subcategories,
-  });
+  const { data: inserted, error: insertErr } = await supabase
+    .from("categories")
+    .insert({
+      slug,
+      restaurant_id: restaurantId,
+      number,
+      name,
+      short_name,
+      description,
+      item_count,
+      detail,
+      gradient,
+      featured,
+      full_width,
+      active: true,
+      position,
+      subcategories,
+    })
+    .select("id")
+    .single();
 
-  if (insertErr) return { error: insertErr.message };
+  if (insertErr || !inserted) return { error: insertErr?.message ?? "Falha ao criar." };
 
   try {
-    const newPath = await handleCategoryImage(formData, id, null);
+    const newPath = await handleCategoryImage(formData, inserted.id, null);
     if (newPath) {
-      await supabase.from("categories").update({ image_path: newPath }).eq("id", id);
+      await supabase.from("categories").update({ image_path: newPath }).eq("id", inserted.id);
     }
   } catch (e) {
     return { error: (e as Error).message };

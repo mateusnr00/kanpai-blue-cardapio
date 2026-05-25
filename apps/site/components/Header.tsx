@@ -14,9 +14,11 @@ const SPONSOR_URL =
 type Props = {
   showBack?: boolean;
   categories: Category[];
+  restaurantId?: string;
 };
 
-export function Header({ showBack = false, categories }: Props) {
+export function Header({ showBack = false, categories, restaurantId }: Props) {
+  const homeHref = restaurantId ? `/${restaurantId}` : "/";
   return (
     <header
       className="sticky top-0 z-30 flex items-center justify-between"
@@ -30,7 +32,7 @@ export function Header({ showBack = false, categories }: Props) {
       <div className="flex items-center gap-3">
         {showBack && (
           <Link
-            href="/"
+            href={homeHref}
             aria-label="Voltar para o cardápio"
             className="flex items-center justify-center"
             style={{ width: 14, height: 14 }}
@@ -47,7 +49,7 @@ export function Header({ showBack = false, categories }: Props) {
           </Link>
         )}
         <Link
-          href="/"
+          href={homeHref}
           aria-label="Kanpai Blue, ir para o cardápio"
           style={{ display: "inline-flex", alignItems: "center" }}
         >

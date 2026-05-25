@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCategories, getCategoryBySlug } from "@/lib/menu-server";
+import { getCategories, getCategoryBySlug, getRestaurantById, listRestaurants } from "@/lib/menu-server";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -9,24 +9,28 @@ import { CategoryView } from "@/components/CategoryView";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  // Em build time sem env do Supabase (ex: preview deploy sem secrets),
-  // devolve lista vazia — paginas sao geradas on-demand no primeiro
-  // request (dynamicParams default = true).
   try {
-    const categories = await getCategories();
-    return categories.map((c) => ({ categoria: c.id }));
+    const restaurants = await listRestaurants();
+    const out: { restaurant: string; categoria: string }[] = [];
+    for (const r of restaurants) {
+      const categories = await getCategories(r.id);
+      for (const c of categories) out.push({ restaurant: r.id, categoria: c.id });
+    }
+    return out;
   } catch (err) {
     console.warn("[generateStaticParams] skip prerender:", (err as Error).message);
     return [];
   }
 }
 
-export async function generateMetadata({ params }: { params: { categoria: string } }) {
+export async function generateMetadata({ params }: { params: { restaurant: string; categoria: string } }) {
   try {
-    const category = await getCategoryBySlug(params.categoria);
-    if (!category) return { title: "Categoria · Kanpai Blue" };
+    const r = await getRestaurantById(params.restaurant);
+    if (!r) return { title: "Categoria · Kanpai Blue" };
+    const category = await getCategoryBySlug(r.id, params.categoria);
+    if (!category) return { title: `${r.name} · Cardápio` };
     return {
-      title: `${category.name} · Kanpai Blue`,
+      title: `${category.name} · ${r.name}`,
       description: `${category.itemCount} · ${category.detail}`,
     };
   } catch {
@@ -34,10 +38,13 @@ export async function generateMetadata({ params }: { params: { categoria: string
   }
 }
 
-export default async function CategoryPage({ params }: { params: { categoria: string } }) {
+export default async function CategoryPage({ params }: { params: { restaurant: string; categoria: string } }) {
+  const restaurant = await getRestaurantById(params.restaurant);
+  if (!restaurant) notFound();
+
   const [categories, category] = await Promise.all([
-    getCategories(),
-    getCategoryBySlug(params.categoria),
+    getCategories(restaurant.id),
+    getCategoryBySlug(restaurant.id, params.categoria),
   ]);
   if (!category) notFound();
 
@@ -49,15 +56,14 @@ export default async function CategoryPage({ params }: { params: { categoria: st
 
   return (
     <AppShell>
-      <Header showBack categories={categories} />
+      <Header showBack categories={categories} restaurantId={restaurant.id} />
       <main style={{ position: "relative" }}>
-        <CategoryView category={category} />
+        <CategoryView category={category} restaurantId={restaurant.id} />
       </main>
       <Footer
         left={`${category.number} / ${String(total).padStart(2, "0")}`}
         right={rightLabel}
       />
-      {/* Espaço pro FAB flutuante não cobrir o footer */}
       <div
         aria-hidden
         style={{

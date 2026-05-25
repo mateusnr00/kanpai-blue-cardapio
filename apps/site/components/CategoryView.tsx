@@ -11,6 +11,7 @@ import { ExecutivoMenuCard } from "./ExecutivoMenuCard";
 
 type Props = {
   category: Category;
+  restaurantId: string;
 };
 
 type Row =
@@ -92,7 +93,7 @@ function groupDishes(dishes: Dish[], order: string[] | undefined): Group[] {
   return result;
 }
 
-export function CategoryView({ category }: Props) {
+export function CategoryView({ category, restaurantId }: Props) {
   const isExecutivo = !!category.executivos && category.executivos.length > 0;
   const subcategories = category.subcategories ?? [];
   const hasSubcats = subcategories.length > 0;
@@ -104,8 +105,8 @@ export function CategoryView({ category }: Props) {
 
   // Analytics: registra abertura da categoria
   useEffect(() => {
-    track({ event_type: "category_open", category_id: category.id });
-  }, [category.id]);
+    track({ event_type: "category_open", category_id: category.id, restaurant_id: restaurantId });
+  }, [category.id, restaurantId]);
 
   // Scroll-spy: rastreia qual secao esta visivel pra destacar o chip
   const [activeSubcat, setActiveSubcat] = useState<string>(subcategories[0] ?? "");
@@ -204,6 +205,7 @@ export function CategoryView({ category }: Props) {
               menu={menu}
               number={String(idx + 1).padStart(2, "0")}
               variant={idx % 2 === 0 ? "blue" : "beige"}
+              restaurantId={restaurantId}
             />
           ))}
 
@@ -280,6 +282,7 @@ export function CategoryView({ category }: Props) {
                         dish={row.dish}
                         number={row.number}
                         variant={row.featuredIndex % 2 === 0 ? "blue" : "beige"}
+                        restaurantId={restaurantId}
                       />
                     );
                   }
@@ -297,12 +300,14 @@ export function CategoryView({ category }: Props) {
                         dish={row.left.dish}
                         number={row.left.number}
                         gradientIndex={rowIdx}
+                        restaurantId={restaurantId}
                       />
                       {row.right && (
                         <DishCardSmall
                           dish={row.right.dish}
                           number={row.right.number}
                           gradientIndex={rowIdx + 1}
+                          restaurantId={restaurantId}
                         />
                       )}
                     </div>

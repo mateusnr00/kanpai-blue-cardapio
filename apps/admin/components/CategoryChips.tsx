@@ -6,16 +6,16 @@ import type { CategoryListItem } from "@/lib/data/categories";
 
 type Props = {
   categories: CategoryListItem[];
-  selectedId?: string;
+  selectedSlug?: string;
 };
 
-export function CategoryChips({ categories, selectedId: selectedIdProp }: Props) {
+export function CategoryChips({ categories, selectedSlug: selectedSlugProp }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedId = selectedIdProp ?? searchParams.get("cat") ?? categories[0]?.id ?? "";
+  const selectedSlug = selectedSlugProp ?? searchParams.get("cat") ?? categories[0]?.slug ?? "";
 
-  function onCategoryChange(catId: string) {
-    router.push(`/?cat=${catId}`);
+  function onCategoryChange(slug: string) {
+    router.push(`/?cat=${slug}`);
   }
 
   if (categories.length === 0) return null;
@@ -27,10 +27,10 @@ export function CategoryChips({ categories, selectedId: selectedIdProp }: Props)
       </label>
       <AdminSelect
         id="cardapio-category"
-        value={selectedId}
+        value={selectedSlug}
         onChange={onCategoryChange}
         options={categories.map((cat) => ({
-          value: cat.id,
+          value: cat.slug,
           label: `${cat.name} (${cat.active}/${cat.total})`,
         }))}
         className="mt-1.5"

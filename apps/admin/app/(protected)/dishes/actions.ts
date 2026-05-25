@@ -119,6 +119,14 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
   let slug = String(formData.get("slug") ?? "").trim();
   if (!slug) slug = slugify(name);
 
+  // restaurant_id deriva da categoria escolhida (consistencia garantida)
+  const { data: cat } = await supabase
+    .from("categories")
+    .select("restaurant_id, slug")
+    .eq("id", categoryId)
+    .maybeSingle();
+  if (!cat) return { error: "Categoria inválida." };
+
   const { data: maxRow } = await supabase
     .from("dishes")
     .select("position")
@@ -133,6 +141,7 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
     .insert({
       slug,
       category_id: categoryId,
+      restaurant_id: cat.restaurant_id,
       name,
       description,
       price,
@@ -161,7 +170,7 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
   await syncVariants(inserted.id, variants);
 
   revalidatePath("/");
-  redirect(`/?cat=${categoryId}`);
+  redirect(`/?cat=${cat.slug}`);
 }
 
 export async function updateDish(id: string, formData: FormData): Promise<{ error?: string }> {
@@ -183,6 +192,13 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     .eq("id", id)
     .maybeSingle();
 
+  const { data: cat } = await supabase
+    .from("categories")
+    .select("restaurant_id, slug")
+    .eq("id", categoryId)
+    .maybeSingle();
+  if (!cat) return { error: "Categoria inválida." };
+
   let imagePath: string | null = current?.image_path ?? null;
   try {
     imagePath = await handleImage(formData, "image", id, current?.image_path ?? null);
@@ -194,6 +210,7 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     .from("dishes")
     .update({
       category_id: categoryId,
+      restaurant_id: cat.restaurant_id,
       name,
       description,
       price,
@@ -212,5 +229,5 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   await syncVariants(id, variants);
 
   revalidatePath("/");
-  redirect(`/?cat=${categoryId}`);
+  redirect(`/?cat=${cat.slug}`);
 }

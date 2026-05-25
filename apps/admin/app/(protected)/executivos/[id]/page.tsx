@@ -5,12 +5,14 @@ import { ExecutivoForm } from "@/components/ExecutivoForm";
 import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/PageHeader";
 import { updateExecutivo } from "../actions";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 type Params = { id: string };
 
 export default async function EditExecutivoPage({ params }: { params: Params }) {
+  const restaurantId = getActiveRestaurantId();
   const [categories, executivo] = await Promise.all([
-    listCategoriesWithCounts(),
+    listCategoriesWithCounts(restaurantId),
     getExecutivo(params.id),
   ]);
 

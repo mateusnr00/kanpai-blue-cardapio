@@ -8,18 +8,54 @@ function imageUrl(path: string | null): string | undefined {
   return `${STORAGE_BASE}${path}`;
 }
 
-export async function getCategories(): Promise<Category[]> {
+export type RestaurantInfo = {
+  id: string;
+  name: string;
+  shortName: string;
+};
+
+export async function listRestaurants(): Promise<RestaurantInfo[]> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("restaurants")
+    .select("id, name, short_name, position")
+    .eq("active", true)
+    .order("position");
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ id: r.id, name: r.name, shortName: r.short_name }));
+}
+
+export async function getRestaurantById(id: string): Promise<RestaurantInfo | null> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("restaurants")
+    .select("id, name, short_name")
+    .eq("id", id)
+    .eq("active", true)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return { id: data.id, name: data.name, shortName: data.short_name };
+}
+
+/**
+ * Carrega o cardápio completo de uma unidade. Devolve `Category[]` no shape
+ * usado pelos componentes do site, com `category.id` = slug (não uuid).
+ */
+export async function getCategories(restaurantId: string): Promise<Category[]> {
   const supabase = createServerClient();
 
   const [catsRes, dishesRes, sectionsRes, execMenusRes, execItemsRes] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width")
+      .select("id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width")
+      .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
     supabase
       .from("dishes")
       .select("id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, position, badges")
+      .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
     supabase
@@ -29,6 +65,7 @@ export async function getCategories(): Promise<Category[]> {
     supabase
       .from("executivo_menus")
       .select("id, category_id, name, price, format, description, validity, subcategory, position")
+      .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
     supabase
@@ -50,7 +87,8 @@ export async function getCategories(): Promise<Category[]> {
     sectionsByDish.set(s.dish_id, arr);
   }
 
-  const dishesByCategory = new Map<string, Dish[]>();
+  // chaves dos maps internos = uuid (category_id no DB)
+  const dishesByCategoryUuid = new Map<string, Dish[]>();
   for (const d of dishesRes.data ?? []) {
     const sections = sectionsByDish.get(d.id) ?? [];
     const dish: Dish = {
@@ -71,9 +109,9 @@ export async function getCategories(): Promise<Category[]> {
         sections,
       };
     }
-    const arr = dishesByCategory.get(d.category_id) ?? [];
+    const arr = dishesByCategoryUuid.get(d.category_id) ?? [];
     arr.push(dish);
-    dishesByCategory.set(d.category_id, arr);
+    dishesByCategoryUuid.set(d.category_id, arr);
   }
 
   type ExecItem = { kind: "entrada" | "principal" | "sobremesa"; name: string; description: string; price: string | null };
@@ -84,7 +122,7 @@ export async function getCategories(): Promise<Category[]> {
     itemsByExec.set(it.executivo_id, arr);
   }
 
-  const execsByCategory = new Map<string, ExecutivoMenu[]>();
+  const execsByCategoryUuid = new Map<string, ExecutivoMenu[]>();
   for (const ex of execMenusRes.data ?? []) {
     const items = itemsByExec.get(ex.id) ?? [];
     const exec: ExecutivoMenu = {
@@ -101,14 +139,14 @@ export async function getCategories(): Promise<Category[]> {
     if (sobremesas.length > 0) {
       exec.sobremesas = sobremesas.map((it) => ({ name: it.name, description: it.description, price: it.price ?? "" }));
     }
-    const arr = execsByCategory.get(ex.category_id) ?? [];
+    const arr = execsByCategoryUuid.get(ex.category_id) ?? [];
     arr.push(exec);
-    execsByCategory.set(ex.category_id, arr);
+    execsByCategoryUuid.set(ex.category_id, arr);
   }
 
   return (catsRes.data ?? []).map((c): Category => {
     const cat: Category = {
-      id: c.id,
+      id: c.slug, // expõe slug pros componentes
       number: c.number,
       name: c.name,
       shortName: c.short_name ?? undefined,
@@ -120,15 +158,15 @@ export async function getCategories(): Promise<Category[]> {
       gradient: c.gradient,
       image: imageUrl(c.image_path),
       fullWidth: c.full_width,
-      dishes: dishesByCategory.get(c.id) ?? [],
+      dishes: dishesByCategoryUuid.get(c.id) ?? [],
     };
-    const execs = execsByCategory.get(c.id);
+    const execs = execsByCategoryUuid.get(c.id);
     if (execs && execs.length > 0) cat.executivos = execs;
     return cat;
   });
 }
 
-export async function getCategoryBySlug(slug: string): Promise<Category | undefined> {
-  const all = await getCategories();
+export async function getCategoryBySlug(restaurantId: string, slug: string): Promise<Category | undefined> {
+  const all = await getCategories(restaurantId);
   return all.find((c) => c.id === slug);
 }

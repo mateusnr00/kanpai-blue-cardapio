@@ -21,14 +21,15 @@ type Props = {
   dish: Dish;
   number: string;
   gradientIndex: number;
+  restaurantId: string;
 };
 
-export function DishCardSmall({ dish, number, gradientIndex }: Props) {
+export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Props) {
   const gradient = SMALL_GRADIENTS[gradientIndex % SMALL_GRADIENTS.length];
   const hasPrice = dish.price && dish.price.length > 0;
   const onImpression = useCallback(() => {
-    track({ event_type: "dish_impression", dish_slug: dish.id });
-  }, [dish.id]);
+    track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
+  }, [dish.id, restaurantId]);
   const ref = useImpressionOnce<HTMLElement>(onImpression);
 
   return (

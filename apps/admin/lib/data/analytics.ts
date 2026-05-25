@@ -61,6 +61,7 @@ export type EventRow = {
 };
 
 async function fetchEvents(
+  restaurantId: string,
   start: string | null,
   end: string
 ): Promise<EventRow[]> {
@@ -68,6 +69,7 @@ async function fetchEvents(
   let q = supabase
     .from("analytics_events")
     .select("visitor_id, session_id, event_type, category_id, dish_slug, created_at")
+    .eq("restaurant_id", restaurantId)
     .lt("created_at", end);
   if (start) q = q.gte("created_at", start);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(50000);
@@ -223,14 +225,14 @@ function computeHourHistogram(events: EventRow[]): number[] {
 export type CategoryRank = { id: string; name: string; clicks: number; people: number };
 export type DishRank = { slug: string; name: string; impressions: number; views: number; people: number };
 
-async function loadNames() {
+async function loadNames(restaurantId: string) {
   const supabase = createServerClient();
   const [catsRes, dishesRes] = await Promise.all([
-    supabase.from("categories").select("id, name"),
-    supabase.from("dishes").select("slug, name"),
+    supabase.from("categories").select("slug, name").eq("restaurant_id", restaurantId),
+    supabase.from("dishes").select("slug, name").eq("restaurant_id", restaurantId),
   ]);
   const cats = new Map<string, string>();
-  for (const c of catsRes.data ?? []) cats.set(c.id, c.name);
+  for (const c of catsRes.data ?? []) cats.set(c.slug, c.name);
   const dishes = new Map<string, string>();
   for (const d of dishesRes.data ?? []) dishes.set(d.slug, d.name);
   return { cats, dishes };
@@ -284,11 +286,11 @@ export type DashboardData = {
   topDishes: DishRank[];
 };
 
-export async function loadDashboard(range: Range): Promise<DashboardData> {
+export async function loadDashboard(range: Range, restaurantId: string): Promise<DashboardData> {
   const window = rangeWindow(range);
   const [events, names] = await Promise.all([
-    fetchEvents(window.start, window.end),
-    loadNames(),
+    fetchEvents(restaurantId, window.start, window.end),
+    loadNames(restaurantId),
   ]);
 
   const stats = computeStats(events);
@@ -300,7 +302,7 @@ export async function loadDashboard(range: Range): Promise<DashboardData> {
 
   let prevStats: Stats | null = null;
   if (window.prevStart && window.prevEnd) {
-    const prev = await fetchEvents(window.prevStart, window.prevEnd);
+    const prev = await fetchEvents(restaurantId, window.prevStart, window.prevEnd);
     prevStats = computeStats(prev);
   }
 

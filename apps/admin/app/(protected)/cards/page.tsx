@@ -4,10 +4,14 @@ import { listCategoriesAll } from "@/lib/data/categories";
 import { createServerClient } from "@/lib/supabase-server";
 import { CategoriesTable } from "@/components/CategoriesTable";
 import { PageHeader } from "@/components/PageHeader";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
-async function countByCategory(): Promise<Record<string, number>> {
+async function countByCategory(restaurantId: string): Promise<Record<string, number>> {
   const supabase = createServerClient();
-  const { data, error } = await supabase.from("dishes").select("category_id");
+  const { data, error } = await supabase
+    .from("dishes")
+    .select("category_id")
+    .eq("restaurant_id", restaurantId);
   if (error) throw error;
   const counts: Record<string, number> = {};
   for (const d of data ?? []) {
@@ -17,9 +21,10 @@ async function countByCategory(): Promise<Record<string, number>> {
 }
 
 export default async function CardsPage() {
+  const restaurantId = getActiveRestaurantId();
   const [categories, dishCounts] = await Promise.all([
-    listCategoriesAll(),
-    countByCategory(),
+    listCategoriesAll(restaurantId),
+    countByCategory(restaurantId),
   ]);
 
   return (

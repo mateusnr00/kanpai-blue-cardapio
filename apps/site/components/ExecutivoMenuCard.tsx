@@ -9,6 +9,7 @@ type Props = {
   menu: ExecutivoMenu;
   number: string;
   variant?: "blue" | "beige";
+  restaurantId: string;
 };
 
 const FEATURED_BLUE = "linear-gradient(135deg, #1A0E6E 0%, #2A1E8E 100%)";
@@ -30,11 +31,13 @@ function Section({
   items,
   prefix,
   startIndex,
+  restaurantId,
 }: {
   label: string;
   items: ExecItem[];
   prefix: string;
   startIndex: number;
+  restaurantId: string;
 }) {
   if (!items || items.length === 0) return null;
 
@@ -85,6 +88,7 @@ function Section({
                   dish={toDish(item, prefix, flatIdx)}
                   number={String(overallIdx + 1).padStart(2, "0")}
                   gradientIndex={overallIdx}
+                  restaurantId={restaurantId}
                 />
               );
             })}
@@ -95,7 +99,7 @@ function Section({
   );
 }
 
-export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
+export function ExecutivoMenuCard({ menu, number, variant = "blue", restaurantId }: Props) {
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
 
@@ -215,12 +219,14 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
           items={menu.entradas}
           prefix={`${menu.name}-ent`}
           startIndex={0}
+          restaurantId={restaurantId}
         />
         <Section
           label="Principais"
           items={menu.principais}
           prefix={`${menu.name}-pri`}
           startIndex={principaisStart}
+          restaurantId={restaurantId}
         />
         {menu.sobremesas && menu.sobremesas.length > 0 && (
           <Section
@@ -228,6 +234,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
             items={menu.sobremesas}
             prefix={`${menu.name}-sob`}
             startIndex={sobremesasStart}
+            restaurantId={restaurantId}
           />
         )}
       </div>

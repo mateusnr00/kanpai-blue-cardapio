@@ -43,6 +43,7 @@ export type AnalyticsEventInput = {
   event_type: "home_view" | "category_open" | "dish_view" | "dish_impression";
   category_id?: string | null;
   dish_slug?: string | null;
+  restaurant_id: string;
 };
 
 export async function track(input: AnalyticsEventInput): Promise<void> {
@@ -56,6 +57,7 @@ export async function track(input: AnalyticsEventInput): Promise<void> {
       visitor_id,
       session_id,
       event_type: input.event_type,
+      restaurant_id: input.restaurant_id,
       category_id: input.category_id ?? null,
       dish_slug: input.dish_slug ?? null,
       pathname: window.location.pathname,

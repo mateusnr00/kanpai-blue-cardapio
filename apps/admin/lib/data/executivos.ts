@@ -22,15 +22,19 @@ export type ExecutivoItemRow = {
   position: number;
 };
 
-export async function listExecutivos(): Promise<Array<ExecutivoRow & { category_name: string }>> {
+export async function listExecutivos(restaurantId: string): Promise<Array<ExecutivoRow & { category_name: string }>> {
   const supabase = createServerClient();
   const exRes = await supabase
     .from("executivo_menus")
     .select("id, category_id, name, price, format, description, validity, subcategory, position, active")
+    .eq("restaurant_id", restaurantId)
     .order("position");
   if (exRes.error) throw exRes.error;
 
-  const catRes = await supabase.from("categories").select("id, name");
+  const catRes = await supabase
+    .from("categories")
+    .select("id, name")
+    .eq("restaurant_id", restaurantId);
   if (catRes.error) throw catRes.error;
 
   const catMap = new Map((catRes.data ?? []).map((c) => [c.id, c.name]));

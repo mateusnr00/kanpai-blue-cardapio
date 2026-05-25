@@ -5,6 +5,7 @@ import { DayChart } from "@/components/analytics/DayChart";
 import { HourHistogram } from "@/components/analytics/HourHistogram";
 import { TopList } from "@/components/analytics/TopList";
 import { loadDashboard, type Range } from "@/lib/data/analytics";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 type SearchParams = { range?: string };
 
@@ -34,7 +35,8 @@ function delta(current: number, prev: number | undefined | null): number | null 
 
 export default async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   const range = asRange(searchParams.range);
-  const data = await loadDashboard(range);
+  const restaurantId = getActiveRestaurantId();
+  const data = await loadDashboard(range, restaurantId);
   const { stats, prevStats, insights, daySeries, hourHistogram, topCategories, topDishes } = data;
 
   return (

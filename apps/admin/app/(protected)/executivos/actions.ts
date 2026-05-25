@@ -83,9 +83,18 @@ export async function createExecutivo(formData: FormData): Promise<{ error?: str
     return { error: "Categoria, nome, preço, formato e descrição obrigatórios." };
   }
 
+  // restaurant_id deriva da categoria
+  const { data: cat } = await supabase
+    .from("categories")
+    .select("restaurant_id")
+    .eq("id", category_id)
+    .maybeSingle();
+  if (!cat) return { error: "Categoria inválida." };
+
   const { data: maxRow } = await supabase
     .from("executivo_menus")
     .select("position")
+    .eq("restaurant_id", cat.restaurant_id)
     .order("position", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -95,6 +104,7 @@ export async function createExecutivo(formData: FormData): Promise<{ error?: str
     .from("executivo_menus")
     .insert({
       category_id,
+      restaurant_id: cat.restaurant_id,
       name,
       price,
       format,
@@ -136,9 +146,17 @@ export async function updateExecutivo(id: string, formData: FormData): Promise<{
     return { error: "Categoria, nome, preço, formato e descrição obrigatórios." };
   }
 
+  // restaurant_id pode mudar se a categoria escolhida pertence a outra unidade
+  const { data: cat } = await supabase
+    .from("categories")
+    .select("restaurant_id")
+    .eq("id", category_id)
+    .maybeSingle();
+  if (!cat) return { error: "Categoria inválida." };
+
   const { error } = await supabase
     .from("executivo_menus")
-    .update({ category_id, name, price, format, description, validity, subcategory })
+    .update({ category_id, restaurant_id: cat.restaurant_id, name, price, format, description, validity, subcategory })
     .eq("id", id);
 
   if (error) return { error: error.message };

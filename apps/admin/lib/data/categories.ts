@@ -2,6 +2,7 @@ import { createServerClient } from "@/lib/supabase-server";
 
 export type CategoryListItem = {
   id: string;
+  slug: string;
   number: string;
   name: string;
   position: number;
@@ -11,6 +12,7 @@ export type CategoryListItem = {
 
 export type CategoryRow = {
   id: string;
+  slug: string;
   number: string;
   name: string;
   short_name: string | null;
@@ -24,15 +26,29 @@ export type CategoryRow = {
   subcategories: string[];
   image_path: string | null;
   full_width: boolean;
+  restaurant_id: string;
 };
 
-export async function listCategoriesWithCounts(): Promise<CategoryListItem[]> {
+const CATEGORY_FIELDS =
+  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, full_width, restaurant_id";
+
+export async function listCategoriesWithCounts(restaurantId: string): Promise<CategoryListItem[]> {
   const supabase = createServerClient();
 
   const [catsRes, dishesRes, execsRes] = await Promise.all([
-    supabase.from("categories").select("id, number, name, position").order("position"),
-    supabase.from("dishes").select("category_id, active"),
-    supabase.from("executivo_menus").select("category_id, active"),
+    supabase
+      .from("categories")
+      .select("id, slug, number, name, position")
+      .eq("restaurant_id", restaurantId)
+      .order("position"),
+    supabase
+      .from("dishes")
+      .select("category_id, active")
+      .eq("restaurant_id", restaurantId),
+    supabase
+      .from("executivo_menus")
+      .select("category_id, active")
+      .eq("restaurant_id", restaurantId),
   ]);
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;
@@ -50,6 +66,7 @@ export async function listCategoriesWithCounts(): Promise<CategoryListItem[]> {
 
   return (catsRes.data ?? []).map((c) => ({
     id: c.id,
+    slug: c.slug,
     number: c.number,
     name: c.name,
     position: c.position,
@@ -58,11 +75,12 @@ export async function listCategoriesWithCounts(): Promise<CategoryListItem[]> {
   }));
 }
 
-export async function listCategoriesAll(): Promise<CategoryRow[]> {
+export async function listCategoriesAll(restaurantId: string): Promise<CategoryRow[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, full_width")
+    .select(CATEGORY_FIELDS)
+    .eq("restaurant_id", restaurantId)
     .order("position");
   if (error) throw error;
   return data ?? [];
@@ -72,8 +90,24 @@ export async function getCategory(id: string): Promise<CategoryRow | null> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, full_width")
+    .select(CATEGORY_FIELDS)
     .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Lookup por slug DENTRO de uma unidade (uma categoria por slug por restaurant).
+ * Usado na home do admin pra resolver `?cat=festival` no contexto do restaurante ativo.
+ */
+export async function getCategoryBySlug(slug: string, restaurantId: string): Promise<CategoryRow | null> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select(CATEGORY_FIELDS)
+    .eq("restaurant_id", restaurantId)
+    .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;
   return data;
