@@ -124,6 +124,26 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
     );
   }
 
+  // Detecta se a categoria usa subcategorias (>=1 prato com subcategory preenchido)
+  const usesSubcategories = items.some((d) => d.subcategory);
+
+  // Agrupa preservando a ordem: itens sem subcategoria primeiro (destaques/topo),
+  // depois cada subcategoria na ordem em que aparece no array.
+  const groups: Array<{ label: string | null; rows: DishListRow[] }> = [];
+  if (usesSubcategories) {
+    const seen = new Set<string | null>();
+    for (const d of items) {
+      const key = d.subcategory ?? null;
+      if (!seen.has(key)) {
+        seen.add(key);
+        groups.push({ label: key, rows: [] });
+      }
+      groups.find((g) => g.label === key)!.rows.push(d);
+    }
+  } else {
+    groups.push({ label: null, rows: items });
+  }
+
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
@@ -137,15 +157,31 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
             <th className="text-right">Ações</th>
           </tr>
         </thead>
-        <tbody>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
-              {items.map((d) => (
-                <SortableDishRow key={d.id} dish={d} />
-              ))}
-            </SortableContext>
-          </DndContext>
-        </tbody>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+            {groups.map((g) => (
+              <tbody key={g.label ?? "_top"}>
+                {usesSubcategories ? (
+                  <tr className="bg-bg-muted/60">
+                    <td colSpan={6} className="py-2.5">
+                      <div className="flex items-baseline justify-between gap-2 px-1">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                          {g.label ?? "Destaques"}
+                        </span>
+                        <span className="text-[11px] tabular-nums text-ink-faint">
+                          {g.rows.length} {g.rows.length === 1 ? "item" : "itens"}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : null}
+                {g.rows.map((d) => (
+                  <SortableDishRow key={d.id} dish={d} />
+                ))}
+              </tbody>
+            ))}
+          </SortableContext>
+        </DndContext>
       </table>
     </div>
   );

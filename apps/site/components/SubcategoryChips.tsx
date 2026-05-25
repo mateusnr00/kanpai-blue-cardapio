@@ -5,15 +5,19 @@ import { fs } from "@/lib/scale";
 
 type Props = {
   options: string[];
-  onChange?: (value: string) => void;
+  /** Chamado quando o usuario clica num chip. Recebe o valor selecionado. */
+  onSelect?: (value: string) => void;
+  /** Subcategoria atualmente ativa (controlado externamente, opcional). */
+  active?: string;
 };
 
-export function SubcategoryChips({ options, onChange }: Props) {
-  const [active, setActive] = useState(options[0] ?? "Todos");
+export function SubcategoryChips({ options, onSelect, active: activeProp }: Props) {
+  const [activeState, setActiveState] = useState(options[0] ?? "Todos");
+  const active = activeProp ?? activeState;
 
   const handle = (option: string) => {
-    setActive(option);
-    onChange?.(option);
+    setActiveState(option);
+    onSelect?.(option);
   };
 
   return (
@@ -22,10 +26,15 @@ export function SubcategoryChips({ options, onChange }: Props) {
       role="tablist"
       aria-label="Subcategorias"
       style={{
+        position: "sticky",
+        top: 58,
+        zIndex: 20,
         display: "flex",
         gap: 8,
         overflowX: "auto",
-        padding: "8px 22px",
+        padding: "10px 22px",
+        background: "var(--bg)",
+        borderBottom: "0.5px solid var(--ink-ghost)",
         scrollSnapType: "x proximity",
       }}
     >
@@ -51,6 +60,7 @@ export function SubcategoryChips({ options, onChange }: Props) {
               scrollSnapAlign: "start",
               transition: "background 180ms ease, color 180ms ease, border-color 180ms ease",
               whiteSpace: "nowrap",
+              cursor: "pointer",
             }}
           >
             {option}
