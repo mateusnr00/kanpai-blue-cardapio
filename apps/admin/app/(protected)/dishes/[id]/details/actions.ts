@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createServerClient } from "@/lib/supabase-server";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 import { tags } from "@/lib/cache-tags";
+import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
 
 type SectionInput = { label: string; description: string };
 
@@ -48,6 +49,8 @@ export async function saveDishDetails(
   revalidatePath(`/dishes/${dishId}`);
   revalidatePath(`/dishes/${dishId}/details`);
   revalidatePath("/");
-  revalidateTag(tags.menu(getActiveRestaurantId()));
+  const restaurantId = getActiveRestaurantId();
+  revalidateTag(tags.menu(restaurantId));
+  revalidateMenuOnSite(restaurantId);
   return {};
 }

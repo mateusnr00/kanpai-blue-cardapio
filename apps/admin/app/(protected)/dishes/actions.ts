@@ -6,9 +6,12 @@ import { createServerClient } from "@/lib/supabase-server";
 import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-actions";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 import { tags } from "@/lib/cache-tags";
+import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
 
 function revalidateMenu() {
-  revalidateTag(tags.menu(getActiveRestaurantId()));
+  const restaurantId = getActiveRestaurantId();
+  revalidateTag(tags.menu(restaurantId));
+  revalidateMenuOnSite(restaurantId);
 }
 
 function slugify(input: string): string {

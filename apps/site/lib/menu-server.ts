@@ -1,4 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { createServerClient } from "./supabase-server";
+import { tags } from "./cache-tags";
 import type { Category, Dish, DishDetailSection, DishComponent } from "./menu-types";
 
 const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/dish-images/`;
@@ -14,7 +16,7 @@ export type RestaurantInfo = {
   shortName: string;
 };
 
-export async function listRestaurants(): Promise<RestaurantInfo[]> {
+async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("restaurants")
@@ -25,7 +27,12 @@ export async function listRestaurants(): Promise<RestaurantInfo[]> {
   return (data ?? []).map((r) => ({ id: r.id, name: r.name, shortName: r.short_name }));
 }
 
-export async function getRestaurantById(id: string): Promise<RestaurantInfo | null> {
+export const listRestaurants = unstable_cache(listRestaurantsImpl, ["restaurants:list"], {
+  tags: [tags.restaurants()],
+  revalidate: 86400,
+});
+
+async function getRestaurantByIdImpl(id: string): Promise<RestaurantInfo | null> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("restaurants")
@@ -38,11 +45,19 @@ export async function getRestaurantById(id: string): Promise<RestaurantInfo | nu
   return { id: data.id, name: data.name, shortName: data.short_name };
 }
 
+export const getRestaurantById = unstable_cache(getRestaurantByIdImpl, ["restaurants:byId"], {
+  tags: [tags.restaurants()],
+  revalidate: 86400,
+});
+
 /**
  * Carrega o cardápio completo de uma unidade. Devolve `Category[]` no shape
  * usado pelos componentes do site, com `category.id` = slug (não uuid).
+ *
+ * Cacheado com tag `menu:<restaurantId>` — TTL longo (1 dia) porque o admin
+ * dispara `revalidateTag` via webhook `/api/revalidate` após cada mutação.
  */
-export async function getCategories(restaurantId: string): Promise<Category[]> {
+async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   const supabase = createServerClient();
 
   const [catsRes, dishesRes, sectionsRes, componentsRes] = await Promise.all([
@@ -147,6 +162,15 @@ export async function getCategories(restaurantId: string): Promise<Category[]> {
     fullWidth: c.full_width,
     dishes: dishesByCategoryUuid.get(c.id) ?? [],
   }));
+}
+
+export async function getCategories(restaurantId: string): Promise<Category[]> {
+  const cached = unstable_cache(
+    () => getCategoriesImpl(restaurantId),
+    [`menu:categories:${restaurantId}`],
+    { tags: [tags.menu(restaurantId)], revalidate: 86400 }
+  );
+  return cached();
 }
 
 export async function getCategoryBySlug(
