@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Plus, PencilSimple, Briefcase } from "@phosphor-icons/react/dist/ssr";
+import { Plus, PencilSimple, ImageSquare } from "@phosphor-icons/react/dist/ssr";
 import { listCategoriesWithCounts } from "@/lib/data/categories";
 import { listDishesByCategory } from "@/lib/data/dishes";
-import { listExecutivosByCategory } from "@/lib/data/executivos";
+import { listExecutivosWithItemsByCategory, type ExecutivoWithItems } from "@/lib/data/executivos";
 import { CategoryChips } from "@/components/CategoryChips";
 import { DishesTableSortable } from "@/components/DishesTableSortable";
 import { ExecutivoDeleteButton } from "@/components/ExecutivoDeleteButton";
@@ -10,17 +10,22 @@ import { PageHeader } from "@/components/PageHeader";
 
 type SearchParams = { cat?: string };
 
+const EXECUTIVO_CATEGORY_SLUG = "executivo";
+
 export default async function CardapioPage({ searchParams }: { searchParams: SearchParams }) {
   const categories = await listCategoriesWithCounts();
   const selectedId = searchParams.cat ?? categories[0]?.id ?? "";
   const selected = categories.find((c) => c.id === selectedId) ?? categories[0];
+  const isExecutivoCategory = selected?.id === EXECUTIVO_CATEGORY_SLUG;
 
   const [dishes, executivos] = selected
     ? await Promise.all([
         listDishesByCategory(selected.id),
-        listExecutivosByCategory(selected.id),
+        isExecutivoCategory
+          ? listExecutivosWithItemsByCategory(selected.id)
+          : Promise.resolve([] as ExecutivoWithItems[]),
       ])
-    : [[], []];
+    : [[], [] as ExecutivoWithItems[]];
 
   return (
     <section className="flex w-full flex-col gap-6">
@@ -32,10 +37,15 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
             : "Selecione uma categoria"
         }
         action={
-          selected ? (
+          selected && !isExecutivoCategory ? (
             <Link href={`/dishes/new?cat=${selected.id}`} className="admin-btn-primary">
               <Plus size={18} weight="bold" />
               Novo item
+            </Link>
+          ) : isExecutivoCategory ? (
+            <Link href={`/executivos/new?cat=${selected.id}`} className="admin-btn-primary">
+              <Plus size={18} weight="bold" />
+              Novo executivo
             </Link>
           ) : null
         }
@@ -43,69 +53,85 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
 
       <CategoryChips categories={categories} selectedId={selectedId} />
 
-      {selected ? (
+      {selected && !isExecutivoCategory ? (
         <DishesTableSortable key={selected.id} categoryId={selected.id} initial={dishes} />
       ) : null}
 
-      {selected ? (
-        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0">
-            <h2 className="text-lg font-semibold tracking-tight text-ink sm:text-xl">Executivos</h2>
-            <p className="mt-1 text-sm text-ink-muted">
-              {executivos.length} menu{executivos.length === 1 ? "" : "s"} executivo{executivos.length === 1 ? "" : "s"} nesta categoria
-            </p>
-          </div>
-          <Link
-            href={`/executivos/new?cat=${selected.id}`}
-            className="admin-btn-secondary shrink-0"
-          >
-            <Plus size={18} weight="bold" />
-            Novo executivo
+      {selected && isExecutivoCategory ? (
+        <div className="flex flex-col gap-6">
+          {executivos.map((ex) => (
+            <ExecutivoCard key={ex.id} ex={ex} />
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function ExecutivoCard({ ex }: { ex: ExecutivoWithItems }) {
+  const entradas = ex.items.filter((it) => it.kind === "entrada");
+  const principais = ex.items.filter((it) => it.kind === "principal");
+  const sobremesas = ex.items.filter((it) => it.kind === "sobremesa");
+
+  return (
+    <article className="admin-card overflow-hidden">
+      <header className="flex flex-col gap-3 border-b border-ink-ghost px-6 py-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold tracking-tight text-ink sm:text-xl">{ex.name}</h2>
+          <p className="mt-1 text-sm text-ink-muted">{ex.format}</p>
+          <p className="mt-2 text-sm font-medium tabular-nums text-ink">{ex.price}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-1 sm:shrink-0">
+          <Link href={`/executivos/${ex.id}`} className="admin-btn-ghost">
+            <PencilSimple size={16} />
+            Editar
           </Link>
+          <ExecutivoDeleteButton id={ex.id} name={ex.name} />
         </div>
-      ) : null}
+      </header>
 
-      {selected && executivos.length === 0 ? (
-        <div className="admin-empty">
-          <Briefcase size={32} className="mx-auto mb-2 text-ink-faint" weight="duotone" />
-          Nenhum executivo nesta categoria.
-        </div>
-      ) : null}
+      <div className="flex flex-col gap-6 px-6 py-5">
+        {ex.description ? (
+          <p className="text-sm leading-relaxed text-ink-muted">{ex.description}</p>
+        ) : null}
+        {entradas.length > 0 ? <ItemSection title="Entradas" items={entradas} /> : null}
+        {principais.length > 0 ? <ItemSection title="Principais" items={principais} /> : null}
+        {sobremesas.length > 0 ? <ItemSection title="Sobremesas" items={sobremesas} /> : null}
+      </div>
+    </article>
+  );
+}
 
-      {selected && executivos.length > 0 ? (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th className="hidden w-28 sm:table-cell">Preço</th>
-                <th className="w-40 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {executivos.map((ex) => (
-                <tr key={ex.id}>
-                  <td>
-                    <div className="font-medium text-ink">{ex.name}</div>
-                    <div className="text-xs text-ink-muted">{ex.format}</div>
-                    <div className="mt-1 text-xs text-ink-muted sm:hidden">{ex.price}</div>
-                  </td>
-                  <td className="hidden font-medium tabular-nums sm:table-cell">{ex.price}</td>
-                  <td className="text-right">
-                    <div className="flex flex-wrap items-center justify-end gap-1">
-                      <Link href={`/executivos/${ex.id}`} className="admin-btn-ghost">
-                        <PencilSimple size={16} />
-                        Editar
-                      </Link>
-                      <ExecutivoDeleteButton id={ex.id} name={ex.name} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
+function ItemSection({
+  title,
+  items,
+}: {
+  title: string;
+  items: ExecutivoWithItems["items"];
+}) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">{title}</h3>
+      <ul className="flex flex-col divide-y divide-ink-trace">
+        {items.map((it) => (
+          <li key={it.id} className="flex items-start gap-4 py-3 first:pt-0 last:pb-0">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-dashed border-ink-faint bg-bg-muted text-ink-faint">
+              <ImageSquare size={20} weight="duotone" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <p className="text-sm font-medium text-ink">{it.name}</p>
+                {it.price ? (
+                  <span className="text-sm font-medium tabular-nums text-ink-muted">{it.price}</span>
+                ) : null}
+              </div>
+              {it.description ? (
+                <p className="mt-1 text-sm leading-relaxed text-ink-muted">{it.description}</p>
+              ) : null}
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
