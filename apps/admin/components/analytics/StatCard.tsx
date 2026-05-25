@@ -18,7 +18,7 @@ export function StatCard({ label, value, hint, delta }: Props) {
     if (Math.abs(delta) < 0.005) {
       deltaNode = (
         <span className="inline-flex items-center gap-1 rounded-full bg-bg-muted px-2 py-0.5 text-xs text-ink-muted">
-          <Minus size={12} weight="bold" /> estável
+          <Minus size={12} weight="bold" /> igual ao período anterior
         </span>
       );
     } else if (delta > 0) {

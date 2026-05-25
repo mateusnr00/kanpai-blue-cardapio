@@ -3,6 +3,7 @@
 import { AreaChart } from "@tremor/react";
 import type { SeriesPoint } from "@/lib/data/analytics";
 import { CHART_SERIES_TWO } from "@/lib/analytics-theme";
+import { CHART_LABELS } from "@/lib/analytics-labels";
 import { ChartEmpty, ChartPanel } from "./ChartPanel";
 
 type Props = {
@@ -15,26 +16,28 @@ function fmtDay(day: string): string {
 }
 
 export function VisitsAreaChart({ points }: Props) {
+  const { daySeries: labels } = CHART_LABELS;
+
   if (points.length === 0) {
     return (
-      <ChartPanel title="Visitas por dia" description="Total de pageviews e visitantes únicos">
-        <ChartEmpty message="Sem dados no período." />
+      <ChartPanel title={labels.title} description={labels.description}>
+        <ChartEmpty message={labels.empty} />
       </ChartPanel>
     );
   }
 
   const data = points.map((p) => ({
     dia: fmtDay(p.day),
-    Visitas: p.visits,
-    "Únicos": p.uniques,
+    [labels.home]: p.visits,
+    [labels.uniques]: p.uniques,
   }));
 
   return (
-    <ChartPanel title="Visitas por dia" description="Total de pageviews e visitantes únicos">
+    <ChartPanel title={labels.title} description={labels.description}>
       <AreaChart
         data={data}
         index="dia"
-        categories={["Visitas", "Únicos"]}
+        categories={[labels.home, labels.uniques]}
         colors={[...CHART_SERIES_TWO]}
         yAxisWidth={44}
         showAnimation

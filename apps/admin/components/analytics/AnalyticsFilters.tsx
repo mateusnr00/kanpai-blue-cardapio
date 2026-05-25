@@ -116,12 +116,12 @@ export function AnalyticsFilters({ activeRange, activeCategory, categories }: Pr
         label={
           activeCategory
             ? categories.find((c) => c.slug === activeCategory)?.name ?? "Categoria"
-            : "Todas categorias"
+            : "Todas as categorias"
         }
         icon={SquaresFour}
       >
         <FilterLink href={buildHref(activeRange, null)} active={!activeCategory}>
-          Todas categorias
+          Todas as categorias
         </FilterLink>
         {categories.map((c) => (
           <FilterLink

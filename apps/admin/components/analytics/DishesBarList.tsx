@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { DishRank } from "@/lib/data/analytics";
+import { CHART_LABELS } from "@/lib/analytics-labels";
 import { ChartEmpty, ChartPanel } from "./ChartPanel";
 import { AnalyticsModal } from "./AnalyticsModal";
 import { DishRankBars, DISH_RANK_PREVIEW } from "./DishRankBars";
@@ -14,11 +15,12 @@ export function DishesBarList({ dishes }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const preview = dishes.slice(0, DISH_RANK_PREVIEW);
   const hasMore = dishes.length > DISH_RANK_PREVIEW;
+  const { dishes: labels } = CHART_LABELS;
 
   if (dishes.length === 0) {
     return (
-      <ChartPanel title="Itens mais vistos" description="Top 10 por impressões na lista">
-        <ChartEmpty message="Nenhum item visualizado no período." />
+      <ChartPanel title={labels.title} description={labels.description}>
+        <ChartEmpty message={labels.empty} />
       </ChartPanel>
     );
   }
@@ -26,8 +28,8 @@ export function DishesBarList({ dishes }: Props) {
   return (
     <>
       <ChartPanel
-        title="Itens mais vistos"
-        description={`Top ${Math.min(DISH_RANK_PREVIEW, dishes.length)} por impressões`}
+        title={labels.title}
+        description={labels.description}
         className="flex flex-col"
       >
         <DishRankBars dishes={preview} />
@@ -37,7 +39,7 @@ export function DishesBarList({ dishes }: Props) {
             onClick={() => setModalOpen(true)}
             className="admin-btn-secondary mt-5 w-full text-sm"
           >
-            Ver mais ({dishes.length} itens)
+            {labels.seeMore(dishes.length)}
           </button>
         ) : null}
       </ChartPanel>
@@ -45,8 +47,8 @@ export function DishesBarList({ dishes }: Props) {
       <AnalyticsModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Todos os itens visualizados"
-        description={`${dishes.length} itens no período · ordenados por impressões`}
+        title={labels.modalTitle}
+        description={labels.modalDescription(dishes.length)}
       >
         <DishRankBars dishes={dishes} />
       </AnalyticsModal>

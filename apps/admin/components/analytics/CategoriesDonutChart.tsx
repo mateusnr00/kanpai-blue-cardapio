@@ -2,6 +2,7 @@
 
 import type { CategoryRank } from "@/lib/data/analytics";
 import { CHART_DONUT, CHART_MUTED } from "@/lib/analytics-theme";
+import { CHART_LABELS } from "@/lib/analytics-labels";
 import { ChartEmpty, ChartPanel } from "./ChartPanel";
 
 type Props = {
@@ -53,26 +54,30 @@ function conicGradient(slices: Slice[]): string {
 
 function CategoryDonut({ slices, total }: { slices: Slice[]; total: number }) {
   return (
-    <div className="relative h-[7.5rem] w-[7.5rem] shrink-0">
+    <div className="relative mx-auto h-36 w-36 shrink-0">
       <div
         className="h-full w-full rounded-full shadow-inner ring-1 ring-ink-ghost/60"
         style={{ background: conicGradient(slices) }}
         role="img"
-        aria-label={`Distribuição de ${fmt(total)} cliques por categoria`}
+        aria-label={`Distribuição de ${fmt(total)} aberturas por categoria`}
       />
-      <div className="absolute inset-[26%] flex flex-col items-center justify-center rounded-full bg-bg-surface shadow-sm ring-1 ring-ink-ghost/40">
-        <span className="text-xl font-semibold tabular-nums leading-none text-ink">{fmt(total)}</span>
-        <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-muted">cliques</span>
+      <div className="absolute inset-[24%] flex flex-col items-center justify-center rounded-full bg-bg-surface shadow-sm ring-1 ring-ink-ghost/40">
+        <span className="text-2xl font-semibold tabular-nums leading-none text-ink">{fmt(total)}</span>
+        <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-ink-muted">
+          {CHART_LABELS.categories.center}
+        </span>
       </div>
     </div>
   );
 }
 
 export function CategoriesDonutChart({ categories }: Props) {
+  const { categories: labels } = CHART_LABELS;
+
   if (categories.length === 0) {
     return (
-      <ChartPanel title="Categorias mais acessadas" description="Cliques nas seções do cardápio">
-        <ChartEmpty message="Nenhuma categoria aberta no período." />
+      <ChartPanel title={labels.title} description={labels.description}>
+        <ChartEmpty message={labels.empty} />
       </ChartPanel>
     );
   }
@@ -82,29 +87,38 @@ export function CategoriesDonutChart({ categories }: Props) {
 
   return (
     <ChartPanel
-      title="Categorias mais acessadas"
-      description={`${fmt(totalClicks)} cliques · ${slices.length} ${slices.length === 1 ? "categoria" : "categorias"}`}
+      title={labels.title}
+      description={`${fmt(totalClicks)} aberturas · ${slices.length} ${slices.length === 1 ? "categoria" : "categorias"}`}
       className="!p-4 sm:!p-5"
     >
-      <div className="flex items-center gap-4 sm:gap-5">
+      <div className="flex flex-col gap-5">
         <CategoryDonut slices={slices} total={totalClicks} />
 
-        <ul className="min-w-0 flex-1 divide-y divide-ink-ghost/80">
+        <ul className="flex flex-col gap-2.5">
           {slices.map((slice) => (
-            <li key={slice.name} className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0">
-              <span
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: slice.color }}
-                aria-hidden
-              />
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink" title={slice.name}>
-                {slice.name}
-              </span>
-              <span className="shrink-0 text-right text-xs tabular-nums text-ink-muted">
-                <span className="font-semibold text-ink">{fmt(slice.cliques)}</span>
-                {" · "}
-                {slice.pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
-              </span>
+            <li key={slice.name} className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: slice.color }}
+                  aria-hidden
+                />
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink" title={slice.name}>
+                  {slice.name}
+                </span>
+                <span className="shrink-0 text-right text-xs tabular-nums text-ink-muted">
+                  <span className="font-semibold text-ink">{fmt(slice.cliques)}</span>
+                  {" · "}
+                  {slice.pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
+                </span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-muted">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${Math.max(slice.pct, 1.5)}%`, backgroundColor: slice.color }}
+                  aria-hidden
+                />
+              </div>
             </li>
           ))}
         </ul>

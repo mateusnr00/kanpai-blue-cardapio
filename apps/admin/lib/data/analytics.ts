@@ -64,7 +64,8 @@ async function fetchEvents(
   restaurantId: string,
   start: string | null,
   end: string,
-  categoryId?: string
+  /** Slug da categoria (mesmo valor gravado pelo site em category_open). */
+  categorySlug?: string
 ): Promise<EventRow[]> {
   const supabase = createServerClient();
   let q = supabase
@@ -73,7 +74,7 @@ async function fetchEvents(
     .eq("restaurant_id", restaurantId)
     .lt("created_at", end);
   if (start) q = q.gte("created_at", start);
-  if (categoryId) q = q.eq("category_id", categoryId);
+  if (categorySlug) q = q.eq("category_id", categorySlug);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(50000);
   if (error) throw error;
   return (data ?? []) as EventRow[];
@@ -117,7 +118,8 @@ function computeStats(events: EventRow[]): Stats {
     visitors: visitors.size,
     sessions: totalSessions,
     views: homeViews + categoryOpens + dishImpressions + dishViews,
-    itemsPerVisit: totalSessions === 0 ? 0 : dishImpressions / totalSessions,
+    itemsPerVisit:
+      totalSessions === 0 ? 0 : (dishImpressions + dishViews) / totalSessions,
     engagementRate: totalSessions === 0 ? 0 : sessionsWithDish.size / totalSessions,
     homeViews,
     categoryOpens,
@@ -191,7 +193,7 @@ function computeDaySeries(events: EventRow[], range: RangeWindow): SeriesPoint[]
   for (const e of events) {
     const day = e.created_at.slice(0, 10); // YYYY-MM-DD
     const b = byDay.get(day) ?? { visits: 0, uniques: new Set() };
-    b.visits += 1;
+    if (e.event_type === "home_view") b.visits += 1;
     b.uniques.add(e.visitor_id);
     byDay.set(day, b);
   }
@@ -230,13 +232,19 @@ export type DishRank = { slug: string; name: string; impressions: number; views:
 async function loadNames(restaurantId: string) {
   const supabase = createServerClient();
   const [catsRes, dishesRes] = await Promise.all([
-    supabase.from("categories").select("slug, name").eq("restaurant_id", restaurantId),
-    supabase.from("dishes").select("slug, name").eq("restaurant_id", restaurantId),
+    supabase.from("categories").select("id, slug, name").eq("restaurant_id", restaurantId),
+    supabase.from("dishes").select("id, slug, name").eq("restaurant_id", restaurantId),
   ]);
   const cats = new Map<string, string>();
-  for (const c of catsRes.data ?? []) cats.set(c.slug, c.name);
+  for (const c of catsRes.data ?? []) {
+    cats.set(c.slug, c.name);
+    cats.set(c.id, c.name);
+  }
   const dishes = new Map<string, string>();
-  for (const d of dishesRes.data ?? []) dishes.set(d.slug, d.name);
+  for (const d of dishesRes.data ?? []) {
+    dishes.set(d.slug, d.name);
+    dishes.set(d.id, d.name);
+  }
   return { cats, dishes };
 }
 
@@ -288,10 +296,14 @@ export type DashboardData = {
   topDishes: DishRank[];
 };
 
-export async function loadDashboard(range: Range, restaurantId: string, categoryId?: string): Promise<DashboardData> {
+export async function loadDashboard(
+  range: Range,
+  restaurantId: string,
+  categorySlug?: string
+): Promise<DashboardData> {
   const window = rangeWindow(range);
   const [events, names] = await Promise.all([
-    fetchEvents(restaurantId, window.start, window.end, categoryId),
+    fetchEvents(restaurantId, window.start, window.end, categorySlug),
     loadNames(restaurantId),
   ]);
 
@@ -304,7 +316,7 @@ export async function loadDashboard(range: Range, restaurantId: string, category
 
   let prevStats: Stats | null = null;
   if (window.prevStart && window.prevEnd) {
-    const prev = await fetchEvents(restaurantId, window.prevStart, window.prevEnd, categoryId);
+    const prev = await fetchEvents(restaurantId, window.prevStart, window.prevEnd, categorySlug);
     prevStats = computeStats(prev);
   }
 

@@ -5,8 +5,10 @@ import { VisitsAreaChart } from "@/components/analytics/VisitsAreaChart";
 import { HourBarChart } from "@/components/analytics/HourBarChart";
 import { CategoriesDonutChart } from "@/components/analytics/CategoriesDonutChart";
 import { DishesBarList } from "@/components/analytics/DishesBarList";
+import { FunnelChart } from "@/components/analytics/FunnelChart";
 import { InsightsPanel } from "@/components/analytics/InsightsPanel";
 import { loadDashboard, loadCategoryOptions, type Range } from "@/lib/data/analytics";
+import { ANALYTICS_PAGE, STAT_LABELS } from "@/lib/analytics-labels";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
 type SearchParams = { range?: string; category?: string };
@@ -41,24 +43,22 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
   const restaurantId = getActiveRestaurantId();
 
   const filterCategories = await loadCategoryOptions(restaurantId);
-  const categoryId = categorySlug
-    ? filterCategories.find((c) => c.slug === categorySlug)?.id
-    : undefined;
 
-  const data = await loadDashboard(range, restaurantId, categoryId);
+  const data = await loadDashboard(range, restaurantId, categorySlug ?? undefined);
 
   const { stats, prevStats, insights, daySeries, hourHistogram, topCategories, topDishes } = data;
 
   const itemsPerVisitor =
-    stats.visitors === 0 ? "0" : fmtDecimal((stats.dishImpressions + stats.dishViews) / stats.visitors);
+    stats.visitors === 0
+      ? "0"
+      : fmtDecimal((stats.dishImpressions + stats.dishViews) / stats.visitors);
+
+  const hasData = stats.homeViews > 0 || stats.categoryOpens > 0 || stats.dishImpressions > 0;
 
   return (
     <section className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <PageHeader
-          title="Analytics"
-          description="Comportamento do cardápio digital — dados reais do site público."
-        />
+        <PageHeader title={ANALYTICS_PAGE.title} description={ANALYTICS_PAGE.description} />
         <AnalyticsFilters
           activeRange={range}
           activeCategory={categorySlug}
@@ -68,30 +68,27 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Visitantes únicos"
+          label={STAT_LABELS.visitors.label}
           value={fmtNumber(stats.visitors)}
-          hint="Pessoas distintas (cookie)"
+          hint={STAT_LABELS.visitors.hint}
           delta={delta(stats.visitors, prevStats?.visitors)}
         />
         <StatCard
-          label="Views de itens"
-          value={fmtNumber(stats.dishImpressions + stats.dishViews)}
-          hint={`${fmtNumber(stats.dishImpressions)} impressões · ${fmtNumber(stats.dishViews)} ver detalhes`}
-          delta={delta(
-            stats.dishImpressions + stats.dishViews,
-            prevStats ? prevStats.dishImpressions + prevStats.dishViews : null
-          )}
+          label={STAT_LABELS.homeViews.label}
+          value={fmtNumber(stats.homeViews)}
+          hint={STAT_LABELS.homeViews.hint}
+          delta={delta(stats.homeViews, prevStats?.homeViews)}
         />
         <StatCard
-          label="Itens por visita"
-          value={fmtDecimal(stats.itemsPerVisit)}
-          hint="Profundidade média"
-          delta={delta(stats.itemsPerVisit, prevStats?.itemsPerVisit)}
+          label={STAT_LABELS.dishTouches.label}
+          value={fmtNumber(stats.dishImpressions)}
+          hint={STAT_LABELS.dishTouches.hint}
+          delta={delta(stats.dishImpressions, prevStats?.dishImpressions)}
         />
         <StatCard
-          label="Engajamento"
+          label={STAT_LABELS.engagement.label}
           value={fmtPct(stats.engagementRate)}
-          hint="Sessões com ≥1 item visto"
+          hint={STAT_LABELS.engagement.hint}
           delta={delta(stats.engagementRate, prevStats?.engagementRate)}
         />
       </div>
@@ -101,9 +98,12 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         topCategoryName={topCategories[0]?.name}
         topDishName={topDishes[0]?.name}
         engagementPct={fmtPct(stats.engagementRate)}
+        dishDetailsCount={stats.dishViews}
         itemsPerVisitor={itemsPerVisitor}
         itemsPerSession={fmtDecimal(stats.itemsPerVisit)}
-        hasData={stats.views > 0}
+        categoryOpens={stats.categoryOpens}
+        hasData={hasData}
+        emptyHint={ANALYTICS_PAGE.emptyHint}
       />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
@@ -111,8 +111,14 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         <HourBarChart hours={hourHistogram} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
         <CategoriesDonutChart categories={topCategories} />
+        <FunnelChart
+          visitors={stats.visitors}
+          categoryOpens={stats.categoryOpens}
+          dishImpressions={stats.dishImpressions}
+          dishViews={stats.dishViews}
+        />
         <DishesBarList dishes={topDishes} />
       </div>
     </section>
