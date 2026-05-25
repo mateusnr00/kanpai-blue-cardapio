@@ -1,9 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase-server";
 import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-actions";
+import { getActiveRestaurantId } from "@/lib/active-restaurant";
+import { tags } from "@/lib/cache-tags";
+
+function revalidateMenu() {
+  revalidateTag(tags.menu(getActiveRestaurantId()));
+}
 
 function slugify(input: string): string {
   return input
@@ -23,6 +29,7 @@ export async function toggleDishActive(id: string, nextActive: boolean) {
     .eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/");
+  revalidateMenu();
   return { ok: true as const };
 }
 
@@ -33,6 +40,7 @@ export async function deleteDish(id: string) {
   const { error } = await supabase.from("dishes").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/");
+  revalidateMenu();
   return { ok: true as const };
 }
 
@@ -45,6 +53,7 @@ export async function reorderDishes(categoryId: string, orderedIds: string[]) {
   const firstErr = results.find((r) => r.error)?.error;
   if (firstErr) return { error: firstErr.message };
   revalidatePath("/");
+  revalidateMenu();
   return { ok: true as const };
 }
 
@@ -190,22 +199,28 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
 
   if (error || !inserted) return { error: error?.message ?? "Falha ao criar." };
 
-  try {
+  const variants = parseVariants(formData);
+  const components = parseComponents(formData);
+
+  const imagePromise = (async () => {
     const newPath = await handleImage(formData, "image", inserted.id, null);
     if (newPath) {
       await supabase.from("dishes").update({ image_path: newPath }).eq("id", inserted.id);
     }
+  })();
+
+  try {
+    await Promise.all([
+      imagePromise,
+      syncVariants(inserted.id, variants),
+      syncComponents(inserted.id, components),
+    ]);
   } catch (e) {
     return { error: (e as Error).message };
   }
 
-  const variants = parseVariants(formData);
-  await syncVariants(inserted.id, variants);
-
-  const components = parseComponents(formData);
-  await syncComponents(inserted.id, components);
-
   revalidatePath("/");
+  revalidateMenu();
   redirect(`/?cat=${cat.slug}`);
 }
 
@@ -222,17 +237,10 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
 
   if (!name || !categoryId) return { error: "Nome e categoria obrigatórios." };
 
-  const { data: current } = await supabase
-    .from("dishes")
-    .select("image_path")
-    .eq("id", id)
-    .maybeSingle();
-
-  const { data: cat } = await supabase
-    .from("categories")
-    .select("restaurant_id, slug")
-    .eq("id", categoryId)
-    .maybeSingle();
+  const [{ data: current }, { data: cat }] = await Promise.all([
+    supabase.from("dishes").select("image_path").eq("id", id).maybeSingle(),
+    supabase.from("categories").select("restaurant_id, slug").eq("id", categoryId).maybeSingle(),
+  ]);
   if (!cat) return { error: "Categoria inválida." };
 
   let imagePath: string | null = current?.image_path ?? null;
@@ -242,7 +250,10 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     return { error: (e as Error).message };
   }
 
-  const { error } = await supabase
+  const variants = parseVariants(formData);
+  const components = parseComponents(formData);
+
+  const updatePromise = supabase
     .from("dishes")
     .update({
       category_id: categoryId,
@@ -259,14 +270,15 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     })
     .eq("id", id);
 
-  if (error) return { error: error.message };
+  const [updRes] = await Promise.all([
+    updatePromise,
+    syncVariants(id, variants),
+    syncComponents(id, components),
+  ]);
 
-  const variants = parseVariants(formData);
-  await syncVariants(id, variants);
-
-  const components = parseComponents(formData);
-  await syncComponents(id, components);
+  if (updRes.error) return { error: updRes.error.message };
 
   revalidatePath("/");
+  revalidateMenu();
   redirect(`/?cat=${cat.slug}`);
 }

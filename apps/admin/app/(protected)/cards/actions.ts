@@ -1,10 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase-server";
 import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-actions";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
+import { tags } from "@/lib/cache-tags";
+
+function revalidateMenu() {
+  revalidateTag(tags.menu(getActiveRestaurantId()));
+}
 
 function slugify(input: string): string {
   return input
@@ -52,6 +57,7 @@ export async function toggleCategoryActive(id: string, nextActive: boolean) {
   if (error) return { error: error.message };
   revalidatePath("/cards");
   revalidatePath("/");
+  revalidateMenu();
   return { ok: true as const };
 }
 
@@ -68,6 +74,7 @@ export async function deleteCategory(id: string) {
   if (error) return { error: error.message };
   revalidatePath("/cards");
   revalidatePath("/");
+  revalidateMenu();
   return { ok: true as const };
 }
 
@@ -81,6 +88,7 @@ export async function reorderCategories(orderedIds: string[]) {
   if (firstErr) return { error: firstErr.message };
   revalidatePath("/cards");
   revalidatePath("/");
+  revalidateMenu();
   return { ok: true as const };
 }
 
@@ -142,7 +150,11 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
   try {
     const newPath = await handleCategoryImage(formData, inserted.id, null);
     if (newPath) {
-      await supabase.from("categories").update({ image_path: newPath }).eq("id", inserted.id);
+      const { error: imgErr } = await supabase
+        .from("categories")
+        .update({ image_path: newPath })
+        .eq("id", inserted.id);
+      if (imgErr) return { error: imgErr.message };
     }
   } catch (e) {
     return { error: (e as Error).message };
@@ -150,6 +162,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
 
   revalidatePath("/cards");
   revalidatePath("/");
+  revalidateMenu();
   redirect("/cards");
 }
 
@@ -206,5 +219,6 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
 
   revalidatePath("/cards");
   revalidatePath("/");
+  revalidateMenu();
   redirect("/cards");
 }
