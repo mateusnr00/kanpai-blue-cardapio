@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Category } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
-import { PlaceholderImage } from "./PlaceholderImage";
+import { DishImage } from "./DishImage";
 
 export function CategoryCard({ category }: { category: Category }) {
   const isFeatured = !!category.featured;
@@ -24,9 +24,12 @@ export function CategoryCard({ category }: { category: Category }) {
           color: "var(--ink)",
         }}
       >
-        <PlaceholderImage
+        <DishImage
+          src={category.image}
+          alt={category.name}
           gradient={category.gradient}
           number={category.number}
+          aspect={category.fullWidth ? "3/1" : "1/1"}
           dark={isFeatured}
           topRight={
             isFeatured ? (

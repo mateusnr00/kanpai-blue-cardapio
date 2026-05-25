@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 type Props = {
   gradient: string;
   number?: string;
-  aspect?: "1/1" | "16/9" | "16/10";
+  aspect?: "1/1" | "16/9" | "16/10" | "3/1" | "2/1";
   showCornerSquare?: boolean;
   /** Slot for badges (DESTAQUE / star). */
   topRight?: ReactNode;

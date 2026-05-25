@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { PlaceholderImage } from "./PlaceholderImage";
 
-type Aspect = "1/1" | "16/9" | "16/10";
+type Aspect = "1/1" | "16/9" | "16/10" | "3/1" | "2/1";
 
 type Props = {
   /** URL pública da foto. Se ausente, cai pro PlaceholderImage. */
@@ -24,6 +24,8 @@ const SIZES_BY_ASPECT: Record<Aspect, string> = {
   "1/1": "(max-width: 768px) 50vw, 280px",
   "16/9": "(max-width: 768px) 100vw, 600px",
   "16/10": "(max-width: 768px) 100vw, 600px",
+  "3/1": "(max-width: 768px) 100vw, 900px",
+  "2/1": "(max-width: 768px) 100vw, 900px",
 };
 
 export function DishImage({ src, alt, gradient, number, aspect = "1/1", topRight, dark }: Props) {
