@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Category, Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
@@ -17,13 +17,26 @@ type Row =
   | { kind: "featured"; dish: Dish; number: string; featuredIndex: number }
   | { kind: "pair"; left: { dish: Dish; number: string }; right?: { dish: Dish; number: string } };
 
-function buildRows(dishes: Dish[]): Row[] {
+function subcatToId(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+/** Empacota dishes em rows: featured ocupa fileira inteira, demais formam pares. */
+function buildRows(
+  dishes: Array<{ dish: Dish; globalIndex: number }>,
+  featuredStartOffset: number,
+): Row[] {
   const rows: Row[] = [];
   let buffer: { dish: Dish; number: string } | null = null;
-  let featuredCount = 0;
+  let featuredCount = featuredStartOffset;
 
-  dishes.forEach((dish, idx) => {
-    const number = String(idx + 1).padStart(2, "0");
+  for (const { dish, globalIndex } of dishes) {
+    const number = String(globalIndex + 1).padStart(2, "0");
     if (dish.featured) {
       if (buffer) {
         rows.push({ kind: "pair", left: buffer });
@@ -31,7 +44,7 @@ function buildRows(dishes: Dish[]): Row[] {
       }
       rows.push({ kind: "featured", dish, number, featuredIndex: featuredCount });
       featuredCount += 1;
-      return;
+      continue;
     }
     if (buffer) {
       rows.push({ kind: "pair", left: buffer, right: { dish, number } });
@@ -39,7 +52,7 @@ function buildRows(dishes: Dish[]): Row[] {
     } else {
       buffer = { dish, number };
     }
-  });
+  }
 
   if (buffer) {
     rows.push({ kind: "pair", left: buffer });
@@ -48,33 +61,84 @@ function buildRows(dishes: Dish[]): Row[] {
   return rows;
 }
 
+type Group = {
+  /** null = grupo "Destaques / Topo", sem cabecalho de secao. */
+  subcategory: string | null;
+  dishes: Array<{ dish: Dish; globalIndex: number }>;
+};
+
+function groupDishes(dishes: Dish[], order: string[] | undefined): Group[] {
+  const buckets = new Map<string | null, Array<{ dish: Dish; globalIndex: number }>>();
+  dishes.forEach((dish, globalIndex) => {
+    const key = dish.subcategory ?? null;
+    const arr = buckets.get(key) ?? [];
+    arr.push({ dish, globalIndex });
+    buckets.set(key, arr);
+  });
+
+  const result: Group[] = [];
+  if (buckets.has(null)) result.push({ subcategory: null, dishes: buckets.get(null)! });
+  if (order && order.length > 0) {
+    for (const sub of order) {
+      if (buckets.has(sub)) result.push({ subcategory: sub, dishes: buckets.get(sub)! });
+    }
+  }
+  // qualquer subcategoria fora da ordem declarada (defensivo)
+  for (const [key, arr] of buckets) {
+    if (key === null) continue;
+    if (order?.includes(key)) continue;
+    result.push({ subcategory: key, dishes: arr });
+  }
+  return result;
+}
+
 export function CategoryView({ category }: Props) {
-  const [activeSubcat, setActiveSubcat] = useState<string>(
-    category.subcategories?.[0] ?? "Todos",
+  const isExecutivo = !!category.executivos && category.executivos.length > 0;
+  const subcategories = category.subcategories ?? [];
+  const hasSubcats = subcategories.length > 0;
+
+  const groups = useMemo(
+    () => (isExecutivo ? [] : groupDishes(category.dishes, subcategories)),
+    [isExecutivo, category.dishes, subcategories],
   );
 
+  // Analytics: registra abertura da categoria
   useEffect(() => {
     track({ event_type: "category_open", category_id: category.id });
   }, [category.id]);
 
-  const filteredDishes = useMemo(() => {
-    if (!activeSubcat || activeSubcat === "Todos") return category.dishes;
-    return category.dishes.filter(
-      (d) => !d.subcategory || d.subcategory === activeSubcat,
+  // Scroll-spy: rastreia qual secao esta visivel pra destacar o chip
+  const [activeSubcat, setActiveSubcat] = useState<string>(subcategories[0] ?? "");
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  useEffect(() => {
+    if (!hasSubcats) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible) {
+          const id = visible.target.getAttribute("data-subcat");
+          if (id) setActiveSubcat(id);
+        }
+      },
+      { rootMargin: "-120px 0px -60% 0px", threshold: 0 },
     );
-  }, [category.dishes, activeSubcat]);
+    for (const el of Object.values(sectionRefs.current)) {
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [hasSubcats, groups]);
 
-  const rows = useMemo(() => buildRows(filteredDishes), [filteredDishes]);
-
-  const isExecutivo = !!category.executivos && category.executivos.length > 0;
-
-  const filteredExecutivos = useMemo(() => {
-    if (!isExecutivo) return [] as NonNullable<typeof category.executivos>;
-    if (!activeSubcat || activeSubcat === "Todos") return category.executivos!;
-    return category.executivos!.filter(
-      (m) => !m.subcategory || m.subcategory === activeSubcat,
-    );
-  }, [isExecutivo, category.executivos, activeSubcat]);
+  function jumpTo(subcat: string) {
+    const el = sectionRefs.current[subcat];
+    if (!el) return;
+    const headerOffset = 110; // header + chips sticky
+    const rect = el.getBoundingClientRect();
+    const targetY = window.scrollY + rect.top - headerOffset;
+    window.scrollTo({ top: targetY, behavior: "smooth" });
+  }
 
   return (
     <>
@@ -117,10 +181,11 @@ export function CategoryView({ category }: Props) {
         </p>
       </section>
 
-      {category.subcategories && category.subcategories.length > 1 && (
+      {hasSubcats && !isExecutivo && (
         <SubcategoryChips
-          options={category.subcategories}
-          onChange={setActiveSubcat}
+          options={subcategories}
+          active={activeSubcat}
+          onSelect={jumpTo}
         />
       )}
 
@@ -133,73 +198,121 @@ export function CategoryView({ category }: Props) {
         }}
       >
         {isExecutivo &&
-          filteredExecutivos.map((menu, idx) => {
-            // Mantém numeração estável baseada na posição original
-            const originalIdx = category.executivos!.findIndex(
-              (m) => m.name === menu.name,
-            );
-            return (
-              <ExecutivoMenuCard
-                key={menu.name}
-                menu={menu}
-                number={String(originalIdx + 1).padStart(2, "0")}
-                variant={originalIdx % 2 === 0 ? "blue" : "beige"}
-              />
-            );
-          })}
-
-        {isExecutivo && filteredExecutivos.length === 0 && (
-          <p
-            style={{
-              padding: "32px 0",
-              textAlign: "center",
-              fontSize: fs(12),
-              color: "var(--ink-soft)",
-            }}
-          >
-            Nenhum menu nesta seleção.
-          </p>
-        )}
+          category.executivos!.map((menu, idx) => (
+            <ExecutivoMenuCard
+              key={menu.name}
+              menu={menu}
+              number={String(idx + 1).padStart(2, "0")}
+              variant={idx % 2 === 0 ? "blue" : "beige"}
+            />
+          ))}
 
         {!isExecutivo &&
-          rows.map((row, rowIdx) => {
-            if (row.kind === "featured") {
-              return (
-                <DishCardFeatured
-                  key={`f-${row.dish.id}`}
-                  dish={row.dish}
-                  number={row.number}
-                  variant={row.featuredIndex % 2 === 0 ? "blue" : "beige"}
-                />
+          groups.map((group) => {
+            // featured offset = total de featured anteriores
+            const featuredOffset = groups
+              .slice(0, groups.indexOf(group))
+              .reduce(
+                (acc, g) => acc + g.dishes.filter(({ dish }) => dish.featured).length,
+                0,
               );
-            }
+            const rows = buildRows(group.dishes, featuredOffset);
+            const subcatKey = group.subcategory ?? "_top";
+            const anchorId = group.subcategory ? `subcat-${subcatToId(group.subcategory)}` : undefined;
+
             return (
-              <div
-                key={`p-${row.left.dish.id}-${rowIdx}`}
+              <section
+                key={subcatKey}
+                ref={(el) => {
+                  if (group.subcategory) sectionRefs.current[group.subcategory] = el;
+                }}
+                data-subcat={group.subcategory ?? undefined}
+                id={anchorId}
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  display: "flex",
+                  flexDirection: "column",
                   gap: 14,
-                  alignItems: "start",
+                  scrollMarginTop: 120,
                 }}
               >
-                <DishCardSmall
-                  dish={row.left.dish}
-                  number={row.left.number}
-                  gradientIndex={rowIdx}
-                />
-                {row.right && (
-                  <DishCardSmall
-                    dish={row.right.dish}
-                    number={row.right.number}
-                    gradientIndex={rowIdx + 1}
-                  />
-                )}
-              </div>
+                {group.subcategory ? (
+                  <header
+                    style={{
+                      marginTop: 18,
+                      paddingTop: 12,
+                      borderTop: "0.5px solid var(--ink-ghost)",
+                      display: "flex",
+                      alignItems: "baseline",
+                      justifyContent: "space-between",
+                      gap: 10,
+                    }}
+                  >
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: fs(20),
+                        fontWeight: 500,
+                        letterSpacing: "-0.02em",
+                        color: "var(--ink)",
+                      }}
+                    >
+                      {group.subcategory}
+                    </h2>
+                    <span
+                      style={{
+                        fontSize: fs(10),
+                        fontWeight: 400,
+                        letterSpacing: "0.15em",
+                        textTransform: "uppercase",
+                        color: "var(--ink-soft)",
+                      }}
+                    >
+                      {group.dishes.length} {group.dishes.length === 1 ? "item" : "itens"}
+                    </span>
+                  </header>
+                ) : null}
+
+                {rows.map((row, rowIdx) => {
+                  if (row.kind === "featured") {
+                    return (
+                      <DishCardFeatured
+                        key={`f-${row.dish.id}`}
+                        dish={row.dish}
+                        number={row.number}
+                        variant={row.featuredIndex % 2 === 0 ? "blue" : "beige"}
+                      />
+                    );
+                  }
+                  return (
+                    <div
+                      key={`p-${row.left.dish.id}-${rowIdx}`}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                        gap: 14,
+                        alignItems: "start",
+                      }}
+                    >
+                      <DishCardSmall
+                        dish={row.left.dish}
+                        number={row.left.number}
+                        gradientIndex={rowIdx}
+                      />
+                      {row.right && (
+                        <DishCardSmall
+                          dish={row.right.dish}
+                          number={row.right.number}
+                          gradientIndex={rowIdx + 1}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </section>
             );
           })}
 
-        {!isExecutivo && rows.length === 0 && (
+        {!isExecutivo && groups.length === 0 && (
           <p
             style={{
               padding: "48px 8px",
@@ -209,9 +322,7 @@ export function CategoryView({ category }: Props) {
               letterSpacing: "0.05em",
             }}
           >
-            {category.dishes.length === 0
-              ? "Conteúdo em breve."
-              : "Nenhum prato nesta subcategoria."}
+            Conteúdo em breve.
           </p>
         )}
       </section>

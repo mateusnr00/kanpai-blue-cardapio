@@ -9,6 +9,8 @@ export type DishListRow = {
   image_path: string | null;
   active: boolean;
   position: number;
+  subcategory: string | null;
+  featured: boolean;
 };
 
 export type DishDetail = DishListRow & {
@@ -33,7 +35,7 @@ export async function listDishesByCategory(categoryId: string): Promise<DishList
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("dishes")
-    .select("id, slug, name, description, price, image_path, active, position")
+    .select("id, slug, name, description, price, image_path, active, position, subcategory, featured")
     .eq("category_id", categoryId)
     .order("position");
   if (error) throw error;
