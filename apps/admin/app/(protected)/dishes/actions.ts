@@ -79,6 +79,39 @@ function extractBadges(formData: FormData): string[] {
   return formData.getAll("badges").map((b) => String(b));
 }
 
+type ComponentInput = {
+  childId: string;
+  kind: "entrada" | "principal" | "sobremesa";
+};
+
+function parseComponents(formData: FormData): ComponentInput[] {
+  const count = Number(formData.get("components_count") ?? "0");
+  const out: ComponentInput[] = [];
+  for (let i = 0; i < count; i++) {
+    const childId = String(formData.get(`component_${i}_id`) ?? "").trim();
+    const kind = String(formData.get(`component_${i}_kind`) ?? "").trim();
+    if (!childId) continue;
+    if (kind !== "entrada" && kind !== "principal" && kind !== "sobremesa") continue;
+    out.push({ childId, kind: kind as ComponentInput["kind"] });
+  }
+  return out;
+}
+
+async function syncComponents(parentDishId: string, components: ComponentInput[]) {
+  const supabase = createServerClient();
+  await supabase.from("dish_components").delete().eq("parent_dish_id", parentDishId);
+  if (components.length === 0) return;
+  // numera position dentro de cada kind
+  const counters: Record<ComponentInput["kind"], number> = { entrada: 0, principal: 0, sobremesa: 0 };
+  const rows = components.map((c) => ({
+    parent_dish_id: parentDishId,
+    child_dish_id: c.childId,
+    kind: c.kind,
+    position: counters[c.kind]++,
+  }));
+  await supabase.from("dish_components").insert(rows);
+}
+
 async function handleImage(
   formData: FormData,
   prefix: "image",
@@ -169,6 +202,9 @@ export async function createDish(formData: FormData): Promise<{ error?: string }
   const variants = parseVariants(formData);
   await syncVariants(inserted.id, variants);
 
+  const components = parseComponents(formData);
+  await syncComponents(inserted.id, components);
+
   revalidatePath("/");
   redirect(`/?cat=${cat.slug}`);
 }
@@ -227,6 +263,9 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
 
   const variants = parseVariants(formData);
   await syncVariants(id, variants);
+
+  const components = parseComponents(formData);
+  await syncComponents(id, components);
 
   revalidatePath("/");
   redirect(`/?cat=${cat.slug}`);

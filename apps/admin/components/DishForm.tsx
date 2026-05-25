@@ -7,19 +7,39 @@ import { AdminSelect } from "./AdminSelect";
 import { ImageUpload } from "./ImageUpload";
 import { BadgeCheckboxes } from "./BadgeCheckboxes";
 import { VariantsEditor } from "./VariantsEditor";
-import type { DishDetail, DishVariantRow } from "@/lib/data/dishes";
+import { DishComponentsEditor } from "./DishComponentsEditor";
+import type { DishDetail, DishVariantRow, DishComponentRow } from "@/lib/data/dishes";
 import type { CategoryListItem } from "@/lib/data/categories";
+
+type ComponentChoice = {
+  id: string;
+  name: string;
+  category: string;
+  image_path: string | null;
+  price: string | null;
+};
 
 type Props = {
   mode: "create" | "edit";
   initial?: DishDetail;
   variants?: DishVariantRow[];
+  components?: DishComponentRow[];
+  componentChoices?: ComponentChoice[];
   categories: CategoryListItem[];
   defaultCategoryId?: string;
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
-export function DishForm({ mode, initial, variants = [], categories, defaultCategoryId, onSubmit }: Props) {
+export function DishForm({
+  mode,
+  initial,
+  variants = [],
+  components = [],
+  componentChoices = [],
+  categories,
+  defaultCategoryId,
+  onSubmit,
+}: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -113,6 +133,8 @@ export function DishForm({ mode, initial, variants = [], categories, defaultCate
       </div>
 
       <VariantsEditor initial={variants} />
+
+      <DishComponentsEditor initial={components} choices={componentChoices} />
 
       <label className="flex items-center gap-2.5 text-sm text-ink">
         <input

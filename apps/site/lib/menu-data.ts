@@ -8,6 +8,7 @@ export type {
   DishDetailSection,
   DishDetails,
   Dish,
+  DishComponent,
   Category,
 } from "./menu-types";
 

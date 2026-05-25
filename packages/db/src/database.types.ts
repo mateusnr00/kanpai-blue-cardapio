@@ -135,6 +135,48 @@ export type Database = {
           },
         ]
       }
+      dish_components: {
+        Row: {
+          child_dish_id: string
+          created_at: string
+          id: string
+          kind: string
+          parent_dish_id: string
+          position: number
+        }
+        Insert: {
+          child_dish_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          parent_dish_id: string
+          position?: number
+        }
+        Update: {
+          child_dish_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          parent_dish_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_components_child_dish_id_fkey"
+            columns: ["child_dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dish_components_parent_dish_id_fkey"
+            columns: ["parent_dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dish_detail_sections: {
         Row: {
           description: string

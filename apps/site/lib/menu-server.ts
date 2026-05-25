@@ -1,5 +1,5 @@
 import { createServerClient } from "./supabase-server";
-import type { Category, Dish, DishDetailSection } from "./menu-types";
+import type { Category, Dish, DishDetailSection, DishComponent } from "./menu-types";
 
 const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/dish-images/`;
 
@@ -45,7 +45,7 @@ export async function getRestaurantById(id: string): Promise<RestaurantInfo | nu
 export async function getCategories(restaurantId: string): Promise<Category[]> {
   const supabase = createServerClient();
 
-  const [catsRes, dishesRes, sectionsRes] = await Promise.all([
+  const [catsRes, dishesRes, sectionsRes, componentsRes] = await Promise.all([
     supabase
       .from("categories")
       .select("id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width")
@@ -62,11 +62,16 @@ export async function getCategories(restaurantId: string): Promise<Category[]> {
       .from("dish_detail_sections")
       .select("dish_id, label, description, position")
       .order("position"),
+    supabase
+      .from("dish_components")
+      .select("parent_dish_id, child_dish_id, kind, position")
+      .order("position"),
   ]);
 
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;
   if (sectionsRes.error) throw sectionsRes.error;
+  if (componentsRes.error) throw componentsRes.error;
 
   const sectionsByDish = new Map<string, DishDetailSection[]>();
   for (const s of sectionsRes.data ?? []) {
@@ -75,9 +80,32 @@ export async function getCategories(restaurantId: string): Promise<Category[]> {
     sectionsByDish.set(s.dish_id, arr);
   }
 
+  // Indice dos dishes por uuid pra resolver components (snapshot do child)
+  type DishRow = NonNullable<typeof dishesRes.data>[number];
+  const dishByUuid = new Map<string, DishRow>();
+  for (const d of dishesRes.data ?? []) dishByUuid.set(d.id, d);
+
+  // Componentes agrupados por parent uuid
+  const componentsByParent = new Map<string, DishComponent[]>();
+  for (const c of componentsRes.data ?? []) {
+    const child = dishByUuid.get(c.child_dish_id);
+    if (!child) continue;
+    const arr = componentsByParent.get(c.parent_dish_id) ?? [];
+    arr.push({
+      kind: c.kind as DishComponent["kind"],
+      id: child.slug,
+      name: child.name,
+      price: child.price ?? undefined,
+      description: child.description ?? undefined,
+      image: imageUrl(child.image_path),
+    });
+    componentsByParent.set(c.parent_dish_id, arr);
+  }
+
   const dishesByCategoryUuid = new Map<string, Dish[]>();
   for (const d of dishesRes.data ?? []) {
     const sections = sectionsByDish.get(d.id) ?? [];
+    const components = componentsByParent.get(d.id);
     const dish: Dish = {
       id: d.slug,
       name: d.name,
@@ -95,6 +123,9 @@ export async function getCategories(restaurantId: string): Promise<Category[]> {
         longDescription: d.long_description ?? undefined,
         sections,
       };
+    }
+    if (components && components.length > 0) {
+      dish.components = components;
     }
     const arr = dishesByCategoryUuid.get(d.category_id) ?? [];
     arr.push(dish);

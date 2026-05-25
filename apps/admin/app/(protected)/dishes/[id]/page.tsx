@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import { listCategoriesWithCounts } from "@/lib/data/categories";
-import { getDish, listVariants } from "@/lib/data/dishes";
+import {
+  getDish,
+  listVariants,
+  listDishComponents,
+  listAvailableComponentChoices,
+} from "@/lib/data/dishes";
 import { DishForm } from "@/components/DishForm";
 import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/PageHeader";
@@ -17,7 +22,11 @@ export default async function EditDishPage({ params }: { params: Params }) {
   ]);
 
   if (!dish) notFound();
-  const variants = await listVariants(dish.id);
+  const [variants, components, componentChoices] = await Promise.all([
+    listVariants(dish.id),
+    listDishComponents(dish.id),
+    listAvailableComponentChoices(restaurantId, dish.id),
+  ]);
 
   async function onSubmit(formData: FormData) {
     "use server";
@@ -33,6 +42,8 @@ export default async function EditDishPage({ params }: { params: Params }) {
           mode="edit"
           initial={dish}
           variants={variants}
+          components={components}
+          componentChoices={componentChoices}
           categories={categories}
           onSubmit={onSubmit}
         />

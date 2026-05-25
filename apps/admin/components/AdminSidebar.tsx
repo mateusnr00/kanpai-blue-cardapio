@@ -12,7 +12,7 @@ import {
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
-import type { RestaurantRow } from "@/lib/active-restaurant";
+import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
 
 const NAV = [
   { href: "/", label: "Cardápio", icon: BookOpenText, exact: true },
@@ -56,7 +56,7 @@ export function AdminSidebar({ email, activeRestaurant, restaurants }: Props) {
           <RestaurantSelector active={activeRestaurant} restaurants={restaurants} fullWidth />
 
           <a
-            href="https://kanpai-blue.com"
+            href={restaurantPublicUrl(activeRestaurant)}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-ink-muted transition hover:bg-bg-surface hover:text-ink"

@@ -13,6 +13,16 @@ export type DishDetails = {
   sections: DishDetailSection[];
 };
 
+export type DishComponent = {
+  kind: "entrada" | "principal" | "sobremesa";
+  /** Snapshot pra render — não precisa fazer outra busca. */
+  id: string;
+  name: string;
+  price?: string;
+  description?: string;
+  image?: string;
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -25,6 +35,7 @@ export type Dish = {
   tags?: string[];
   details?: DishDetails;
   image?: string;
+  components?: DishComponent[];
 };
 
 export type Category = {

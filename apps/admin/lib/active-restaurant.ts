@@ -1,16 +1,11 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@/lib/supabase-server";
+import { RESTAURANT_DEFAULT_ID, type RestaurantRow } from "./restaurants-shared";
 
 const COOKIE_NAME = "kanpai-admin-restaurant";
-const DEFAULT_RESTAURANT = "flamboyant";
 
-export type RestaurantRow = {
-  id: string;
-  name: string;
-  short_name: string;
-  active: boolean;
-  position: number;
-};
+export type { RestaurantRow };
+export { restaurantPublicUrl, RESTAURANT_DEFAULT_ID } from "./restaurants-shared";
 
 /**
  * Lê o restaurante ativo do cookie do admin. Defaults to 'flamboyant'.
@@ -18,9 +13,9 @@ export type RestaurantRow = {
  */
 export function getActiveRestaurantId(): string {
   try {
-    return cookies().get(COOKIE_NAME)?.value || DEFAULT_RESTAURANT;
+    return cookies().get(COOKIE_NAME)?.value || RESTAURANT_DEFAULT_ID;
   } catch {
-    return DEFAULT_RESTAURANT;
+    return RESTAURANT_DEFAULT_ID;
   }
 }
 

@@ -3,8 +3,9 @@
 import { useTransition } from "react";
 import { Storefront } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import { AdminSelect } from "./AdminSelect";
 import { setActiveRestaurant } from "@/app/actions/restaurant";
-import type { RestaurantRow } from "@/lib/active-restaurant";
+import type { RestaurantRow } from "@/lib/restaurants-shared";
 
 type Props = {
   active: string;
@@ -15,8 +16,7 @@ type Props = {
 export function RestaurantSelector({ active, restaurants, fullWidth }: Props) {
   const [pending, startTransition] = useTransition();
 
-  function onChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const next = e.target.value;
+  function onChange(next: string) {
     if (next === active) return;
     startTransition(async () => {
       const res = await setActiveRestaurant(next);
@@ -29,27 +29,19 @@ export function RestaurantSelector({ active, restaurants, fullWidth }: Props) {
   }
 
   return (
-    <label
-      className={
-        "relative flex items-center gap-2 rounded-lg border border-ink-ghost bg-bg-surface px-3 py-2.5 text-sm font-medium text-ink shadow-sm " +
-        (fullWidth ? "w-full" : "inline-flex")
-      }
-    >
-      <Storefront size={16} weight="duotone" className="shrink-0 text-accent" />
-      <span className="shrink-0 text-xs text-ink-muted">Unidade</span>
-      <select
+    <div className={fullWidth ? "w-full" : undefined}>
+      <div className="mb-1.5 flex items-center gap-2">
+        <Storefront size={16} weight="duotone" className="text-accent" />
+        <span className="admin-label">Unidade</span>
+      </div>
+      <AdminSelect
+        id="admin-restaurant"
         value={active}
         onChange={onChange}
         disabled={pending}
-        className={
-          "min-w-0 flex-1 appearance-none bg-transparent text-sm font-medium text-ink outline-none disabled:opacity-50 " +
-          (fullWidth ? "" : "pr-3")
-        }
-      >
-        {restaurants.map((r) => (
-          <option key={r.id} value={r.id}>{r.short_name}</option>
-        ))}
-      </select>
-    </label>
+        options={restaurants.map((r) => ({ value: r.id, label: r.short_name }))}
+        className={fullWidth ? "w-full" : undefined}
+      />
+    </div>
   );
 }

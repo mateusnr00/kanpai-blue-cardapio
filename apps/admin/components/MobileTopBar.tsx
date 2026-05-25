@@ -12,7 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import { RestaurantSelector } from "./RestaurantSelector";
-import type { RestaurantRow } from "@/lib/active-restaurant";
+import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
 
 type Props = {
   email: string | null;
@@ -67,7 +67,7 @@ export function MobileTopBar({ email, activeRestaurant, restaurants }: Props) {
           <div className="flex flex-col gap-3">
             <RestaurantSelector active={activeRestaurant} restaurants={restaurants} />
             <a
-              href="https://kanpai-blue.com"
+              href={restaurantPublicUrl(activeRestaurant)}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-muted hover:bg-bg-muted"

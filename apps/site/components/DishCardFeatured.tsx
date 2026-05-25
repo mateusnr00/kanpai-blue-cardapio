@@ -25,7 +25,9 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
   const hasPrice = dish.price && dish.price.length > 0;
-  const hasDetails = !!dish.details && dish.details.sections.length > 0;
+  const hasDetails =
+    (!!dish.details && dish.details.sections.length > 0) ||
+    (!!dish.components && dish.components.length > 0);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const onImpression = useCallback(() => {

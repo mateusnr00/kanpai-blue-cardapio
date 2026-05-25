@@ -1,10 +1,32 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import type { Dish } from "@/lib/menu-data";
+import type { Dish, DishComponent } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { LikeButton } from "./LikeButton";
+
+const KIND_LABEL: Record<DishComponent["kind"], string> = {
+  entrada: "Entradas",
+  principal: "Principais",
+  sobremesa: "Sobremesas",
+};
+
+const KIND_ORDER: DishComponent["kind"][] = ["entrada", "principal", "sobremesa"];
+
+function groupComponents(components: DishComponent[]) {
+  const buckets: Record<DishComponent["kind"], DishComponent[]> = {
+    entrada: [],
+    principal: [],
+    sobremesa: [],
+  };
+  for (const c of components) buckets[c.kind].push(c);
+  return KIND_ORDER.filter((k) => buckets[k].length > 0).map((k) => ({
+    kind: k,
+    items: buckets[k],
+  }));
+}
 
 type Props = {
   dish: Dish;
@@ -30,7 +52,9 @@ export function DishDetailsModal({ dish, onClose }: Props) {
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  if (!dish.details) return null;
+  const hasComponents = !!dish.components && dish.components.length > 0;
+  if (!dish.details && !hasComponents) return null;
+  const componentGroups = hasComponents ? groupComponents(dish.components!) : [];
 
   return (
     <motion.div
@@ -203,7 +227,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
             paddingBottom: "max(24px, env(safe-area-inset-bottom))",
           }}
         >
-          {dish.details.longDescription && (
+          {dish.details?.longDescription && (
             <p
               style={{
                 margin: 0,
@@ -216,7 +240,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
             </p>
           )}
 
-          {dish.details.sections.map((section, idx) => (
+          {dish.details?.sections.map((section, idx) => (
             <section
               key={section.label}
               style={{
@@ -253,6 +277,123 @@ export function DishDetailsModal({ dish, onClose }: Props) {
               </p>
             </section>
           ))}
+
+          {componentGroups.map((group, idx) => {
+            const isFirst = idx === 0 && !dish.details?.longDescription && (dish.details?.sections.length ?? 0) === 0;
+            return (
+              <section
+                key={group.kind}
+                style={{
+                  marginTop: isFirst ? 0 : 22,
+                  paddingTop: isFirst ? 0 : 22,
+                  borderTop: isFirst ? "none" : "0.5px solid var(--ink-trace)",
+                }}
+              >
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: fs(10),
+                    fontWeight: 500,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    color: "var(--ink-soft)",
+                  }}
+                >
+                  {KIND_LABEL[group.kind]}
+                </h3>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    margin: "12px 0 0",
+                    padding: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
+                  }}
+                >
+                  {group.items.map((item) => (
+                    <li
+                      key={item.id}
+                      style={{
+                        display: "flex",
+                        gap: 12,
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 56,
+                          height: 56,
+                          flexShrink: 0,
+                          borderRadius: 12,
+                          overflow: "hidden",
+                          background: "var(--ink-ghost)",
+                          position: "relative",
+                        }}
+                      >
+                        {item.image ? (
+                          <Image
+                            src={item.image}
+                            alt=""
+                            fill
+                            sizes="56px"
+                            style={{ objectFit: "cover" }}
+                          />
+                        ) : null}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: 8,
+                            alignItems: "baseline",
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: fs(13),
+                              fontWeight: 500,
+                              color: "var(--ink)",
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {item.name}
+                          </p>
+                          {item.price ? (
+                            <span
+                              style={{
+                                fontSize: fs(11),
+                                fontWeight: 500,
+                                color: "var(--ink-soft)",
+                                whiteSpace: "nowrap",
+                                fontVariantNumeric: "tabular-nums",
+                              }}
+                            >
+                              {item.price}
+                            </span>
+                          ) : null}
+                        </div>
+                        {item.description ? (
+                          <p
+                            style={{
+                              margin: "4px 0 0",
+                              fontSize: fs(11),
+                              color: "var(--ink-soft)",
+                              lineHeight: 1.45,
+                            }}
+                          >
+                            {item.description}
+                          </p>
+                        ) : null}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </div>
 
         {/* Rodapé com like */}
