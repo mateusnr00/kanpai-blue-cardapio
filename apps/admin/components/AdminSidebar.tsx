@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -6,7 +8,7 @@ import {
   BookOpenText,
   SquaresFour,
   ChartLineUp,
-} from "@phosphor-icons/react/dist/ssr";
+} from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
 import type { RestaurantRow } from "@/lib/active-restaurant";
