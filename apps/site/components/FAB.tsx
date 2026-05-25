@@ -4,7 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { fs } from "@/lib/scale";
 
-export function FAB() {
+type Props = {
+  restaurantId?: string;
+};
+
+export function FAB({ restaurantId }: Props = {}) {
+  const href = restaurantId ? `/${restaurantId}` : "/";
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
@@ -27,7 +32,7 @@ export function FAB() {
       }}
     >
       <Link
-        href="/"
+        href={href}
         aria-label="Voltar para o cardápio"
         style={{
           pointerEvents: "auto",

@@ -67,7 +67,7 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
           height: "calc(74px + env(safe-area-inset-bottom))",
         }}
       />
-      <FAB />
+      <FAB restaurantId={restaurant.id} />
     </AppShell>
   );
 }
