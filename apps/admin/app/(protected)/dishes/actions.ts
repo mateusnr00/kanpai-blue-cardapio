@@ -124,6 +124,11 @@ async function syncComponents(parentDishId: string, components: ComponentInput[]
   await supabase.from("dish_components").insert(rows);
 }
 
+/**
+ * Resolve a image_path final pro update do dish. Upload acontece antes de retornar
+ * (precisamos do path), mas a delete da foto antiga e disparada em background
+ * (fire-and-forget) pra nao bloquear o salvar.
+ */
 async function handleImage(
   formData: FormData,
   prefix: "image",
@@ -134,14 +139,22 @@ async function handleImage(
   const file = formData.get(prefix);
 
   if (remove) {
-    if (currentPath) await deleteDishImageAction(currentPath);
+    if (currentPath) {
+      void deleteDishImageAction(currentPath).catch((e) =>
+        console.error("[handleImage] delete on remove falhou:", e),
+      );
+    }
     return null;
   }
 
   if (file instanceof File && file.size > 0) {
-    if (currentPath) await deleteDishImageAction(currentPath);
     const res = await uploadDishImageAction(dishId, file);
     if ("error" in res) throw new Error(res.error);
+    if (currentPath && currentPath !== res.path) {
+      void deleteDishImageAction(currentPath).catch((e) =>
+        console.error("[handleImage] delete da foto antiga falhou:", e),
+      );
+    }
     return res.path;
   }
 

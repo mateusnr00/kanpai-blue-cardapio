@@ -8,17 +8,12 @@ type Props = {
   open: boolean;
   sourceUrl: string | null;
   aspect?: number;
-  /** Tamanho máximo (px) do output (downscale). */
   maxOutputSize?: number;
-  /** Tipo de saída. Default: image/jpeg. */
   outputType?: "image/jpeg" | "image/webp" | "image/png";
   onClose: () => void;
   onConfirm: (file: File) => void;
 };
 
-/**
- * Carrega imagem como HTMLImageElement.
- */
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -29,9 +24,6 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
-/**
- * Aplica crop + rotation + downscale e devolve Blob.
- */
 async function getCroppedFile(
   sourceUrl: string,
   pixelCrop: Area,
@@ -41,22 +33,28 @@ async function getCroppedFile(
 ): Promise<File> {
   const image = await loadImage(sourceUrl);
 
-  // canvas intermediário pra aplicar rotação
-  const radians = (rotation * Math.PI) / 180;
-  const sin = Math.abs(Math.sin(radians));
-  const cos = Math.abs(Math.cos(radians));
-  const rotatedW = image.width * cos + image.height * sin;
-  const rotatedH = image.width * sin + image.height * cos;
+  // Caminho rapido: sem rotacao, copia direto do <img> via crop area
+  let cropSource: CanvasImageSource = image;
+  let sourceX = pixelCrop.x;
+  let sourceY = pixelCrop.y;
 
-  const rotated = document.createElement("canvas");
-  rotated.width = rotatedW;
-  rotated.height = rotatedH;
-  const rctx = rotated.getContext("2d")!;
-  rctx.translate(rotatedW / 2, rotatedH / 2);
-  rctx.rotate(radians);
-  rctx.drawImage(image, -image.width / 2, -image.height / 2);
+  if (rotation !== 0) {
+    const radians = (rotation * Math.PI) / 180;
+    const sin = Math.abs(Math.sin(radians));
+    const cos = Math.abs(Math.cos(radians));
+    const rotatedW = image.width * cos + image.height * sin;
+    const rotatedH = image.width * sin + image.height * cos;
 
-  // downscale ao tamanho alvo
+    const rotated = document.createElement("canvas");
+    rotated.width = rotatedW;
+    rotated.height = rotatedH;
+    const rctx = rotated.getContext("2d")!;
+    rctx.translate(rotatedW / 2, rotatedH / 2);
+    rctx.rotate(radians);
+    rctx.drawImage(image, -image.width / 2, -image.height / 2);
+    cropSource = rotated;
+  }
+
   const ratio = Math.min(1, maxOutputSize / Math.max(pixelCrop.width, pixelCrop.height));
   const outW = Math.round(pixelCrop.width * ratio);
   const outH = Math.round(pixelCrop.height * ratio);
@@ -65,10 +63,24 @@ async function getCroppedFile(
   out.width = outW;
   out.height = outH;
   const octx = out.getContext("2d")!;
-  octx.drawImage(rotated, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, outW, outH);
+  octx.drawImage(
+    cropSource,
+    sourceX,
+    sourceY,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    outW,
+    outH,
+  );
 
-  const blob: Blob = await new Promise((resolve) =>
-    out.toBlob((b) => resolve(b as Blob), outputType, 0.9),
+  const blob: Blob = await new Promise((resolve, reject) =>
+    out.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("Canvas vazio (provavel CORS/tainted)."))),
+      outputType,
+      0.88,
+    ),
   );
 
   const ext = outputType === "image/png" ? "png" : outputType === "image/webp" ? "webp" : "jpg";
@@ -89,16 +101,26 @@ export function ImageCropDialog({
   const [rotation, setRotation] = useState(0);
   const [pixelCrop, setPixelCrop] = useState<Area | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // reset ao abrir
   useEffect(() => {
     if (open) {
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       setRotation(0);
       setPixelCrop(null);
+      setError(null);
     }
   }, [open, sourceUrl]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   const onCropComplete = useCallback((_: Area, areaPixels: Area) => {
     setPixelCrop(areaPixels);
@@ -107,11 +129,13 @@ export function ImageCropDialog({
   async function handleConfirm() {
     if (!sourceUrl || !pixelCrop) return;
     setProcessing(true);
+    setError(null);
     try {
       const file = await getCroppedFile(sourceUrl, pixelCrop, rotation, maxOutputSize, outputType);
       onConfirm(file);
     } catch (err) {
       console.error("[ImageCropDialog] falhou:", err);
+      setError((err as Error).message || "Falha ao processar a imagem.");
     } finally {
       setProcessing(false);
     }
@@ -120,14 +144,7 @@ export function ImageCropDialog({
   if (!open || !sourceUrl) return null;
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 flex flex-col bg-black/70 backdrop-blur-sm"
-      onKeyDown={(e) => {
-        if (e.key === "Escape") onClose();
-      }}
-    >
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[60] flex flex-col bg-black/70 backdrop-blur-sm">
       <header className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3 text-white">
         <p className="text-sm font-medium">Ajuste a foto</p>
         <button
@@ -154,6 +171,12 @@ export function ImageCropDialog({
         />
       </div>
 
+      {error ? (
+        <div className="shrink-0 bg-red-600 px-4 py-2 text-center text-xs font-medium text-white">
+          {error}
+        </div>
+      ) : null}
+
       <footer className="flex shrink-0 flex-col gap-3 border-t border-white/10 bg-black/95 px-4 py-4 text-white sm:flex-row sm:items-center">
         <label className="flex flex-1 items-center gap-3 text-xs">
           <span className="w-12 shrink-0 text-white/70">Zoom</span>
@@ -174,7 +197,7 @@ export function ImageCropDialog({
             type="button"
             onClick={() => setRotation((r) => r - 90)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
-            aria-label="Girar 90° anti-horário"
+            aria-label="Girar 90 anti-horario"
           >
             <ArrowCounterClockwise size={16} weight="bold" />
           </button>
@@ -182,7 +205,7 @@ export function ImageCropDialog({
             type="button"
             onClick={() => setRotation((r) => r + 90)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
-            aria-label="Girar 90° horário"
+            aria-label="Girar 90 horario"
           >
             <ArrowClockwise size={16} weight="bold" />
           </button>

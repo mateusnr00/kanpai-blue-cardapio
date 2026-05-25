@@ -12,72 +12,141 @@ type Props = {
   initialPath: string | null;
 };
 
+const MAX_INPUT_DIMENSION = 2000;
+const MAX_INPUT_BYTES = 8 * 1024 * 1024;
+
+/**
+ * Downscale grande pra acelerar o cropper. Retorna blob URL (mesma origem do app,
+ * canvas nao fica tainted) + dimensoes finais. Pula se ja for pequeno.
+ */
+async function prepareSourceForCropper(file: File): Promise<string> {
+  const url = URL.createObjectURL(file);
+  // Tenta carregar pra checar dimensoes; se nao precisa downscale, devolve url cru.
+  const img: HTMLImageElement = await new Promise((resolve, reject) => {
+    const el = new window.Image();
+    el.onload = () => resolve(el);
+    el.onerror = (e) => reject(e);
+    el.src = url;
+  });
+
+  const longest = Math.max(img.width, img.height);
+  if (longest <= MAX_INPUT_DIMENSION) return url;
+
+  const ratio = MAX_INPUT_DIMENSION / longest;
+  const w = Math.round(img.width * ratio);
+  const h = Math.round(img.height * ratio);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, 0, 0, w, h);
+  const blob: Blob = await new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("downscale falhou"))), "image/jpeg", 0.92),
+  );
+  URL.revokeObjectURL(url);
+  return URL.createObjectURL(blob);
+}
+
+/**
+ * Para "Reajustar" sobre uma foto ja salva no Supabase: baixa como blob primeiro
+ * pra evitar canvas tainted por CORS, mesmo com bucket publico.
+ */
+async function fetchAsBlobUrl(url: string): Promise<string> {
+  const res = await fetch(url, { mode: "cors", cache: "no-cache" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}
+
 export function ImageUpload({ name, initialPath }: Props) {
+  // Preview: blob: ou https. shouldRemove indica que usuario clicou "Remover".
   const [preview, setPreview] = useState<string | null>(publicImageUrl(initialPath));
   const [shouldRemove, setShouldRemove] = useState(false);
-  // URL temporário do arquivo recém-escolhido, usado pelo dialog de crop
   const [cropSource, setCropSource] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [preparing, setPreparing] = useState(false);
 
-  // limpa URLs criadas pra evitar leak
+  // Input que serializa o file pro form (escondido, manipulado por DataTransfer).
+  const submitInputRef = useRef<HTMLInputElement>(null);
+  // Input que recebe o click do usuario (input file nativo).
+  const pickerInputRef = useRef<HTMLInputElement>(null);
+
+  function revokeIfBlob(url: string | null) {
+    if (url && url.startsWith("blob:")) URL.revokeObjectURL(url);
+  }
+
+  // cleanup geral no unmount
   useEffect(() => {
     return () => {
-      if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
-      if (cropSource?.startsWith("blob:")) URL.revokeObjectURL(cropSource);
+      revokeIfBlob(preview);
+      revokeIfBlob(cropSource);
     };
-    // intencional: só cleanup no unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    // limpa o picker pra permitir escolher o mesmo arquivo de novo
+    if (pickerInputRef.current) pickerInputRef.current.value = "";
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) {
+    if (file.size > MAX_INPUT_BYTES) {
       toast.error("Imagem maior que 8MB (max bruto).");
-      if (fileRef.current) fileRef.current.value = "";
       return;
     }
-    // abre dialog de crop em vez de aceitar direto
-    const url = URL.createObjectURL(file);
-    setCropSource(url);
+    setPreparing(true);
+    try {
+      const sourceUrl = await prepareSourceForCropper(file);
+      // se ja havia um cropSource em uso (caso raro), revoke
+      revokeIfBlob(cropSource);
+      setCropSource(sourceUrl);
+    } catch (err) {
+      console.error("[ImageUpload] prepare falhou:", err);
+      toast.error("Nao foi possivel ler a imagem.");
+    } finally {
+      setPreparing(false);
+    }
   }
 
   function onCropConfirm(croppedFile: File) {
-    if (!fileRef.current) return;
-
-    // Substitui o valor do input file pra que o form leve o arquivo cortado
-    const dt = new DataTransfer();
-    dt.items.add(croppedFile);
-    fileRef.current.files = dt.files;
-
-    // Preview
-    if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+    if (submitInputRef.current) {
+      const dt = new DataTransfer();
+      dt.items.add(croppedFile);
+      submitInputRef.current.files = dt.files;
+    }
     const url = URL.createObjectURL(croppedFile);
+    revokeIfBlob(preview);
     setPreview(url);
     setShouldRemove(false);
-
-    if (cropSource?.startsWith("blob:")) URL.revokeObjectURL(cropSource);
+    revokeIfBlob(cropSource);
     setCropSource(null);
-
     toast.success("Foto pronta. Salve o item pra confirmar.");
   }
 
   function onCropCancel() {
-    if (cropSource?.startsWith("blob:")) URL.revokeObjectURL(cropSource);
+    revokeIfBlob(cropSource);
     setCropSource(null);
-    if (fileRef.current) fileRef.current.value = "";
+    // nao mexe no preview nem no submitInput — mantem o que ja estava
   }
 
-  function openCropAgain() {
-    // re-abre o dialog usando o preview atual (que é um blob: do crop anterior)
-    if (preview) setCropSource(preview);
+  async function openCropAgain() {
+    if (!preview) return;
+    setPreparing(true);
+    try {
+      const sourceUrl = preview.startsWith("blob:") ? preview : await fetchAsBlobUrl(preview);
+      // se for o mesmo blob do preview, nao revoga (vamos reusar)
+      setCropSource(sourceUrl);
+    } catch (err) {
+      console.error("[ImageUpload] reajustar falhou:", err);
+      toast.error("Nao foi possivel abrir a foto pra reajustar.");
+    } finally {
+      setPreparing(false);
+    }
   }
 
   function onRemove() {
-    if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+    revokeIfBlob(preview);
     setPreview(null);
     setShouldRemove(true);
-    if (fileRef.current) fileRef.current.value = "";
+    if (submitInputRef.current) submitInputRef.current.value = "";
   }
 
   return (
@@ -101,24 +170,31 @@ export function ImageUpload({ name, initialPath }: Props) {
         <div className="flex flex-col gap-3">
           <label className="admin-btn-secondary cursor-pointer">
             <UploadSimple size={18} />
-            Escolher imagem
+            {preparing ? "Carregando..." : "Escolher imagem"}
             <input
-              ref={fileRef}
+              ref={pickerInputRef}
               type="file"
-              name={name}
               accept="image/jpeg,image/png,image/webp,image/avif"
-              onChange={onFile}
+              onChange={onPick}
+              disabled={preparing}
               className="sr-only"
             />
           </label>
-          <p className="text-xs text-ink-muted">JPEG, PNG, WebP ou AVIF · máx. 8MB (cortado pra 1200×1200)</p>
+          {/* Este e o input que vai pro FormData; manipulado via DataTransfer */}
+          <input ref={submitInputRef} type="file" name={name} className="sr-only" tabIndex={-1} />
+          <p className="text-xs text-ink-muted">JPEG, PNG, WebP ou AVIF · max. 8MB (cortado pra 1200x1200)</p>
           {preview ? (
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={openCropAgain} className="admin-btn-secondary w-fit">
+              <button
+                type="button"
+                onClick={openCropAgain}
+                disabled={preparing}
+                className="admin-btn-secondary w-fit disabled:opacity-50"
+              >
                 <Crop size={16} />
                 Reajustar
               </button>
-              <button type="button" onClick={onRemove} className="admin-btn-danger w-fit">
+              <button type="button" onClick={onRemove} disabled={preparing} className="admin-btn-danger w-fit disabled:opacity-50">
                 <Trash size={16} />
                 Remover foto
               </button>
