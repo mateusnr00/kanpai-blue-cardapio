@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          dish_slug: string | null
+          event_type: string
+          id: string
+          pathname: string | null
+          referrer: string | null
+          session_id: string
+          user_agent: string | null
+          visitor_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          dish_slug?: string | null
+          event_type: string
+          id?: string
+          pathname?: string | null
+          referrer?: string | null
+          session_id: string
+          user_agent?: string | null
+          visitor_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          dish_slug?: string | null
+          event_type?: string
+          id?: string
+          pathname?: string | null
+          referrer?: string | null
+          session_id?: string
+          user_agent?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           active: boolean

@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Category, Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
+import { track } from "@/lib/analytics";
 import { SubcategoryChips } from "./SubcategoryChips";
 import { DishCardSmall } from "./DishCardSmall";
 import { DishCardFeatured } from "./DishCardFeatured";
@@ -51,6 +52,10 @@ export function CategoryView({ category }: Props) {
   const [activeSubcat, setActiveSubcat] = useState<string>(
     category.subcategories?.[0] ?? "Todos",
   );
+
+  useEffect(() => {
+    track({ event_type: "category_open", category_id: category.id });
+  }, [category.id]);
 
   const filteredDishes = useMemo(() => {
     if (!activeSubcat || activeSubcat === "Todos") return category.dishes;

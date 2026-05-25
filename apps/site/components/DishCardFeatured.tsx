@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
+import { track } from "@/lib/analytics";
+import { useImpressionOnce } from "@/lib/use-impression";
 import { DishImage } from "./DishImage";
 import { LikeButton } from "./LikeButton";
 import { DishDetailsModal } from "./DishDetailsModal";
@@ -25,9 +27,20 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
   const hasDetails = !!dish.details && dish.details.sections.length > 0;
   const [detailsOpen, setDetailsOpen] = useState(false);
 
+  const onImpression = useCallback(() => {
+    track({ event_type: "dish_impression", dish_slug: dish.id });
+  }, [dish.id]);
+  const ref = useImpressionOnce<HTMLElement>(onImpression);
+
+  const openDetails = useCallback(() => {
+    setDetailsOpen(true);
+    track({ event_type: "dish_view", dish_slug: dish.id });
+  }, [dish.id]);
+
   return (
     <>
     <article
+      ref={ref}
       id={dish.id}
       style={{
         background: "var(--bg-card)",
@@ -39,7 +52,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
         scrollMarginTop: 80,
         cursor: hasDetails ? "pointer" : "default",
       }}
-      onClick={hasDetails ? () => setDetailsOpen(true) : undefined}
+      onClick={hasDetails ? openDetails : undefined}
       role={hasDetails ? "button" : undefined}
       tabIndex={hasDetails ? 0 : undefined}
       onKeyDown={
@@ -47,7 +60,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
           ? (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                setDetailsOpen(true);
+                openDetails();
               }
             }
           : undefined
@@ -202,7 +215,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setDetailsOpen(true);
+                openDetails();
               }}
               style={{
                 display: "inline-flex",

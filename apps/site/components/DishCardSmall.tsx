@@ -1,7 +1,10 @@
 "use client";
 
+import { useCallback } from "react";
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
+import { track } from "@/lib/analytics";
+import { useImpressionOnce } from "@/lib/use-impression";
 import { DishImage } from "./DishImage";
 import { LikeButton } from "./LikeButton";
 
@@ -23,9 +26,14 @@ type Props = {
 export function DishCardSmall({ dish, number, gradientIndex }: Props) {
   const gradient = SMALL_GRADIENTS[gradientIndex % SMALL_GRADIENTS.length];
   const hasPrice = dish.price && dish.price.length > 0;
+  const onImpression = useCallback(() => {
+    track({ event_type: "dish_impression", dish_slug: dish.id });
+  }, [dish.id]);
+  const ref = useImpressionOnce<HTMLElement>(onImpression);
 
   return (
     <article
+      ref={ref}
       id={dish.id}
       style={{
         background: "var(--bg-card)",
