@@ -25,7 +25,7 @@ function Dropdown({
   children,
 }: {
   label: string;
-  icon: React.ComponentType<{ size: number; weight: string }>;
+  icon: React.ComponentType<any>;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);

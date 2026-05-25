@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { BookOpenText, SquaresFour, ChartLineUp } from "@phosphor-icons/react";
 
 const NAV = [
-  { href: "/", label: "Cardápio", icon: BookOpenText, exact: true },
-  { href: "/cards", label: "Categorias", icon: SquaresFour },
-  { href: "/analytics", label: "Analytics", icon: ChartLineUp },
-] as const;
+  { href: "/", label: "Cardápio", icon: BookOpenText, exact: true as const },
+  { href: "/cards", label: "Categorias", icon: SquaresFour, exact: false as const },
+  { href: "/analytics", label: "Analytics", icon: ChartLineUp, exact: false as const },
+];
 
 export function BottomNav() {
   const pathname = usePathname();
