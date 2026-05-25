@@ -4,15 +4,26 @@ import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/PageHeader";
 import { createExecutivo } from "../actions";
 
-export default async function NewExecutivoPage() {
+export default async function NewExecutivoPage({
+  searchParams,
+}: {
+  searchParams: { cat?: string };
+}) {
   const categories = await listCategoriesWithCounts();
 
   return (
     <section className="flex w-full flex-col gap-6">
-      <BackLink href="/executivos">Voltar aos executivos</BackLink>
+      <BackLink href={searchParams.cat ? `/?cat=${searchParams.cat}` : "/executivos"}>
+        {searchParams.cat ? "Voltar ao cardápio" : "Voltar aos executivos"}
+      </BackLink>
       <PageHeader title="Novo executivo" description="Menu executivo com entradas, principais e sobremesas." />
       <div className="admin-card p-6 sm:p-8">
-        <ExecutivoForm mode="create" categories={categories} onSubmit={createExecutivo} />
+        <ExecutivoForm
+          mode="create"
+          categories={categories}
+          defaultCategoryId={searchParams.cat}
+          onSubmit={createExecutivo}
+        />
       </div>
     </section>
   );

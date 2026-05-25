@@ -13,10 +13,11 @@ type Props = {
   initial?: ExecutivoRow;
   items?: ExecutivoItemRow[];
   categories: CategoryListItem[];
+  defaultCategoryId?: string;
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
-export function ExecutivoForm({ mode, initial, items = [], categories, onSubmit }: Props) {
+export function ExecutivoForm({ mode, initial, items = [], categories, defaultCategoryId, onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -57,7 +58,7 @@ export function ExecutivoForm({ mode, initial, items = [], categories, onSubmit 
             id="category_id"
             name="category_id"
             required
-            defaultValue={initial?.category_id ?? categories[0]?.id ?? ""}
+            defaultValue={initial?.category_id ?? defaultCategoryId ?? categories[0]?.id ?? ""}
             options={categories.map((c) => ({ value: c.id, label: c.name }))}
           />
         </div>
