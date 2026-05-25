@@ -47,7 +47,7 @@ export function SubcategoryChips({ options, onChange }: Props) {
               background: isActive ? "var(--ink)" : "transparent",
               color: isActive ? "var(--bg-warm)" : "var(--ink)",
               border: isActive ? "1px solid var(--ink)" : "0.5px solid var(--ink-faint)",
-              borderRadius: 2,
+              borderRadius: 999,
               scrollSnapAlign: "start",
               transition: "background 180ms ease, color 180ms ease, border-color 180ms ease",
               whiteSpace: "nowrap",

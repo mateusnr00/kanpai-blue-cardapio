@@ -19,7 +19,7 @@ export function CategoryCard({ category }: { category: Category }) {
           display: "block",
           background: "var(--bg-card)",
           border: borderStyle,
-          borderRadius: 0,
+          borderRadius: 18,
           overflow: "hidden",
           color: "var(--ink)",
         }}
@@ -39,6 +39,7 @@ export function CategoryCard({ category }: { category: Category }) {
                   height: 22,
                   background: "var(--bg-card)",
                   border: "0.5px solid var(--ink-faint)",
+                  borderRadius: 999,
                   color: "var(--ink)",
                   fontSize: 11,
                   lineHeight: 1,

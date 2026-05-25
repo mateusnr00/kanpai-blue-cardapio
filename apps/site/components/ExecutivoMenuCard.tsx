@@ -108,6 +108,8 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--ink)",
+        borderRadius: 18,
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
       }}
@@ -129,6 +131,7 @@ export function ExecutivoMenuCard({ menu, number, variant = "blue" }: Props) {
               letterSpacing: "0.15em",
               textTransform: "uppercase",
               lineHeight: 1,
+              borderRadius: 999,
             }}
           >
             EXECUTIVO
