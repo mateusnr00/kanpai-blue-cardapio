@@ -61,7 +61,7 @@ export function DishComponentsEditor({ initial, choices: initialChoices, categor
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState("");
-  const [newCategoryId, setNewCategoryId] = useState<string>(categories[0]?.id ?? "");
+  const [newCategoryId, setNewCategoryId] = useState<string>("");
   const [creating, startCreate] = useTransition();
 
   const itemsByKind = useMemo(() => {
@@ -100,12 +100,12 @@ export function DishComponentsEditor({ initial, choices: initialChoices, categor
   }
 
   function submitCreate() {
-    if (!newName.trim() || !newCategoryId) return;
+    if (!newName.trim()) return;
     startCreate(async () => {
       const res = await quickCreateDishForComponent({
         name: newName.trim(),
         price: newPrice.trim() || null,
-        categoryId: newCategoryId,
+        categoryId: newCategoryId || null,
       });
       if ("error" in res) {
         toast.error(res.error);
@@ -339,13 +339,14 @@ export function DishComponentsEditor({ initial, choices: initialChoices, categor
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="component-new-category" className="admin-label">
-                      Categoria
+                      Categoria <span className="text-ink-soft">(opcional)</span>
                     </label>
                     <AdminSelect
                       id="component-new-category"
                       value={newCategoryId}
                       onChange={setNewCategoryId}
                       disabled={creating}
+                      placeholder="Categoria (auto)"
                       options={categories.map((c) => ({ value: c.id, label: c.name }))}
                     />
                   </div>
@@ -361,7 +362,7 @@ export function DishComponentsEditor({ initial, choices: initialChoices, categor
                   <button
                     type="button"
                     onClick={submitCreate}
-                    disabled={creating || !newName.trim() || !newCategoryId}
+                    disabled={creating || !newName.trim()}
                     className="rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
                     {creating ? "Criando..." : `Criar e adicionar como ${TAB_LABEL[activeTab].toLowerCase().slice(0, -1)}`}
