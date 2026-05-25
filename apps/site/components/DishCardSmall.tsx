@@ -30,6 +30,8 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
       style={{
         background: "var(--bg-card)",
         border: "0.5px solid var(--ink-faint)",
+        borderRadius: 14,
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         alignSelf: "flex-start",
@@ -136,6 +138,7 @@ export function DishCardSmall({ dish, number, gradientIndex }: Props) {
                   textTransform: "uppercase",
                   padding: "3px 6px",
                   border: "0.5px solid var(--ink-faint)",
+                  borderRadius: 999,
                   color: "var(--ink-soft)",
                   lineHeight: 1,
                 }}

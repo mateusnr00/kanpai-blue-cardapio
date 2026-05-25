@@ -32,6 +32,8 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--ink)",
+        borderRadius: 18,
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         scrollMarginTop: 80,
@@ -70,6 +72,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
               letterSpacing: "0.15em",
               textTransform: "uppercase",
               lineHeight: 1,
+              borderRadius: 999,
             }}
           >
             DESTAQUE
@@ -174,6 +177,7 @@ export function DishCardFeatured({ dish, number, variant = "blue" }: Props) {
                   textTransform: "uppercase",
                   padding: "3px 7px",
                   border: "0.5px solid var(--ink-faint)",
+                  borderRadius: 999,
                   color: "var(--ink-soft)",
                   lineHeight: 1,
                 }}
