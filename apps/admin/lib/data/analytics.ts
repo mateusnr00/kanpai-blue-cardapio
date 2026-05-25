@@ -63,7 +63,8 @@ export type EventRow = {
 async function fetchEvents(
   restaurantId: string,
   start: string | null,
-  end: string
+  end: string,
+  categoryId?: string
 ): Promise<EventRow[]> {
   const supabase = createServerClient();
   let q = supabase
@@ -72,6 +73,7 @@ async function fetchEvents(
     .eq("restaurant_id", restaurantId)
     .lt("created_at", end);
   if (start) q = q.gte("created_at", start);
+  if (categoryId) q = q.eq("category_id", categoryId);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(50000);
   if (error) throw error;
   return (data ?? []) as EventRow[];
@@ -286,10 +288,10 @@ export type DashboardData = {
   topDishes: DishRank[];
 };
 
-export async function loadDashboard(range: Range, restaurantId: string): Promise<DashboardData> {
+export async function loadDashboard(range: Range, restaurantId: string, categoryId?: string): Promise<DashboardData> {
   const window = rangeWindow(range);
   const [events, names] = await Promise.all([
-    fetchEvents(restaurantId, window.start, window.end),
+    fetchEvents(restaurantId, window.start, window.end, categoryId),
     loadNames(restaurantId),
   ]);
 
@@ -302,7 +304,7 @@ export async function loadDashboard(range: Range, restaurantId: string): Promise
 
   let prevStats: Stats | null = null;
   if (window.prevStart && window.prevEnd) {
-    const prev = await fetchEvents(restaurantId, window.prevStart, window.prevEnd);
+    const prev = await fetchEvents(restaurantId, window.prevStart, window.prevEnd, categoryId);
     prevStats = computeStats(prev);
   }
 
@@ -317,4 +319,15 @@ export async function loadDashboard(range: Range, restaurantId: string): Promise
     topCategories,
     topDishes,
   };
+}
+
+export async function loadCategoryOptions(restaurantId: string): Promise<{ slug: string; name: string; id: string }[]> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, slug, name")
+    .eq("restaurant_id", restaurantId)
+    .order("position");
+  if (error) throw error;
+  return data ?? [];
 }
