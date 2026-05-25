@@ -11,7 +11,7 @@ type Props = {
 
 export function DishToggleActive({ id, active }: Props) {
   const [optimistic, setOptimistic] = useState(active);
-  const [, startTransition] = useTransition();
+  const [pending, startTransition] = useTransition();
 
   // Sync com a prop quando o server revalida (categoria recarrega).
   useEffect(() => {
@@ -33,22 +33,17 @@ export function DishToggleActive({ id, active }: Props) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={
-        "inline-flex h-5 w-9 items-center rounded-full transition " +
-        (optimistic ? "bg-ink" : "bg-ink-faint")
-      }
-      aria-pressed={optimistic}
+    <label
+      className="switch"
       aria-label={optimistic ? "Desativar prato" : "Ativar prato"}
     >
-      <span
-        className={
-          "inline-block h-4 w-4 rounded-full bg-white transition " +
-          (optimistic ? "translate-x-4" : "translate-x-0.5")
-        }
+      <input
+        type="checkbox"
+        checked={optimistic}
+        onChange={onToggle}
+        disabled={pending}
       />
-    </button>
+      <span className="slider" />
+    </label>
   );
 }
