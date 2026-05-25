@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Category, Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
+import { track } from "@/lib/analytics";
 import { SubcategoryChips } from "./SubcategoryChips";
 import { DishCardSmall } from "./DishCardSmall";
 import { DishCardFeatured } from "./DishCardFeatured";
@@ -100,6 +101,11 @@ export function CategoryView({ category }: Props) {
     () => (isExecutivo ? [] : groupDishes(category.dishes, subcategories)),
     [isExecutivo, category.dishes, subcategories],
   );
+
+  // Analytics: registra abertura da categoria
+  useEffect(() => {
+    track({ event_type: "category_open", category_id: category.id });
+  }, [category.id]);
 
   // Scroll-spy: rastreia qual secao esta visivel pra destacar o chip
   const [activeSubcat, setActiveSubcat] = useState<string>(subcategories[0] ?? "");

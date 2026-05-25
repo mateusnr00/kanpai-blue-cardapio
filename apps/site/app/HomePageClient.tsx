@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Category } from "@/lib/menu-types";
 import { fs } from "@/lib/scale";
+import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -26,6 +27,7 @@ export function HomePageClient({ categories }: { categories: Category[] }) {
     } catch {}
     setShowIntro(!seen);
     setDecided(true);
+    track({ event_type: "home_view" });
   }, []);
 
   const handleIntroDone = () => {
