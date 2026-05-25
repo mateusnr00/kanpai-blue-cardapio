@@ -15,7 +15,7 @@ export default function LoginPage() {
             Gestão do cardápio
           </h2>
           <p className="mt-3 max-w-sm text-sm text-white/70">
-            Atualize pratos, categorias e menus executivos. As mudanças refletem no site em tempo real.
+            Atualize pratos e categorias do cardápio. As mudanças refletem no site em tempo real.
           </p>
         </div>
         <p className="text-xs text-white/40">Kanpai Blue · Admin</p>

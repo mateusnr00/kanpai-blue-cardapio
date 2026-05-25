@@ -35,7 +35,7 @@ const CATEGORY_FIELDS =
 export async function listCategoriesWithCounts(restaurantId: string): Promise<CategoryListItem[]> {
   const supabase = createServerClient();
 
-  const [catsRes, dishesRes, execsRes] = await Promise.all([
+  const [catsRes, dishesRes] = await Promise.all([
     supabase
       .from("categories")
       .select("id, slug, number, name, position")
@@ -45,14 +45,9 @@ export async function listCategoriesWithCounts(restaurantId: string): Promise<Ca
       .from("dishes")
       .select("category_id, active")
       .eq("restaurant_id", restaurantId),
-    supabase
-      .from("executivo_menus")
-      .select("category_id, active")
-      .eq("restaurant_id", restaurantId),
   ]);
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;
-  if (execsRes.error) throw execsRes.error;
 
   const counts = new Map<string, { total: number; active: number }>();
   function bump(categoryId: string, active: boolean) {
@@ -62,7 +57,6 @@ export async function listCategoriesWithCounts(restaurantId: string): Promise<Ca
     counts.set(categoryId, c);
   }
   for (const d of dishesRes.data ?? []) bump(d.category_id, d.active);
-  for (const e of execsRes.data ?? []) bump(e.category_id, e.active);
 
   return (catsRes.data ?? []).map((c) => ({
     id: c.id,

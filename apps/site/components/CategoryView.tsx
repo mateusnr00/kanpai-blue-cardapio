@@ -7,7 +7,6 @@ import { track } from "@/lib/analytics";
 import { SubcategoryChips } from "./SubcategoryChips";
 import { DishCardSmall } from "./DishCardSmall";
 import { DishCardFeatured } from "./DishCardFeatured";
-import { ExecutivoMenuCard } from "./ExecutivoMenuCard";
 
 type Props = {
   category: Category;
@@ -94,13 +93,12 @@ function groupDishes(dishes: Dish[], order: string[] | undefined): Group[] {
 }
 
 export function CategoryView({ category, restaurantId }: Props) {
-  const isExecutivo = !!category.executivos && category.executivos.length > 0;
   const subcategories = category.subcategories ?? [];
   const hasSubcats = subcategories.length > 0;
 
   const groups = useMemo(
-    () => (isExecutivo ? [] : groupDishes(category.dishes, subcategories)),
-    [isExecutivo, category.dishes, subcategories],
+    () => groupDishes(category.dishes, subcategories),
+    [category.dishes, subcategories],
   );
 
   // Analytics: registra abertura da categoria
@@ -182,7 +180,7 @@ export function CategoryView({ category, restaurantId }: Props) {
         </p>
       </section>
 
-      {hasSubcats && !isExecutivo && (
+      {hasSubcats && (
         <SubcategoryChips
           options={subcategories}
           active={activeSubcat}
@@ -198,19 +196,7 @@ export function CategoryView({ category, restaurantId }: Props) {
           gap: 14,
         }}
       >
-        {isExecutivo &&
-          category.executivos!.map((menu, idx) => (
-            <ExecutivoMenuCard
-              key={menu.name}
-              menu={menu}
-              number={String(idx + 1).padStart(2, "0")}
-              variant={idx % 2 === 0 ? "blue" : "beige"}
-              restaurantId={restaurantId}
-            />
-          ))}
-
-        {!isExecutivo &&
-          groups.map((group) => {
+        {groups.map((group) => {
             // featured offset = total de featured anteriores
             const featuredOffset = groups
               .slice(0, groups.indexOf(group))
@@ -317,7 +303,7 @@ export function CategoryView({ category, restaurantId }: Props) {
             );
           })}
 
-        {!isExecutivo && groups.length === 0 && (
+        {groups.length === 0 && (
           <p
             style={{
               padding: "48px 8px",

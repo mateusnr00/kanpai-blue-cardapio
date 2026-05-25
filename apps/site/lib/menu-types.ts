@@ -27,18 +27,6 @@ export type Dish = {
   image?: string;
 };
 
-export type ExecutivoMenu = {
-  name: string;
-  price: string;
-  format: string;
-  description: string;
-  validity?: string;
-  subcategory?: string;
-  entradas: { name: string; description: string }[];
-  principais: { name: string; description: string }[];
-  sobremesas?: { name: string; price: string; description: string }[];
-};
-
 export type Category = {
   id: string;
   number: string;
@@ -53,5 +41,4 @@ export type Category = {
   image?: string;
   fullWidth?: boolean;
   dishes: Dish[];
-  executivos?: ExecutivoMenu[];
 };

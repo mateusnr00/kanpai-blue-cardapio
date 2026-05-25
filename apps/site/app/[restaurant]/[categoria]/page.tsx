@@ -49,10 +49,7 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
   if (!category) notFound();
 
   const total = categories.length;
-  const isExecutivo = !!category.executivos && category.executivos.length > 0;
-  const rightLabel = isExecutivo
-    ? `${category.executivos!.length} ${category.executivos!.length === 1 ? "menu" : "menus"}`
-    : `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`;
+  const rightLabel = `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`;
 
   return (
     <AppShell>
