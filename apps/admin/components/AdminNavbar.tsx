@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import {
   ArrowSquareOut,
   BookOpenText,
-  Briefcase,
   ChartLineUp,
   List,
   SignOut,
@@ -22,7 +21,6 @@ const LOGO_URL =
 const NAV = [
   { href: "/", label: "Cardápio", icon: BookOpenText, exact: true },
   { href: "/cards", label: "Cards", icon: SquaresFour },
-  { href: "/executivos", label: "Executivos", icon: Briefcase },
   { href: "/analytics", label: "Analytics", icon: ChartLineUp },
 ] as const;
 

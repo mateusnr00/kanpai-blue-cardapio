@@ -29,22 +29,24 @@ export type CategoryRow = {
 export async function listCategoriesWithCounts(): Promise<CategoryListItem[]> {
   const supabase = createServerClient();
 
-  const catsRes = await supabase
-    .from("categories")
-    .select("id, number, name, position")
-    .order("position");
+  const [catsRes, dishesRes, execsRes] = await Promise.all([
+    supabase.from("categories").select("id, number, name, position").order("position"),
+    supabase.from("dishes").select("category_id, active"),
+    supabase.from("executivo_menus").select("category_id, active"),
+  ]);
   if (catsRes.error) throw catsRes.error;
-
-  const dishesRes = await supabase.from("dishes").select("category_id, active");
   if (dishesRes.error) throw dishesRes.error;
+  if (execsRes.error) throw execsRes.error;
 
   const counts = new Map<string, { total: number; active: number }>();
-  for (const d of dishesRes.data ?? []) {
-    const c = counts.get(d.category_id) ?? { total: 0, active: 0 };
+  function bump(categoryId: string, active: boolean) {
+    const c = counts.get(categoryId) ?? { total: 0, active: 0 };
     c.total += 1;
-    if (d.active) c.active += 1;
-    counts.set(d.category_id, c);
+    if (active) c.active += 1;
+    counts.set(categoryId, c);
   }
+  for (const d of dishesRes.data ?? []) bump(d.category_id, d.active);
+  for (const e of execsRes.data ?? []) bump(e.category_id, e.active);
 
   return (catsRes.data ?? []).map((c) => ({
     id: c.id,
