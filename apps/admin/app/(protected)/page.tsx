@@ -18,16 +18,16 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
       <CategoryChips categories={categories} />
 
       {selected ? (
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{selected.name}</h1>
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{selected.name}</h1>
             <p className="text-xs text-ink-soft">
               {selected.total} {selected.total === 1 ? "item" : "itens"} · {selected.active} ativo{selected.active === 1 ? "" : "s"}
             </p>
           </div>
           <Link
             href={`/dishes/new?cat=${selected.id}`}
-            className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+            className="self-start rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:opacity-90 sm:self-auto"
           >
             + Novo item
           </Link>

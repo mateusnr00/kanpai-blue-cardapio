@@ -33,7 +33,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
 
   return (
     <form action={action} className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_8rem]">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="name" className="text-xs font-medium text-ink-soft">Nome</label>
           <input
@@ -54,7 +54,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
             type="text"
             required
             defaultValue={initial?.number ?? ""}
-            className="w-24 rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
+            className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm"
           />
         </div>
       </div>
@@ -95,7 +95,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="item_count" className="text-xs font-medium text-ink-soft">Item count (opcional)</label>
           <input

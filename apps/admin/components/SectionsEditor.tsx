@@ -44,7 +44,7 @@ function SortableSection({
 
   return (
     <li ref={setNodeRef} style={style} className="rounded-md border border-ink-faint bg-bg-card p-3">
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
         <button
           type="button"
           {...attributes}
@@ -60,7 +60,7 @@ function SortableSection({
           value={s.label}
           onChange={(e) => onChange(idx, "label", e.target.value)}
           placeholder="Título da seção (ex: Entradas Da Cozinha)"
-          className="flex-1 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm font-medium"
+          className="min-w-0 flex-1 rounded-md border border-ink-faint bg-bg-warm px-2 py-1 text-sm font-medium"
         />
         <button
           type="button"
