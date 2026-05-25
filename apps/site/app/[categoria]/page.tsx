@@ -9,17 +9,29 @@ import { CategoryView } from "@/components/CategoryView";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const categories = await getCategories();
-  return categories.map((c) => ({ categoria: c.id }));
+  // Em build time sem env do Supabase (ex: preview deploy sem secrets),
+  // devolve lista vazia — paginas sao geradas on-demand no primeiro
+  // request (dynamicParams default = true).
+  try {
+    const categories = await getCategories();
+    return categories.map((c) => ({ categoria: c.id }));
+  } catch (err) {
+    console.warn("[generateStaticParams] skip prerender:", (err as Error).message);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: { categoria: string } }) {
-  const category = await getCategoryBySlug(params.categoria);
-  if (!category) return { title: "Categoria · Kanpai Blue" };
-  return {
-    title: `${category.name} · Kanpai Blue`,
-    description: `${category.itemCount} · ${category.detail}`,
-  };
+  try {
+    const category = await getCategoryBySlug(params.categoria);
+    if (!category) return { title: "Categoria · Kanpai Blue" };
+    return {
+      title: `${category.name} · Kanpai Blue`,
+      description: `${category.itemCount} · ${category.detail}`,
+    };
+  } catch {
+    return { title: "Categoria · Kanpai Blue" };
+  }
 }
 
 export default async function CategoryPage({ params }: { params: { categoria: string } }) {

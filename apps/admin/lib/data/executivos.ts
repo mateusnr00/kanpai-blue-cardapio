@@ -37,6 +37,17 @@ export async function listExecutivos(): Promise<Array<ExecutivoRow & { category_
   return (exRes.data ?? []).map((e) => ({ ...e, category_name: catMap.get(e.category_id) ?? "—" }));
 }
 
+export async function listExecutivosByCategory(categoryId: string): Promise<ExecutivoRow[]> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("executivo_menus")
+    .select("id, category_id, name, price, format, description, validity, subcategory, position, active")
+    .eq("category_id", categoryId)
+    .order("position");
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getExecutivo(id: string): Promise<ExecutivoRow | null> {
   const supabase = createServerClient();
   const { data, error } = await supabase
