@@ -24,7 +24,7 @@ const LINKS: LinkItem[] = [
   { label: "Reservas", href: "#", disabled: true },
   { label: "Fale conosco", href: "#", disabled: true },
   { label: "Localização", href: "#", disabled: true },
-  { label: "Avalie-nos", href: "#", disabled: true },
+  { label: "Avalie-nos", href: "/avaliacao" },
 ];
 
 export default function HomePage() {

@@ -4,6 +4,7 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileTopBar } from "@/components/MobileTopBar";
 import { getActiveRestaurantId, listRestaurants } from "@/lib/active-restaurant";
+import { countUnreadReviews } from "@/lib/data/reviews";
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const supabase = createServerClient();
@@ -13,8 +14,11 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     redirect("/login");
   }
 
-  const [restaurants] = await Promise.all([listRestaurants()]);
   const activeRestaurant = getActiveRestaurantId();
+  const [restaurants, unreadReviews] = await Promise.all([
+    listRestaurants(),
+    countUnreadReviews(activeRestaurant),
+  ]);
 
   return (
     <div className="flex min-h-screen bg-bg-app">
@@ -22,6 +26,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
         email={user.email ?? null}
         activeRestaurant={activeRestaurant}
         restaurants={restaurants}
+        unreadReviews={unreadReviews}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -35,7 +40,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
           {children}
         </main>
 
-        <BottomNav />
+        <BottomNav unreadReviews={unreadReviews} />
       </div>
     </div>
   );

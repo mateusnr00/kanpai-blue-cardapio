@@ -379,6 +379,62 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          ambience: number | null
+          comment: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          food: number | null
+          id: string
+          overall: number
+          read_at: string | null
+          restaurant_id: string
+          service: number | null
+          waiter_name: string | null
+        }
+        Insert: {
+          ambience?: number | null
+          comment?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          food?: number | null
+          id?: string
+          overall: number
+          read_at?: string | null
+          restaurant_id: string
+          service?: number | null
+          waiter_name?: string | null
+        }
+        Update: {
+          ambience?: number | null
+          comment?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          food?: number | null
+          id?: string
+          overall?: number
+          read_at?: string | null
+          restaurant_id?: string
+          service?: number | null
+          waiter_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
