@@ -54,7 +54,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
   }, [onClose]);
 
   const hasComponents = !!dish.components && dish.components.length > 0;
-  const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
+  const [zoomImage, setZoomImage] = useState<{ src: string; alt: string; description?: string } | null>(null);
   if (!dish.details && !hasComponents) return null;
   const componentGroups = hasComponents ? groupComponents(dish.components!) : [];
 
@@ -332,7 +332,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                           item.image
                             ? (e) => {
                                 e.stopPropagation();
-                                setZoomImage({ src: item.image!, alt: item.name });
+                                setZoomImage({ src: item.image!, alt: item.name, description: item.description });
                               }
                             : undefined
                         }
@@ -344,7 +344,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                                 if (e.key === "Enter" || e.key === " ") {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  setZoomImage({ src: item.image!, alt: item.name });
+                                  setZoomImage({ src: item.image!, alt: item.name, description: item.description });
                                 }
                               }
                             : undefined
@@ -454,6 +454,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
           <ImageLightbox
             src={zoomImage.src}
             alt={zoomImage.alt}
+            description={zoomImage.description}
             onClose={() => setZoomImage(null)}
           />
         ) : null}
