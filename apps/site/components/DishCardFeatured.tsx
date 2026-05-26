@@ -31,7 +31,10 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
     (!!dish.components && dish.components.length > 0);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const canZoom = !!dish.image;
+  // Quando o card tem detalhes (executivo com componentes / sections), o
+  // clique abre o modal — nao o lightbox da capa. Lightbox so faz sentido
+  // em pratos sem detalhes, onde a foto e o conteudo principal.
+  const canZoom = !!dish.image && !hasDetails;
 
   const onImpression = useCallback(() => {
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
