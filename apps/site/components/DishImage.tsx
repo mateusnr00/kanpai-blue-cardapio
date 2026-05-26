@@ -18,6 +18,8 @@ type Props = {
   topRight?: ReactNode;
   /** Se true, força texto claro no placeholder (gradient escuro). */
   dark?: boolean;
+  /** Prioriza essa imagem no carregamento (above-the-fold / hero). */
+  priority?: boolean;
 };
 
 const SIZES_BY_ASPECT: Record<Aspect, string> = {
@@ -28,7 +30,20 @@ const SIZES_BY_ASPECT: Record<Aspect, string> = {
   "2/1": "(max-width: 768px) 100vw, 900px",
 };
 
-export function DishImage({ src, alt, gradient, number, aspect = "1/1", topRight, dark }: Props) {
+// blur 1x1 cream (base64 webp ~70B). Mostra imediatamente enquanto a foto carrega.
+const BLUR_DATA_URL =
+  "data:image/webp;base64,UklGRiwAAABXRUJQVlA4ICAAAAAwAQCdASoEAAQAAUAmJaQAA3AA/v3AgAA=";
+
+export function DishImage({
+  src,
+  alt,
+  gradient,
+  number,
+  aspect = "1/1",
+  topRight,
+  dark,
+  priority,
+}: Props) {
   if (!src) {
     return (
       <PlaceholderImage
@@ -48,6 +63,7 @@ export function DishImage({ src, alt, gradient, number, aspect = "1/1", topRight
         width: "100%",
         aspectRatio: aspect,
         overflow: "hidden",
+        background: gradient,
       }}
     >
       <Image
@@ -56,6 +72,11 @@ export function DishImage({ src, alt, gradient, number, aspect = "1/1", topRight
         fill
         sizes={SIZES_BY_ASPECT[aspect]}
         style={{ objectFit: "cover" }}
+        priority={priority}
+        loading={priority ? "eager" : "lazy"}
+        placeholder="blur"
+        blurDataURL={BLUR_DATA_URL}
+        quality={80}
       />
       {topRight ? (
         <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>{topRight}</div>

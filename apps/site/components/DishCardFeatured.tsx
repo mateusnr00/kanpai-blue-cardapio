@@ -20,9 +20,10 @@ type Props = {
   /** Forced gradient choice (alternated by parent for rhythm). */
   variant?: "blue" | "beige";
   restaurantId: string;
+  priority?: boolean;
 };
 
-export function DishCardFeatured({ dish, number, variant = "blue", restaurantId }: Props) {
+export function DishCardFeatured({ dish, number, variant = "blue", restaurantId, priority }: Props) {
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
   const hasPrice = dish.price && dish.price.length > 0;
@@ -109,6 +110,7 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
           number={number}
           aspect="16/9"
           dark={isDark}
+          priority={priority}
           topRight={
             <span
               style={{

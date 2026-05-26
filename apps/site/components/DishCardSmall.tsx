@@ -24,9 +24,10 @@ type Props = {
   number: string;
   gradientIndex: number;
   restaurantId: string;
+  priority?: boolean;
 };
 
-export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Props) {
+export function DishCardSmall({ dish, number, gradientIndex, restaurantId, priority }: Props) {
   const gradient = SMALL_GRADIENTS[gradientIndex % SMALL_GRADIENTS.length];
   const hasPrice = dish.price && dish.price.length > 0;
   const onImpression = useCallback(() => {
@@ -71,7 +72,7 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Pro
         aria-label={canZoom ? `Ampliar foto de ${dish.name}` : undefined}
         style={{ cursor: canZoom ? "zoom-in" : "default" }}
       >
-        <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" />
+        <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" priority={priority} />
       </div>
       <div
         style={{
