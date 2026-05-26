@@ -111,6 +111,7 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId,
           aspect="16/9"
           dark={isDark}
           priority={priority}
+          blurDataUrl={dish.blurDataUrl}
           topRight={
             <span
               style={{

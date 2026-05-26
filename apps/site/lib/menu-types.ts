@@ -21,6 +21,7 @@ export type DishComponent = {
   price?: string;
   description?: string;
   image?: string;
+  blurDataUrl?: string;
 };
 
 export type Dish = {
@@ -35,6 +36,7 @@ export type Dish = {
   tags?: string[];
   details?: DishDetails;
   image?: string;
+  blurDataUrl?: string;
   components?: DishComponent[];
 };
 

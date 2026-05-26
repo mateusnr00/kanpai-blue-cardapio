@@ -20,6 +20,8 @@ type Props = {
   dark?: boolean;
   /** Prioriza essa imagem no carregamento (above-the-fold / hero). */
   priority?: boolean;
+  /** LQIP base64 vindo do banco (gerado no admin no upload). */
+  blurDataUrl?: string;
 };
 
 const SIZES_BY_ASPECT: Record<Aspect, string> = {
@@ -30,10 +32,6 @@ const SIZES_BY_ASPECT: Record<Aspect, string> = {
   "2/1": "(max-width: 768px) 100vw, 900px",
 };
 
-// blur 1x1 cream (base64 webp ~70B). Mostra imediatamente enquanto a foto carrega.
-const BLUR_DATA_URL =
-  "data:image/webp;base64,UklGRiwAAABXRUJQVlA4ICAAAAAwAQCdASoEAAQAAUAmJaQAA3AA/v3AgAA=";
-
 export function DishImage({
   src,
   alt,
@@ -43,6 +41,7 @@ export function DishImage({
   topRight,
   dark,
   priority,
+  blurDataUrl,
 }: Props) {
   if (!src) {
     return (
@@ -63,6 +62,7 @@ export function DishImage({
         width: "100%",
         aspectRatio: aspect,
         overflow: "hidden",
+        // gradient do brand serve de skeleton enquanto a foto baixa — sem blur generico
         background: gradient,
       }}
     >
@@ -74,9 +74,10 @@ export function DishImage({
         style={{ objectFit: "cover" }}
         priority={priority}
         loading={priority ? "eager" : "lazy"}
-        placeholder="blur"
-        blurDataURL={BLUR_DATA_URL}
         quality={80}
+        {...(blurDataUrl
+          ? { placeholder: "blur" as const, blurDataURL: blurDataUrl }
+          : {})}
       />
       {topRight ? (
         <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>{topRight}</div>

@@ -72,7 +72,7 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId, prior
         aria-label={canZoom ? `Ampliar foto de ${dish.name}` : undefined}
         style={{ cursor: canZoom ? "zoom-in" : "default" }}
       >
-        <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" priority={priority} />
+        <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" priority={priority} blurDataUrl={dish.blurDataUrl} />
       </div>
       <div
         style={{

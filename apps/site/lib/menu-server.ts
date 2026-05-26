@@ -69,7 +69,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .order("position"),
     supabase
       .from("dishes")
-      .select("id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, position, badges, is_component_only")
+      .select("id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, blur_data_url, position, badges, is_component_only")
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
@@ -113,6 +113,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       price: child.price ?? undefined,
       description: child.description ?? undefined,
       image: imageUrl(child.image_path),
+      blurDataUrl: child.blur_data_url ?? undefined,
     });
     componentsByParent.set(c.parent_dish_id, arr);
   }
@@ -135,6 +136,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       originalPrice: d.original_price ?? undefined,
       tags: d.badges?.length ? d.badges : undefined,
       image: imageUrl(d.image_path),
+      blurDataUrl: d.blur_data_url ?? undefined,
     };
     if (d.long_description || sections.length > 0) {
       dish.details = {

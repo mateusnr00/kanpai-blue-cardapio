@@ -129,14 +129,17 @@ async function syncComponents(parentDishId: string, components: ComponentInput[]
  * (precisamos do path), mas a delete da foto antiga e disparada em background
  * (fire-and-forget) pra nao bloquear o salvar.
  */
+type ImageResult = { path: string | null; blurDataUrl: string | null; changed: boolean };
+
 async function handleImage(
   formData: FormData,
   prefix: "image",
   dishId: string,
-  currentPath: string | null
-): Promise<string | null> {
+  currentPath: string | null,
+): Promise<ImageResult> {
   const remove = String(formData.get(`${prefix}__remove`) ?? "false") === "true";
   const file = formData.get(prefix);
+  const blurFromForm = String(formData.get(`${prefix}__blur`) ?? "").trim();
 
   if (remove) {
     if (currentPath) {
@@ -144,7 +147,7 @@ async function handleImage(
         console.error("[handleImage] delete on remove falhou:", e),
       );
     }
-    return null;
+    return { path: null, blurDataUrl: null, changed: true };
   }
 
   if (file instanceof File && file.size > 0) {
@@ -155,10 +158,10 @@ async function handleImage(
         console.error("[handleImage] delete da foto antiga falhou:", e),
       );
     }
-    return res.path;
+    return { path: res.path, blurDataUrl: blurFromForm || null, changed: true };
   }
 
-  return currentPath;
+  return { path: currentPath, blurDataUrl: null, changed: false };
 }
 
 type CreateDishCoreResult =
@@ -235,9 +238,13 @@ async function createDishCore(
 
   let imagePath: string | null = null;
   const imagePromise = (async () => {
-    imagePath = await handleImage(formData, "image", inserted.id, null);
-    if (imagePath) {
-      await supabase.from("dishes").update({ image_path: imagePath }).eq("id", inserted.id);
+    const r = await handleImage(formData, "image", inserted.id, null);
+    imagePath = r.path;
+    if (r.changed && imagePath) {
+      await supabase
+        .from("dishes")
+        .update({ image_path: imagePath, blur_data_url: r.blurDataUrl })
+        .eq("id", inserted.id);
     }
   })();
 
@@ -321,8 +328,11 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   if (!cat) return { error: "Categoria inválida." };
 
   let imagePath: string | null = current?.image_path ?? null;
+  let blurDataUrl: string | null | undefined = undefined; // undefined = nao mexer no campo existente
   try {
-    imagePath = await handleImage(formData, "image", id, current?.image_path ?? null);
+    const r = await handleImage(formData, "image", id, current?.image_path ?? null);
+    imagePath = r.path;
+    if (r.changed) blurDataUrl = r.blurDataUrl;
   } catch (e) {
     return { error: (e as Error).message };
   }
@@ -330,22 +340,23 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   const variants = parseVariants(formData);
   const components = parseComponents(formData);
 
-  const updatePromise = supabase
-    .from("dishes")
-    .update({
-      category_id: categoryId,
-      restaurant_id: cat.restaurant_id,
-      name,
-      description,
-      price,
-      original_price: originalPrice,
-      subcategory,
-      featured,
-      badges,
-      image_path: imagePath,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  const baseUpdate = {
+    category_id: categoryId,
+    restaurant_id: cat.restaurant_id,
+    name,
+    description,
+    price,
+    original_price: originalPrice,
+    subcategory,
+    featured,
+    badges,
+    image_path: imagePath,
+    updated_at: new Date().toISOString(),
+  };
+  const updateWithBlur =
+    blurDataUrl !== undefined ? { ...baseUpdate, blur_data_url: blurDataUrl } : baseUpdate;
+
+  const updatePromise = supabase.from("dishes").update(updateWithBlur).eq("id", id);
 
   const [updRes] = await Promise.all([
     updatePromise,
