@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
 import { DishImage } from "./DishImage";
+import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
 
 const SMALL_GRADIENTS = [
@@ -31,8 +33,11 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Pro
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
   }, [dish.id, restaurantId]);
   const ref = useImpressionOnce<HTMLElement>(onImpression);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const canZoom = !!dish.image;
 
   return (
+    <>
     <article
       ref={ref}
       id={dish.id}
@@ -47,7 +52,25 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Pro
         scrollMarginTop: 80,
       }}
     >
-      <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" />
+      <div
+        onClick={canZoom ? () => setLightboxOpen(true) : undefined}
+        role={canZoom ? "button" : undefined}
+        tabIndex={canZoom ? 0 : undefined}
+        onKeyDown={
+          canZoom
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setLightboxOpen(true);
+                }
+              }
+            : undefined
+        }
+        aria-label={canZoom ? `Ampliar foto de ${dish.name}` : undefined}
+        style={{ cursor: canZoom ? "zoom-in" : "default" }}
+      >
+        <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" />
+      </div>
       <div
         style={{
           borderTop: "0.5px solid var(--ink-faint)",
@@ -169,5 +192,11 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Pro
         </div>
       </div>
     </article>
+    <AnimatePresence>
+      {lightboxOpen && dish.image ? (
+        <ImageLightbox src={dish.image} alt={dish.name} onClose={() => setLightboxOpen(false)} />
+      ) : null}
+    </AnimatePresence>
+    </>
   );
 }
