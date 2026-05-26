@@ -158,19 +158,23 @@ select {
   }
 
   .admin-select-trigger {
-    @apply flex cursor-pointer items-center justify-between gap-2 rounded-lg border border-ink-ghost bg-bg-surface px-3.5 py-2.5 text-left text-sm shadow-sm outline-none transition;
+    @apply flex cursor-pointer items-center justify-between gap-2 rounded-lg border border-ink-ghost bg-bg-surface px-3.5 py-2.5 text-left text-sm shadow-sm outline-none transition hover:border-ink-faint hover:bg-bg-muted/60;
   }
 
   .admin-select-trigger-open {
-    @apply border-accent ring-2 ring-accent-soft;
+    @apply rounded-b-none border-accent border-b-transparent shadow-sm ring-0;
   }
 
   .admin-select-menu {
-    @apply rounded-lg border border-ink-ghost bg-bg-surface shadow-lg;
+    @apply rounded-lg rounded-t-none border border-ink-ghost border-t-0 bg-bg-surface py-1 shadow-lg;
   }
 
   .admin-select-option {
-    @apply cursor-pointer px-3.5 py-2.5 text-sm text-ink transition;
+    @apply mx-1 cursor-pointer rounded-lg px-3 py-2.5 text-sm text-ink transition;
+  }
+
+  .admin-select-option:hover:not(.admin-select-option-active) {
+    @apply bg-bg-muted;
   }
 
   .admin-select-option-active {

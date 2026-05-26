@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { fs } from "@/lib/scale";
+import { SiteSelect } from "@/components/SiteSelect";
 import { submitReview } from "./actions";
 
 type Restaurant = { id: string; name: string };
@@ -20,6 +21,9 @@ type RatingFieldProps = {
 };
 
 function RatingField({ name, label, required, value, onChange }: RatingFieldProps) {
+  const [hover, setHover] = useState(0);
+  const preview = hover || value;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <label
@@ -33,9 +37,16 @@ function RatingField({ name, label, required, value, onChange }: RatingFieldProp
         {label} {required ? <span style={{ color: "#d63333" }}>*</span> : null}
       </label>
       <input type="hidden" name={name} value={value || ""} />
-      <div role="radiogroup" aria-label={label} style={{ display: "flex", gap: 6 }}>
+      <div
+        role="radiogroup"
+        aria-label={label}
+        className="rating-stars"
+        onMouseLeave={() => setHover(0)}
+        style={{ display: "flex", gap: 6 }}
+      >
         {[1, 2, 3, 4, 5].map((n) => {
-          const active = n <= value;
+          const filled = n <= preview;
+          const isHoverTarget = hover > 0 && n <= hover;
           return (
             <button
               key={n}
@@ -43,7 +54,9 @@ function RatingField({ name, label, required, value, onChange }: RatingFieldProp
               role="radio"
               aria-checked={value === n}
               aria-label={`${n} ${n === 1 ? "estrela" : "estrelas"}`}
+              className="rating-star-btn"
               onClick={() => onChange(value === n ? 0 : n)}
+              onMouseEnter={() => setHover(n)}
               style={{
                 width: 38,
                 height: 38,
@@ -51,15 +64,21 @@ function RatingField({ name, label, required, value, onChange }: RatingFieldProp
                 background: "transparent",
                 border: "none",
                 cursor: "pointer",
-                color: active ? "var(--ink)" : "var(--ink-faint)",
-                transition: "color 120ms ease, transform 120ms ease",
+                color: filled ? "var(--ink)" : "var(--ink-faint)",
+                transform: isHoverTarget ? "scale(1.06)" : "scale(1)",
+                transition: "color 140ms ease, transform 140ms ease",
                 lineHeight: 0,
               }}
-              onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
-              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill={filled ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+              >
                 <path d="M12 3l2.7 5.7 6.3.7-4.7 4.3 1.3 6.2L12 17l-5.6 2.9 1.3-6.2L3 9.4l6.3-.7L12 3z" />
               </svg>
             </button>
@@ -130,28 +149,15 @@ export function ReviewForm({ restaurants, defaultRestaurantId }: Props) {
         >
           Restaurante <span style={{ color: "#d63333" }}>*</span>
         </label>
-        <select
+        <SiteSelect
           id="restaurant_id"
           name="restaurant_id"
           required
           value={restaurantId}
-          onChange={(e) => setRestaurantId(e.target.value)}
-          style={{
-            padding: "12px 14px",
-            borderRadius: 12,
-            border: "1px solid var(--ink-faint)",
-            background: "var(--bg-card)",
-            color: "var(--ink)",
-            fontSize: fs(14),
-          }}
-        >
-          <option value="">Selecione</option>
-          {restaurants.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
+          onChange={setRestaurantId}
+          placeholder="Selecione"
+          options={restaurants.map((r) => ({ value: r.id, label: r.name }))}
+        />
       </div>
 
       <RatingField name="overall" label="Como foi sua experiência geral?" required value={overall} onChange={setOverall} />
