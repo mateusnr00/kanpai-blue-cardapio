@@ -174,3 +174,14 @@ button {
   border: 0.5px solid var(--ink-faint);
   background: transparent;
 }
+
+/* Linktree pill: hover/active invertem */
+.kanpai-link-pill:hover,
+.kanpai-link-pill:focus-visible {
+  background: var(--ink);
+  color: #FAFAF8;
+  outline: none;
+}
+.kanpai-link-pill:active {
+  transform: scale(0.985);
+}
