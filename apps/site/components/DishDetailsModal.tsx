@@ -227,7 +227,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
             paddingBottom: "max(24px, env(safe-area-inset-bottom))",
           }}
         >
-          {dish.details?.longDescription && (
+          {dish.details?.longDescription && !hasComponents && (
             <p
               style={{
                 margin: 0,
@@ -240,46 +240,47 @@ export function DishDetailsModal({ dish, onClose }: Props) {
             </p>
           )}
 
-          {dish.details?.sections.map((section, idx) => (
-            <section
-              key={section.label}
-              style={{
-                marginTop:
-                  idx === 0 && !dish.details!.longDescription ? 0 : 22,
-                paddingTop: idx === 0 && !dish.details!.longDescription ? 0 : 22,
-                borderTop:
-                  idx === 0 && !dish.details!.longDescription
-                    ? "none"
-                    : "0.5px solid var(--ink-trace)",
-              }}
-            >
-              <h3
+          {!hasComponents &&
+            dish.details?.sections.map((section, idx) => (
+              <section
+                key={section.label}
                 style={{
-                  margin: 0,
-                  fontSize: fs(10),
-                  fontWeight: 500,
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  color: "var(--ink-soft)",
+                  marginTop:
+                    idx === 0 && !dish.details!.longDescription ? 0 : 22,
+                  paddingTop: idx === 0 && !dish.details!.longDescription ? 0 : 22,
+                  borderTop:
+                    idx === 0 && !dish.details!.longDescription
+                      ? "none"
+                      : "0.5px solid var(--ink-trace)",
                 }}
               >
-                {section.label}
-              </h3>
-              <p
-                style={{
-                  margin: "12px 0 0",
-                  fontSize: fs(13),
-                  lineHeight: 1.55,
-                  color: "var(--ink)",
-                }}
-              >
-                {section.description}
-              </p>
-            </section>
-          ))}
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: fs(10),
+                    fontWeight: 500,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    color: "var(--ink-soft)",
+                  }}
+                >
+                  {section.label}
+                </h3>
+                <p
+                  style={{
+                    margin: "12px 0 0",
+                    fontSize: fs(13),
+                    lineHeight: 1.55,
+                    color: "var(--ink)",
+                  }}
+                >
+                  {section.description}
+                </p>
+              </section>
+            ))}
 
           {componentGroups.map((group, idx) => {
-            const isFirst = idx === 0 && !dish.details?.longDescription && (dish.details?.sections.length ?? 0) === 0;
+            const isFirst = idx === 0;
             return (
               <section
                 key={group.kind}
@@ -304,11 +305,11 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                 <ul
                   style={{
                     listStyle: "none",
-                    margin: "12px 0 0",
+                    margin: "14px 0 0",
                     padding: 0,
                     display: "flex",
                     flexDirection: "column",
-                    gap: 12,
+                    gap: 14,
                   }}
                 >
                   {group.items.map((item) => (
@@ -316,17 +317,19 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                       key={item.id}
                       style={{
                         display: "flex",
-                        gap: 12,
-                        alignItems: "center",
+                        gap: 14,
+                        alignItems: "stretch",
+                        background: "var(--bg-card)",
+                        border: "0.5px solid var(--ink-faint)",
+                        borderRadius: 14,
+                        overflow: "hidden",
                       }}
                     >
                       <div
                         style={{
-                          width: 56,
-                          height: 56,
+                          width: 96,
                           flexShrink: 0,
-                          borderRadius: 12,
-                          overflow: "hidden",
+                          aspectRatio: "1 / 1",
                           background: "var(--ink-ghost)",
                           position: "relative",
                         }}
@@ -336,12 +339,21 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                             src={item.image}
                             alt=""
                             fill
-                            sizes="56px"
+                            sizes="96px"
                             style={{ objectFit: "cover" }}
                           />
                         ) : null}
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          padding: "12px 14px 12px 0",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                        }}
+                      >
                         <div
                           style={{
                             display: "flex",
@@ -353,10 +365,11 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                           <p
                             style={{
                               margin: 0,
-                              fontSize: fs(13),
+                              fontSize: fs(14),
                               fontWeight: 500,
                               color: "var(--ink)",
-                              lineHeight: 1.3,
+                              lineHeight: 1.25,
+                              letterSpacing: "-0.01em",
                             }}
                           >
                             {item.name}
@@ -371,14 +384,14 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                                 fontVariantNumeric: "tabular-nums",
                               }}
                             >
-                              {item.price}
+                              + {item.price}
                             </span>
                           ) : null}
                         </div>
                         {item.description ? (
                           <p
                             style={{
-                              margin: "4px 0 0",
+                              margin: "6px 0 0",
                               fontSize: fs(11),
                               color: "var(--ink-soft)",
                               lineHeight: 1.45,

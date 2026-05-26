@@ -2,7 +2,8 @@
 
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Plus, Trash, MagnifyingGlass, Sparkle } from "@phosphor-icons/react";
+import Link from "next/link";
+import { Plus, Trash, MagnifyingGlass, Sparkle, PencilSimple, Image as ImageIcon } from "@phosphor-icons/react";
 import { publicImageUrl } from "@/lib/storage";
 import type { DishComponentRow } from "@/lib/data/dishes";
 import type { CategoryListItem } from "@/lib/data/categories";
@@ -212,11 +213,18 @@ export function DishComponentsEditor({
                 key={`${it.kind}-${it.childId}`}
                 className="flex items-center gap-3 rounded-md border border-ink-faint bg-bg-card p-2"
               >
-                <div className="flex h-12 w-12 shrink-0 overflow-hidden rounded-md bg-ink-ghost">
+                <Link
+                  href={`/dishes/${it.childId}`}
+                  className="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink-ghost hover:ring-2 hover:ring-ink"
+                  aria-label="Editar componente (adicionar foto)"
+                  title={img ? "Editar componente" : "Adicionar foto"}
+                >
                   {img ? (
                     <Image src={img} alt="" width={48} height={48} className="h-12 w-12 object-cover" />
-                  ) : null}
-                </div>
+                  ) : (
+                    <ImageIcon size={20} className="text-ink-faint" weight="duotone" />
+                  )}
+                </Link>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-ink">{it.name}</p>
                   {it.price ? (
@@ -224,6 +232,14 @@ export function DishComponentsEditor({
                   ) : null}
                 </div>
                 <div className="flex items-center gap-1">
+                  <Link
+                    href={`/dishes/${it.childId}`}
+                    className="inline-flex items-center gap-1 rounded-md border border-ink-faint px-2 py-1 text-xs hover:border-ink"
+                    aria-label="Editar componente"
+                    title="Editar (incluindo foto)"
+                  >
+                    <PencilSimple size={14} />
+                  </Link>
                   <button
                     type="button"
                     onClick={() => move(idx, -1)}
