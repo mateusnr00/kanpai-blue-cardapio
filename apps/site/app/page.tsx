@@ -40,29 +40,15 @@ export default function HomePage() {
         gap: 28,
       }}
     >
-      <div
-        style={{
-          width: 128,
-          height: 128,
-          borderRadius: "50%",
-          overflow: "hidden",
-          background: "var(--ink)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 8px 24px rgba(26, 14, 110, 0.18)",
-        }}
-      >
-        <Image
-          src={LOGO_URL}
-          alt="Kanpai Blue"
-          width={128}
-          height={128}
-          priority
-          unoptimized
-          style={{ width: "82%", height: "82%", objectFit: "contain" }}
-        />
-      </div>
+      <Image
+        src={LOGO_URL}
+        alt="Kanpai Blue"
+        width={220}
+        height={220}
+        priority
+        unoptimized
+        style={{ width: 220, height: "auto", objectFit: "contain" }}
+      />
 
       <header style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
         <h1
