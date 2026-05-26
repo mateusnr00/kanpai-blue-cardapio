@@ -7,6 +7,7 @@ import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
 import { DishImage } from "./DishImage";
+import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
 import { DishDetailsModal } from "./DishDetailsModal";
 
@@ -29,6 +30,8 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
     (!!dish.details && dish.details.sections.length > 0) ||
     (!!dish.components && dish.components.length > 0);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const canZoom = !!dish.image;
 
   const onImpression = useCallback(() => {
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
@@ -69,32 +72,58 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
           : undefined
       }
     >
-      <DishImage
-        src={dish.image}
-        alt={dish.name}
-        gradient={gradient}
-        number={number}
-        aspect="16/9"
-        dark={isDark}
-        topRight={
-          <span
-            style={{
-              display: "inline-block",
-              padding: "5px 9px",
-              background: "var(--ink)",
-              color: "#FAFAF8",
-              fontSize: fs(9),
-              fontWeight: 500,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              lineHeight: 1,
-              borderRadius: 999,
-            }}
-          >
-            DESTAQUE
-          </span>
+      <div
+        onClick={
+          canZoom
+            ? (e) => {
+                e.stopPropagation();
+                setLightboxOpen(true);
+              }
+            : undefined
         }
-      />
+        role={canZoom ? "button" : undefined}
+        tabIndex={canZoom ? 0 : undefined}
+        onKeyDown={
+          canZoom
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setLightboxOpen(true);
+                }
+              }
+            : undefined
+        }
+        aria-label={canZoom ? `Ampliar foto de ${dish.name}` : undefined}
+        style={{ cursor: canZoom ? "zoom-in" : "default" }}
+      >
+        <DishImage
+          src={dish.image}
+          alt={dish.name}
+          gradient={gradient}
+          number={number}
+          aspect="16/9"
+          dark={isDark}
+          topRight={
+            <span
+              style={{
+                display: "inline-block",
+                padding: "5px 9px",
+                background: "var(--ink)",
+                color: "#FAFAF8",
+                fontSize: fs(9),
+                fontWeight: 500,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                lineHeight: 1,
+                borderRadius: 999,
+              }}
+            >
+              DESTAQUE
+            </span>
+          }
+        />
+      </div>
       <div
         style={{
           borderTop: "0.5px solid var(--ink)",
@@ -261,6 +290,11 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
       {detailsOpen && (
         <DishDetailsModal dish={dish} onClose={() => setDetailsOpen(false)} />
       )}
+    </AnimatePresence>
+    <AnimatePresence>
+      {lightboxOpen && dish.image ? (
+        <ImageLightbox src={dish.image} alt={dish.name} onClose={() => setLightboxOpen(false)} />
+      ) : null}
     </AnimatePresence>
     </>
   );
