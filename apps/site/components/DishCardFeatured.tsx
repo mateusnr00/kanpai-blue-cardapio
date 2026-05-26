@@ -298,7 +298,12 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
     </AnimatePresence>
     <AnimatePresence>
       {lightboxOpen && dish.image ? (
-        <ImageLightbox src={dish.image} alt={dish.name} onClose={() => setLightboxOpen(false)} />
+        <ImageLightbox
+          src={dish.image}
+          alt={dish.name}
+          description={dish.description}
+          onClose={() => setLightboxOpen(false)}
+        />
       ) : null}
     </AnimatePresence>
     </>

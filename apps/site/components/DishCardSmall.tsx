@@ -196,7 +196,12 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Pro
     </article>
     <AnimatePresence>
       {lightboxOpen && dish.image ? (
-        <ImageLightbox src={dish.image} alt={dish.name} onClose={() => setLightboxOpen(false)} />
+        <ImageLightbox
+          src={dish.image}
+          alt={dish.name}
+          description={dish.description}
+          onClose={() => setLightboxOpen(false)}
+        />
       ) : null}
     </AnimatePresence>
     </>
