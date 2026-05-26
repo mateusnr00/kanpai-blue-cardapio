@@ -50,6 +50,7 @@ export type Category = {
   subcategories?: string[];
   gradient: string;
   image?: string;
+  slideshowImages?: string[];
   fullWidth?: boolean;
   dishes: Dish[];
 };

@@ -63,7 +63,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   const [catsRes, dishesRes, sectionsRes, componentsRes] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width")
+      .select("id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width, slideshow_image_paths")
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
@@ -162,6 +162,9 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     subcategories: c.subcategories?.length ? c.subcategories : undefined,
     gradient: c.gradient,
     image: imageUrl(c.image_path),
+    slideshowImages: (c.slideshow_image_paths ?? [])
+      .map((p) => imageUrl(p))
+      .filter((u): u is string => Boolean(u)),
     fullWidth: c.full_width,
     dishes: dishesByCategoryUuid.get(c.id) ?? [],
   }));

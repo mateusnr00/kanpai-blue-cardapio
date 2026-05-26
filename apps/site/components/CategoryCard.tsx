@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import type { Category } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { DishImage } from "./DishImage";
+import { CategorySlideshow } from "./CategorySlideshow";
 
 type CategoryCardProps = {
   category: Category;
@@ -14,6 +15,30 @@ type CategoryCardProps = {
 export function CategoryCard({ category, restaurantId }: CategoryCardProps) {
   const isFeatured = !!category.featured;
   const borderStyle = isFeatured ? "1px solid var(--ink)" : "0.5px solid var(--ink-faint)";
+  const aspect = category.fullWidth ? "3/1" : "1/1";
+  const slideshow = category.slideshowImages ?? [];
+  const hasSlideshow = slideshow.length > 0;
+
+  const star = isFeatured ? (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 22,
+        height: 22,
+        background: "var(--bg-card)",
+        border: "0.5px solid var(--ink-faint)",
+        borderRadius: 999,
+        color: "var(--ink)",
+        fontSize: 11,
+        lineHeight: 1,
+      }}
+      aria-hidden
+    >
+      ★
+    </span>
+  ) : undefined;
 
   return (
     <motion.div whileTap={{ scale: 0.985 }} transition={{ duration: 0.15 }}>
@@ -29,36 +54,26 @@ export function CategoryCard({ category, restaurantId }: CategoryCardProps) {
           color: "var(--ink)",
         }}
       >
-        <DishImage
-          src={category.image}
-          alt={category.name}
-          gradient={category.gradient}
-          number={category.number}
-          aspect={category.fullWidth ? "3/1" : "1/1"}
-          dark={isFeatured}
-          topRight={
-            isFeatured ? (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 22,
-                  height: 22,
-                  background: "var(--bg-card)",
-                  border: "0.5px solid var(--ink-faint)",
-                  borderRadius: 999,
-                  color: "var(--ink)",
-                  fontSize: 11,
-                  lineHeight: 1,
-                }}
-                aria-hidden
-              >
-                ★
-              </span>
-            ) : undefined
-          }
-        />
+        {hasSlideshow ? (
+          <CategorySlideshow
+            images={slideshow}
+            alt={category.name}
+            aspect={aspect}
+            dark={isFeatured}
+            topLeftNumber={category.number}
+            topRight={star}
+          />
+        ) : (
+          <DishImage
+            src={category.image}
+            alt={category.name}
+            gradient={category.gradient}
+            number={category.number}
+            aspect={aspect}
+            dark={isFeatured}
+            topRight={star}
+          />
+        )}
         <div
           style={{
             borderTop: "0.5px solid var(--ink-faint)",
