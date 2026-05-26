@@ -51,6 +51,44 @@ async function handleCategoryImage(
   return currentPath;
 }
 
+async function handleSlideshowImages(
+  formData: FormData,
+  categoryId: string,
+  currentPaths: string[],
+): Promise<string[]> {
+  const count = Number(formData.get("slideshow_count") ?? "0");
+  const finalPaths: string[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const existingPath = String(formData.get(`slideshow_${i}_path`) ?? "").trim();
+    if (existingPath) {
+      finalPaths.push(existingPath);
+      continue;
+    }
+    const file = formData.get(`slideshow_${i}_file`);
+    if (!(file instanceof File) || file.size === 0) continue;
+
+    const ts = Date.now();
+    const rand = Math.random().toString(36).slice(2, 8);
+    const res = await uploadDishImageAction(
+      `categories/${categoryId}/slideshow-${ts}-${rand}`,
+      file,
+    );
+    if ("error" in res) throw new Error(res.error);
+    finalPaths.push(res.path);
+  }
+
+  // Apaga do storage os caminhos antigos que sairam do slideshow
+  const finalSet = new Set(finalPaths);
+  for (const old of currentPaths) {
+    if (!finalSet.has(old)) {
+      await deleteDishImageAction(old);
+    }
+  }
+
+  return finalPaths;
+}
+
 export async function toggleCategoryActive(id: string, nextActive: boolean) {
   const supabase = createServerClient();
   const { error } = await supabase
@@ -68,10 +106,14 @@ export async function deleteCategory(id: string) {
   const supabase = createServerClient();
   const { data: cat } = await supabase
     .from("categories")
-    .select("image_path")
+    .select("image_path, slideshow_image_paths")
     .eq("id", id)
     .maybeSingle();
   if (cat?.image_path) await deleteDishImageAction(cat.image_path);
+  const slideshowPaths = (cat as { slideshow_image_paths?: string[] } | null)?.slideshow_image_paths ?? [];
+  for (const p of slideshowPaths) {
+    await deleteDishImageAction(p);
+  }
 
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) return { error: error.message };
@@ -152,10 +194,14 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
 
   try {
     const newPath = await handleCategoryImage(formData, inserted.id, null);
-    if (newPath) {
+    const newSlideshow = await handleSlideshowImages(formData, inserted.id, []);
+    const update: { image_path?: string; slideshow_image_paths?: string[] } = {};
+    if (newPath) update.image_path = newPath;
+    if (newSlideshow.length > 0) update.slideshow_image_paths = newSlideshow;
+    if (Object.keys(update).length > 0) {
       const { error: imgErr } = await supabase
         .from("categories")
-        .update({ image_path: newPath })
+        .update(update)
         .eq("id", inserted.id);
       if (imgErr) return { error: imgErr.message };
     }
@@ -189,13 +235,15 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
 
   const { data: current } = await supabase
     .from("categories")
-    .select("image_path")
+    .select("image_path, slideshow_image_paths")
     .eq("id", id)
     .maybeSingle();
 
   let imagePath: string | null = current?.image_path ?? null;
+  let slideshowPaths: string[] = (current as { slideshow_image_paths?: string[] } | null)?.slideshow_image_paths ?? [];
   try {
     imagePath = await handleCategoryImage(formData, id, current?.image_path ?? null);
+    slideshowPaths = await handleSlideshowImages(formData, id, slideshowPaths);
   } catch (e) {
     return { error: (e as Error).message };
   }
@@ -214,6 +262,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
       full_width,
       subcategories,
       image_path: imagePath,
+      slideshow_image_paths: slideshowPaths,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);

@@ -81,6 +81,7 @@ export type Database = {
           position: number
           restaurant_id: string
           short_name: string | null
+          slideshow_image_paths: string[]
           slug: string
           subcategories: string[]
           updated_at: string
@@ -101,6 +102,7 @@ export type Database = {
           position: number
           restaurant_id: string
           short_name?: string | null
+          slideshow_image_paths?: string[]
           slug: string
           subcategories?: string[]
           updated_at?: string
@@ -121,6 +123,7 @@ export type Database = {
           position?: number
           restaurant_id?: string
           short_name?: string | null
+          slideshow_image_paths?: string[]
           slug?: string
           subcategories?: string[]
           updated_at?: string

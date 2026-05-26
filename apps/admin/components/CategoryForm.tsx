@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { GradientInput } from "./GradientInput";
 import { ImageUpload } from "./ImageUpload";
+import { SlideshowImagesEditor } from "./SlideshowImagesEditor";
 import { SubcategoriesEditor } from "./SubcategoriesEditor";
 import type { CategoryRow } from "@/lib/data/categories";
 
@@ -134,6 +135,15 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       <div className="flex flex-col gap-2">
         <span className="admin-label">Foto da categoria (opcional — sobrescreve o gradient na home)</span>
         <ImageUpload name="image" initialPath={initial?.image_path ?? null} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="admin-label">Slideshow (opcional — várias fotos rotacionando no card)</span>
+        <p className="text-xs text-ink-muted">
+          Se preencher, o card da home mostra um cross-fade entre as fotos em vez da foto única acima.
+          Recomendado pra promoções, eventos e cards de destaque.
+        </p>
+        <SlideshowImagesEditor initial={initial?.slideshow_image_paths ?? []} />
       </div>
 
       <div className="flex flex-col gap-2">
