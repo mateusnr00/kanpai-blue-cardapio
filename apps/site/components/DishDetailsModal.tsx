@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { Dish, DishComponent } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
+import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
 
 const KIND_LABEL: Record<DishComponent["kind"], string> = {
@@ -53,6 +54,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
   }, [onClose]);
 
   const hasComponents = !!dish.components && dish.components.length > 0;
+  const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
   if (!dish.details && !hasComponents) return null;
   const componentGroups = hasComponents ? groupComponents(dish.components!) : [];
 
@@ -326,12 +328,35 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                       }}
                     >
                       <div
+                        onClick={
+                          item.image
+                            ? (e) => {
+                                e.stopPropagation();
+                                setZoomImage({ src: item.image!, alt: item.name });
+                              }
+                            : undefined
+                        }
+                        role={item.image ? "button" : undefined}
+                        tabIndex={item.image ? 0 : undefined}
+                        onKeyDown={
+                          item.image
+                            ? (e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setZoomImage({ src: item.image!, alt: item.name });
+                                }
+                              }
+                            : undefined
+                        }
+                        aria-label={item.image ? `Ampliar foto de ${item.name}` : undefined}
                         style={{
                           width: 96,
                           flexShrink: 0,
                           aspectRatio: "1 / 1",
                           background: "var(--ink-ghost)",
                           position: "relative",
+                          cursor: item.image ? "zoom-in" : "default",
                         }}
                       >
                         {item.image ? (
@@ -423,6 +448,16 @@ export function DishDetailsModal({ dish, onClose }: Props) {
           <LikeButton dishId={dish.id} size="large" />
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {zoomImage ? (
+          <ImageLightbox
+            src={zoomImage.src}
+            alt={zoomImage.alt}
+            onClose={() => setZoomImage(null)}
+          />
+        ) : null}
+      </AnimatePresence>
     </motion.div>
   );
 }

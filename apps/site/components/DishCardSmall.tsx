@@ -44,12 +44,14 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Pro
       style={{
         background: "var(--bg-card)",
         border: "0.5px solid var(--ink-faint)",
-        borderRadius: 14,
+        borderRadius: 20,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         alignSelf: "flex-start",
         scrollMarginTop: 80,
+        boxShadow: "0 1px 2px rgba(26, 14, 110, 0.04), 0 8px 24px rgba(26, 14, 110, 0.06)",
+        transition: "transform 220ms ease, box-shadow 220ms ease",
       }}
     >
       <div

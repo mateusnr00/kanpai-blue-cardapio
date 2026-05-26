@@ -51,12 +51,14 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--ink)",
-        borderRadius: 18,
+        borderRadius: 24,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         scrollMarginTop: 80,
         cursor: hasDetails ? "pointer" : "default",
+        boxShadow: "0 2px 4px rgba(26, 14, 110, 0.06), 0 16px 36px rgba(26, 14, 110, 0.10)",
+        transition: "transform 220ms ease, box-shadow 220ms ease",
       }}
       onClick={hasDetails ? openDetails : undefined}
       role={hasDetails ? "button" : undefined}
