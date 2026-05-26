@@ -25,12 +25,13 @@ export type CategoryRow = {
   position: number;
   subcategories: string[];
   image_path: string | null;
+  slideshow_image_paths: string[];
   full_width: boolean;
   restaurant_id: string;
 };
 
 const CATEGORY_FIELDS =
-  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, full_width, restaurant_id";
+  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, slideshow_image_paths, full_width, restaurant_id";
 
 export async function listCategoriesWithCounts(restaurantId: string): Promise<CategoryListItem[]> {
   const supabase = createServerClient();
