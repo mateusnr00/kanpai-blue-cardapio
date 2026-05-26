@@ -126,14 +126,20 @@ export async function listAvailableComponentChoices(
   excludeDishId: string,
 ): Promise<Array<{ id: string; name: string; category: string; image_path: string | null; price: string | null }>> {
   const supabase = createServerClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("dishes")
     .select(
       "id, name, price, image_path, category:categories!dishes_category_id_fkey(name)"
     )
     .eq("restaurant_id", restaurantId)
-    .neq("id", excludeDishId)
     .order("name");
+  // So aplica o neq quando o id e um uuid valido (no fluxo de edit). No
+  // fluxo de create o id ainda nao existe e passar string vazia quebra a
+  // query (id e coluna uuid).
+  if (excludeDishId) {
+    query = query.neq("id", excludeDishId);
+  }
+  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []).map((d) => {
     const cat = Array.isArray(d.category) ? d.category[0] : d.category;
