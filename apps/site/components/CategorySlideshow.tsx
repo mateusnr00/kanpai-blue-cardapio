@@ -31,8 +31,8 @@ export function CategorySlideshow({
   aspect = "1/1",
   perSlide = 4,
   topRight,
-  topLeftNumber,
-  dark,
+  topLeftNumber: _topLeftNumber,
+  dark: _dark,
 }: Props) {
   const n = images.length;
   if (n === 0) return null;
@@ -93,25 +93,6 @@ export function CategorySlideshow({
           }}
         />
       ))}
-
-      {topLeftNumber ? (
-        <span
-          style={{
-            position: "absolute",
-            top: 12,
-            left: 14,
-            fontSize: 9,
-            fontWeight: 400,
-            letterSpacing: "0.15em",
-            color: dark ? "rgba(250, 250, 248, 0.85)" : "var(--ink-soft)",
-            fontVariantNumeric: "tabular-nums",
-            zIndex: 1,
-            textShadow: dark ? "0 1px 2px rgba(0,0,0,0.25)" : undefined,
-          }}
-        >
-          {topLeftNumber}
-        </span>
-      ) : null}
 
       {topRight ? (
         <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>
