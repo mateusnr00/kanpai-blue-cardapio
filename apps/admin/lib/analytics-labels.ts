@@ -15,7 +15,7 @@ export const STAT_LABELS = {
   },
   homeViews: {
     label: "Total de acessos",
-    hint: "Quantas vezes a tela inicial foi carregada (recargas, voltas e novos acessos somam).",
+    hint: "Vezes que a tela inicial foi carregada. Reloads rápidos sem interação (testes da equipe, bots) são descartados.",
   },
   dishTouches: {
     label: "Pratos exibidos ao rolar",
