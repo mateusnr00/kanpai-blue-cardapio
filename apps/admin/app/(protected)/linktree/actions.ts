@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createServerClient } from "@/lib/supabase-server";
 import { tags } from "@/lib/cache-tags";
 import { revalidateLinktreeOnSite } from "@/lib/trigger-site-revalidate";
+import { logAudit } from "@/lib/audit";
 
 function invalidate() {
   revalidateTag(tags.linktree());
@@ -57,15 +58,27 @@ export async function createButton(input: ButtonInput): Promise<{ error?: string
     child_slug = slug;
   }
 
-  const { error } = await supabase.from("linktree_buttons").insert({
-    label,
-    position,
-    active: input.active,
-    parent_id: input.parentId,
-    href,
-    child_slug,
-  });
+  const { data: inserted, error } = await supabase
+    .from("linktree_buttons")
+    .insert({
+      label,
+      position,
+      active: input.active,
+      parent_id: input.parentId,
+      href,
+      child_slug,
+    })
+    .select("id")
+    .single();
   if (error) return { error: error.message };
+
+  await logAudit({
+    action: "create",
+    entityType: "linktree_button",
+    entityId: inserted?.id,
+    entityLabel: label,
+    details: { kind: input.kind, href, child_slug, parent_id: input.parentId },
+  });
 
   invalidate();
   return {};
@@ -95,15 +108,36 @@ export async function updateButton(
     .eq("id", id);
   if (error) return { error: error.message };
 
+  await logAudit({
+    action: "update",
+    entityType: "linktree_button",
+    entityId: id,
+    entityLabel: label,
+    details: { kind: input.kind, href, child_slug, active: input.active },
+  });
+
   invalidate();
   return {};
 }
 
 export async function deleteButton(id: string): Promise<{ error?: string }> {
   const supabase = createServerClient();
+  const { data: existing } = await supabase
+    .from("linktree_buttons")
+    .select("label")
+    .eq("id", id)
+    .maybeSingle();
   // ON DELETE CASCADE remove os filhos automaticamente
   const { error } = await supabase.from("linktree_buttons").delete().eq("id", id);
   if (error) return { error: error.message };
+
+  await logAudit({
+    action: "delete",
+    entityType: "linktree_button",
+    entityId: id,
+    entityLabel: existing?.label ?? null,
+  });
+
   invalidate();
   return {};
 }
@@ -119,6 +153,14 @@ export async function reorderButtons(
   const results = await Promise.all(updates);
   const firstErr = results.find((r) => r.error)?.error;
   if (firstErr) return { error: firstErr.message };
+
+  await logAudit({
+    action: "reorder",
+    entityType: "linktree_button",
+    entityLabel: parentId ? "Sub-linktree" : "Root linktree",
+    details: { parent_id: parentId, count: orderedIds.length },
+  });
+
   invalidate();
   return {};
 }
@@ -128,8 +170,22 @@ export async function toggleButtonActive(
   active: boolean,
 ): Promise<{ error?: string }> {
   const supabase = createServerClient();
+  const { data: existing } = await supabase
+    .from("linktree_buttons")
+    .select("label")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await supabase.from("linktree_buttons").update({ active }).eq("id", id);
   if (error) return { error: error.message };
+
+  await logAudit({
+    action: "toggle",
+    entityType: "linktree_button",
+    entityId: id,
+    entityLabel: existing?.label ?? null,
+    details: { active },
+  });
+
   invalidate();
   return {};
 }
