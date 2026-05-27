@@ -42,36 +42,43 @@ function SortableRow({ cat, dishCount }: { cat: CategoryRow; dishCount: number }
   };
 
   return (
-    <tr ref={setNodeRef} style={style}>
-      <td className="w-10">
-        <div {...attributes} {...listeners}>
+    <article
+      ref={setNodeRef}
+      style={style}
+      className="border-b border-ink-ghost/60 transition last:border-b-0 hover:bg-bg-muted/30"
+    >
+      <div className="flex items-start gap-3 p-3 sm:items-center sm:p-4">
+        <div {...attributes} {...listeners} className="shrink-0 cursor-grab pt-0.5 sm:pt-0">
           <DragHandle />
         </div>
-      </td>
-      <td className="hidden w-28 sm:table-cell">
-        <CategoryPreview gradient={cat.gradient} label={cat.name} imagePath={cat.image_path} />
-      </td>
-      <td>
-        <div className="font-medium text-ink">{cat.name}</div>
-        <div className="text-xs text-ink-muted">
-          {cat.featured ? "Destaque | " : ""}#{cat.number} | {dishCount} prato{dishCount === 1 ? "" : "s"}
+
+        <div className="hidden shrink-0 sm:block">
+          <CategoryPreview gradient={cat.gradient} label={cat.name} imagePath={cat.image_path} />
         </div>
-        <div className="mt-1 font-mono text-[10px] text-ink-muted md:hidden">#{cat.id}</div>
-      </td>
-      <td className="hidden w-48 font-mono text-xs text-ink-muted md:table-cell">#{cat.id}</td>
-      <td className="w-20">
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-ink">{cat.name}</p>
+          <p className="text-xs text-ink-muted">
+            {cat.featured ? "Destaque | " : ""}#{cat.number} | {dishCount} prato{dishCount === 1 ? "" : "s"}
+          </p>
+          <p className="mt-1 truncate font-mono text-[10px] text-ink-muted md:hidden">#{cat.id}</p>
+        </div>
+
+        <span className="hidden truncate font-mono text-xs text-ink-muted md:block md:max-w-[160px] lg:max-w-[220px]">
+          #{cat.id}
+        </span>
+
         <CategoryToggleActive id={cat.id} active={cat.active} />
-      </td>
-      <td className="text-right">
-        <div className="flex flex-wrap items-center justify-end gap-1">
-          <Link href={`/cards/${cat.id}`} className="admin-btn-ghost">
-            <PencilSimple size={16} />
-            Editar
-          </Link>
-          <CategoryDeleteButton id={cat.id} name={cat.name} dishCount={dishCount} />
-        </div>
-      </td>
-    </tr>
+      </div>
+
+      <div className="flex items-center justify-end gap-1 border-t border-ink-ghost/40 bg-bg-muted/30 px-3 py-1.5 sm:px-4">
+        <Link href={`/cards/${cat.id}`} className="admin-btn-ghost">
+          <PencilSimple size={16} />
+          Editar
+        </Link>
+        <CategoryDeleteButton id={cat.id} name={cat.name} dishCount={dishCount} />
+      </div>
+    </article>
   );
 }
 
@@ -109,28 +116,14 @@ export function CategoriesTable({ initial, dishCounts }: Props) {
   }
 
   return (
-    <div className="admin-table-wrap">
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th className="w-10" />
-            <th className="hidden w-28 sm:table-cell">Preview</th>
-            <th>Categoria</th>
-            <th className="hidden w-48 md:table-cell">Slug</th>
-            <th className="w-20">Ativo</th>
-            <th className="text-right">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            <SortableContext items={items.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-              {items.map((c) => (
-                <SortableRow key={c.id} cat={c} dishCount={dishCounts[c.id] ?? 0} />
-              ))}
-            </SortableContext>
-          </DndContext>
-        </tbody>
-      </table>
+    <div className="admin-card overflow-hidden">
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={items.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {items.map((c) => (
+            <SortableRow key={c.id} cat={c} dishCount={dishCounts[c.id] ?? 0} />
+          ))}
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }

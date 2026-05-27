@@ -13,16 +13,19 @@ import {
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import { RestaurantSelector } from "./RestaurantSelector";
 import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
+import { ADMIN_NAV } from "@/lib/admin-nav";
 
 type Props = {
   email: string | null;
   activeRestaurant: string;
   restaurants: RestaurantRow[];
+  unreadReviews?: number;
 };
 
-export function MobileTopBar({ email, activeRestaurant, restaurants }: Props) {
+export function MobileTopBar({ email, activeRestaurant, restaurants, unreadReviews = 0 }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const badges: Record<string, number> = { unreadReviews };
 
   useEffect(() => {
     setOpen(false);
@@ -63,18 +66,51 @@ export function MobileTopBar({ email, activeRestaurant, restaurants }: Props) {
       </div>
 
       {open ? (
-        <div className="border-t border-ink-ghost bg-bg-surface px-4 py-3">
+        <div className="max-h-[calc(100dvh-56px)] overflow-y-auto border-t border-ink-ghost bg-bg-surface px-4 py-3">
           <div className="flex flex-col gap-3">
             <RestaurantSelector active={activeRestaurant} restaurants={restaurants} />
+
+            <nav className="flex flex-col gap-0.5 border-t border-ink-ghost pt-3">
+              {ADMIN_NAV.map(({ href, label, icon: Icon, exact, badgeKey }) => {
+                const active = exact
+                  ? pathname === href
+                  : pathname === href || pathname.startsWith(href + "/");
+                const badge = badgeKey ? badges[badgeKey] : 0;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={
+                      "flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition " +
+                      (active
+                        ? "bg-accent-soft text-accent"
+                        : "text-ink-secondary hover:bg-bg-muted hover:text-ink")
+                    }
+                  >
+                    <span className="inline-flex items-center gap-3">
+                      <Icon size={18} weight={active ? "fill" : "duotone"} />
+                      {label}
+                    </span>
+                    {badge > 0 ? (
+                      <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-semibold text-white">
+                        {badge > 99 ? "99+" : badge}
+                      </span>
+                    ) : null}
+                  </Link>
+                );
+              })}
+            </nav>
+
             <a
               href={restaurantPublicUrl(activeRestaurant)}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-muted hover:bg-bg-muted"
+              className="inline-flex items-center gap-3 rounded-lg border-t border-ink-ghost px-3 py-2.5 pt-5 text-sm text-ink-muted hover:bg-bg-muted"
             >
               <ArrowSquareOut size={18} weight="duotone" />
               Ver site público
             </a>
+
             <div className="flex items-center justify-between gap-3 border-t border-ink-ghost pt-3">
               {email ? <span className="truncate text-xs text-ink-faint">{email}</span> : <span />}
               <form action="/auth/sign-out" method="post">
