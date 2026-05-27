@@ -8,6 +8,8 @@ import {
   CaretDown,
   SquaresFour,
   ArrowsClockwise,
+  Eye,
+  EyeSlash,
   type Icon,
 } from "@phosphor-icons/react";
 import { RANGE_LABELS, RANGE_ORDER, type Range } from "@/lib/data/analytics-shared";
@@ -18,6 +20,7 @@ type Props = {
   activeRange: Range;
   activeCategory: string | null;
   categories: CategoryOption[];
+  detailed: boolean;
 };
 
 function FilterDropdown({
@@ -87,14 +90,15 @@ function FilterLink({ href, active, children }: { href: string; active: boolean;
   );
 }
 
-function buildHref(range: Range, category: string | null): string {
+function buildHref(range: Range, category: string | null, detailed?: boolean): string {
   const params = new URLSearchParams();
   params.set("range", range);
   if (category) params.set("category", category);
+  if (detailed) params.set("detailed", "1");
   return `/analytics?${params.toString()}`;
 }
 
-export function AnalyticsFilters({ activeRange, activeCategory, categories }: Props) {
+export function AnalyticsFilters({ activeRange, activeCategory, categories, detailed }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -106,7 +110,7 @@ export function AnalyticsFilters({ activeRange, activeCategory, categories }: Pr
     <div className="flex flex-wrap items-center gap-2">
       <FilterDropdown label={RANGE_LABELS[activeRange]} icon={CalendarBlank}>
         {RANGE_ORDER.map((r) => (
-          <FilterLink key={r} href={buildHref(r, activeCategory)} active={r === activeRange}>
+          <FilterLink key={r} href={buildHref(r, activeCategory, detailed)} active={r === activeRange}>
             {RANGE_LABELS[r]}
           </FilterLink>
         ))}
@@ -120,19 +124,32 @@ export function AnalyticsFilters({ activeRange, activeCategory, categories }: Pr
         }
         icon={SquaresFour}
       >
-        <FilterLink href={buildHref(activeRange, null)} active={!activeCategory}>
+        <FilterLink href={buildHref(activeRange, null, detailed)} active={!activeCategory}>
           Todas as categorias
         </FilterLink>
         {categories.map((c) => (
           <FilterLink
             key={c.slug}
-            href={buildHref(activeRange, c.slug)}
+            href={buildHref(activeRange, c.slug, detailed)}
             active={activeCategory === c.slug}
           >
             {c.name}
           </FilterLink>
         ))}
       </FilterDropdown>
+
+      <Link
+        href={buildHref(activeRange, activeCategory, !detailed)}
+        className={
+          "inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium shadow-sm transition " +
+          (detailed
+            ? "border-accent bg-accent-soft text-accent hover:bg-accent-soft"
+            : "border-ink-ghost bg-bg-surface text-ink hover:border-accent/40 hover:bg-accent-soft/30")
+        }
+      >
+        {detailed ? <EyeSlash size={16} weight="duotone" /> : <Eye size={16} weight="duotone" />}
+        <span>{detailed ? "Resumo" : "Ver detalhes"}</span>
+      </Link>
 
       <button
         type="button"
