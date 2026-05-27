@@ -480,6 +480,7 @@ export type Database = {
           announcement_image_path: string | null
           created_at: string
           id: string
+          likes_enabled: boolean
           name: string
           position: number
           short_name: string
@@ -491,6 +492,7 @@ export type Database = {
           announcement_image_path?: string | null
           created_at?: string
           id: string
+          likes_enabled?: boolean
           name: string
           position?: number
           short_name: string
@@ -502,6 +504,7 @@ export type Database = {
           announcement_image_path?: string | null
           created_at?: string
           id?: string
+          likes_enabled?: boolean
           name?: string
           position?: number
           short_name?: string

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useLikes } from "./LikesProvider";
+import { useLikesEnabled } from "./LikesEnabledProvider";
 
 type Props = {
   dishId: string;
@@ -18,8 +19,10 @@ type Props = {
  * scale anim like/dislike 400ms, hover 1.1.
  */
 export function LikeButton({ dishId, size = 32 }: Props) {
+  const enabled = useLikesEnabled();
   const { liked, toggle } = useLikes();
   const isLiked = !!liked[dishId];
+  if (!enabled) return null;
 
   function handleClick(e: React.MouseEvent) {
     e.preventDefault();

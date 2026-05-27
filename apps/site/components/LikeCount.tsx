@@ -1,6 +1,7 @@
 "use client";
 
 import { useLikes } from "./LikesProvider";
+import { useLikesEnabled } from "./LikesEnabledProvider";
 import { fs } from "@/lib/scale";
 
 type Props = {
@@ -14,8 +15,10 @@ type Props = {
  * Renderiza NADA quando count == 0 — fica invisivel ate alguem curtir.
  */
 export function LikeCount({ dishId, fontSize = 11 }: Props) {
+  const enabled = useLikesEnabled();
   const { counts } = useLikes();
   const count = counts[dishId] ?? 0;
+  if (!enabled) return null;
   if (count <= 0) return null;
   const heart = Math.round(fontSize * 1.05);
 

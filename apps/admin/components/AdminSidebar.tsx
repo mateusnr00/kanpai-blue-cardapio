@@ -14,6 +14,7 @@ import {
   ClockCounterClockwise,
   Users,
   VideoCamera,
+  Heart,
 } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
@@ -26,6 +27,7 @@ const NAV = [
   { href: "/aviso", label: "Aviso", icon: Megaphone, badgeKey: null },
   { href: "/linktree", label: "Linktree", icon: LinkSimple, badgeKey: null },
   { href: "/reviews", label: "Avaliações", icon: Star, badgeKey: "unreadReviews" as const },
+  { href: "/likes", label: "Curtidas", icon: Heart, badgeKey: null },
   { href: "/analytics", label: "Analytics", icon: ChartLineUp, badgeKey: null },
   { href: "/comportamento", label: "Comportamento", icon: VideoCamera, badgeKey: null },
   { href: "/historico", label: "Histórico", icon: ClockCounterClockwise, badgeKey: null },
