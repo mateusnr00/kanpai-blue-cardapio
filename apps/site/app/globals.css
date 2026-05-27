@@ -214,7 +214,10 @@ button {
   }
   .app-shell {
     border-radius: 32px;
-    overflow: hidden;
+    /* overflow: clip clipa visualmente (respeita border-radius) mas NAO
+       cria scrollport — preserva position:sticky dos filhos (Header +
+       SubcategoryChips). Com `hidden` o sticky quebrava no mobile. */
+    overflow: clip;
     min-height: calc(100vh - 20px);
     min-height: calc(100dvh - 20px);
     box-shadow: 0 0 0 0.5px var(--ink-ghost);
