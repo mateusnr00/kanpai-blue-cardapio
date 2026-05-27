@@ -25,6 +25,10 @@ export type RestaurantInfo = {
   name: string;
   shortName: string;
   likesEnabled: boolean;
+  showCategoryEyebrow: boolean;
+  showCategorySubtitle: boolean;
+  showHomeFooterCount: boolean;
+  showCategoryFooterCount: boolean;
 };
 
 export type RestaurantAnnouncement = {
@@ -53,20 +57,52 @@ export const getRestaurantAnnouncement = unstable_cache(
   { tags: [tags.restaurants()], revalidate: 86400 },
 );
 
-async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
-  const supabase = createServerClient();
-  const { data, error } = await supabase
-    .from("restaurants")
-    .select("id, name, short_name, position, likes_enabled")
-    .eq("active", true)
-    .order("position");
-  if (error) throw error;
-  return (data ?? []).map((r) => ({
+type RestaurantRowMaybe = {
+  id: string;
+  name: string;
+  short_name: string;
+  likes_enabled?: boolean | null;
+  show_category_eyebrow?: boolean | null;
+  show_category_subtitle?: boolean | null;
+  show_home_footer_count?: boolean | null;
+  show_category_footer_count?: boolean | null;
+};
+
+function toInfo(r: RestaurantRowMaybe): RestaurantInfo {
+  return {
     id: r.id,
     name: r.name,
     shortName: r.short_name,
     likesEnabled: r.likes_enabled ?? true,
-  }));
+    showCategoryEyebrow: r.show_category_eyebrow ?? true,
+    showCategorySubtitle: r.show_category_subtitle ?? true,
+    showHomeFooterCount: r.show_home_footer_count ?? true,
+    showCategoryFooterCount: r.show_category_footer_count ?? true,
+  };
+}
+
+async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
+  const supabase = createServerClient();
+  // Tenta com todas as colunas. Se alguma nao existe (migration nao
+  // aplicada ainda), refaz com colunas minimas e usa defaults.
+  const full = await supabase
+    .from("restaurants")
+    .select(
+      "id, name, short_name, position, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+    )
+    .eq("active", true)
+    .order("position");
+  if (!full.error) {
+    return (full.data ?? []).map((r) => toInfo(r as RestaurantRowMaybe));
+  }
+  if (full.error.code !== "42703") throw full.error;
+  const min = await supabase
+    .from("restaurants")
+    .select("id, name, short_name, position")
+    .eq("active", true)
+    .order("position");
+  if (min.error) throw min.error;
+  return (min.data ?? []).map((r) => toInfo(r as RestaurantRowMaybe));
 }
 
 export const listRestaurants = unstable_cache(listRestaurantsImpl, ["restaurants:list"], {
@@ -76,20 +112,26 @@ export const listRestaurants = unstable_cache(listRestaurantsImpl, ["restaurants
 
 async function getRestaurantByIdImpl(id: string): Promise<RestaurantInfo | null> {
   const supabase = createServerClient();
-  const { data, error } = await supabase
+  const full = await supabase
     .from("restaurants")
-    .select("id, name, short_name, likes_enabled")
+    .select(
+      "id, name, short_name, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+    )
     .eq("id", id)
     .eq("active", true)
     .maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
-  return {
-    id: data.id,
-    name: data.name,
-    shortName: data.short_name,
-    likesEnabled: data.likes_enabled ?? true,
-  };
+  if (!full.error) {
+    return full.data ? toInfo(full.data as RestaurantRowMaybe) : null;
+  }
+  if (full.error.code !== "42703") throw full.error;
+  const min = await supabase
+    .from("restaurants")
+    .select("id, name, short_name")
+    .eq("id", id)
+    .eq("active", true)
+    .maybeSingle();
+  if (min.error) throw min.error;
+  return min.data ? toInfo(min.data as RestaurantRowMaybe) : null;
 }
 
 export const getRestaurantById = unstable_cache(getRestaurantByIdImpl, ["restaurants:byId"], {

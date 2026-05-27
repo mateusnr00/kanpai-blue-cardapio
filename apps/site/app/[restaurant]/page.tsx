@@ -44,7 +44,12 @@ export default async function RestaurantHomePage({ params }: { params: { restaur
 
   return (
     <>
-      <HomePageClient restaurantId={restaurant.id} restaurantName={restaurant.name} categories={categories} />
+      <HomePageClient
+        restaurantId={restaurant.id}
+        restaurantName={restaurant.name}
+        categories={categories}
+        showFooterCount={restaurant.showHomeFooterCount}
+      />
       {announcement ? (
         <AnnouncementModal
           imageUrl={announcement.imageUrl}

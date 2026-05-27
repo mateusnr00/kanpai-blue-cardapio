@@ -12,6 +12,8 @@ import { DishListItem } from "./DishListItem";
 type Props = {
   category: Category;
   restaurantId: string;
+  showEyebrow?: boolean;
+  showSubtitle?: boolean;
 };
 
 type Row =
@@ -93,7 +95,7 @@ function groupDishes(dishes: Dish[], order: string[] | undefined): Group[] {
   return result;
 }
 
-export function CategoryView({ category, restaurantId }: Props) {
+export function CategoryView({ category, restaurantId, showEyebrow = true, showSubtitle = true }: Props) {
   const subcategories = category.subcategories ?? [];
   const hasSubcats = subcategories.length > 0;
 
@@ -143,9 +145,23 @@ export function CategoryView({ category, restaurantId }: Props) {
   return (
     <>
       <section style={{ padding: "32px 22px 18px" }}>
+        {showEyebrow ? (
+          <p
+            style={{
+              margin: 0,
+              fontSize: fs(11),
+              fontWeight: 400,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "var(--ink-soft)",
+            }}
+          >
+            Categoria {category.number}
+          </p>
+        ) : null}
         <h1
           style={{
-            marginTop: 0,
+            marginTop: showEyebrow ? 14 : 0,
             marginBottom: 0,
             fontSize: fs(38),
             fontWeight: 500,
@@ -156,7 +172,7 @@ export function CategoryView({ category, restaurantId }: Props) {
         >
           {category.name}
         </h1>
-        {category.itemCount || category.detail ? (
+        {showSubtitle && (category.itemCount || category.detail) ? (
           <p
             style={{
               marginTop: 12,
