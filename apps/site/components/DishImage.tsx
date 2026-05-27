@@ -73,7 +73,7 @@ export function DishImage({
         style={{ objectFit: "cover" }}
         priority={priority}
         loading={priority ? "eager" : "lazy"}
-        quality={80}
+        quality={72}
         {...(blurDataUrl
           ? { placeholder: "blur" as const, blurDataURL: blurDataUrl }
           : {})}
