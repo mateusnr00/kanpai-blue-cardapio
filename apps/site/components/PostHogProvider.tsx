@@ -48,6 +48,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
     posthog.init(key, {
       api_host: host,
+      defaults: "2026-01-30",
+      // Sem perfil pra visitante anônimo — só identificados (admin futuro etc.)
+      person_profiles: "identified_only",
       capture_pageview: false, // disparamos manualmente abaixo (Next.js client-side nav)
       capture_pageleave: true,
       autocapture: true,

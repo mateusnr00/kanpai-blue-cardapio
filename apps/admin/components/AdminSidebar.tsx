@@ -13,6 +13,7 @@ import {
   LinkSimple,
   ClockCounterClockwise,
   Users,
+  VideoCamera,
 } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
@@ -26,6 +27,7 @@ const NAV = [
   { href: "/linktree", label: "Linktree", icon: LinkSimple, badgeKey: null },
   { href: "/reviews", label: "Avaliações", icon: Star, badgeKey: "unreadReviews" as const },
   { href: "/analytics", label: "Analytics", icon: ChartLineUp, badgeKey: null },
+  { href: "/comportamento", label: "Comportamento", icon: VideoCamera, badgeKey: null },
   { href: "/historico", label: "Histórico", icon: ClockCounterClockwise, badgeKey: null },
   { href: "/users", label: "Usuários", icon: Users, badgeKey: null },
 ] as const;
