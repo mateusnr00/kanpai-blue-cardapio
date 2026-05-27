@@ -20,7 +20,7 @@ export default async function HistoricoPage({ searchParams }: { searchParams: Se
     <section className="flex w-full flex-col gap-6">
       <PageHeader
         title="Histórico"
-        description="Mudanças feitas no admin — quem alterou, o quê e quando."
+        description="Mudanças feitas no admin: quem alterou, o quê e quando."
       />
       <AuditList
         rows={rows}

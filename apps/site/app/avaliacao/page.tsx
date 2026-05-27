@@ -4,7 +4,7 @@ import { fs } from "@/lib/scale";
 import { ReviewForm } from "./ReviewForm";
 
 export const metadata = {
-  title: "Avalie-nos · Kanpai Blue",
+  title: "Avalie-nos | Kanpai Blue",
   description: "Conte como foi sua experiência conosco.",
 };
 

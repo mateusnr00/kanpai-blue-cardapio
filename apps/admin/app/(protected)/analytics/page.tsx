@@ -36,7 +36,7 @@ function fmtPct(n: number): string {
  * para % fazer sentido. Acima do limiar, mostra % arredondado.
  */
 function fmtRate(numerator: number, denominator: number, lowSampleThreshold = 20): string {
-  if (denominator === 0) return "—";
+  if (denominator === 0) return "-";
   if (denominator < lowSampleThreshold) {
     return `${numerator} de ${denominator}`;
   }

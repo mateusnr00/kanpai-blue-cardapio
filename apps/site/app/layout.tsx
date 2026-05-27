@@ -15,8 +15,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Kanpai Blue · Cardápio",
+  title: "Kanpai Blue | Cardápio",
   description: "Cardápio digital do Kanpai Blue, restaurante japonês contemporâneo em Goiânia.",
+  icons: {
+    icon: "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/favicon%20kanpai.png",
+    shortcut: "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/favicon%20kanpai.png",
+    apple: "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/favicon%20kanpai.png",
+  },
 };
 
 export const viewport: Viewport = {

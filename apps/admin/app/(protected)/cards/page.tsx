@@ -31,7 +31,7 @@ export default async function CardsPage() {
     <section className="flex w-full flex-col gap-6">
       <PageHeader
         title="Cards da home"
-        description={`${categories.length} categoria${categories.length === 1 ? "" : "s"} · arraste para reordenar`}
+        description={`${categories.length} categoria${categories.length === 1 ? "" : "s"}, arraste para reordenar`}
         action={
           <Link href="/cards/new" className="admin-btn-primary">
             <Plus size={18} weight="bold" />

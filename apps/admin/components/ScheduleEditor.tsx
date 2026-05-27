@@ -55,10 +55,10 @@ function previewLabel(
           : "sempre";
   const off =
     offDays.length > 0
-      ? ` · off: ${offDays
+      ? ` (off: ${offDays
           .sort()
           .map((d) => DAY_LABELS[d])
-          .join(", ")}`
+          .join(", ")})`
       : "";
   return { label: `Ativa (${range})${off}`, tone: "active" };
 }

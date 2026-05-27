@@ -54,7 +54,7 @@ function SortableRow({ cat, dishCount }: { cat: CategoryRow; dishCount: number }
       <td>
         <div className="font-medium text-ink">{cat.name}</div>
         <div className="text-xs text-ink-muted">
-          {cat.featured ? "Destaque · " : ""}#{cat.number} · {dishCount} prato{dishCount === 1 ? "" : "s"}
+          {cat.featured ? "Destaque | " : ""}#{cat.number} | {dishCount} prato{dishCount === 1 ? "" : "s"}
         </div>
         <div className="mt-1 font-mono text-[10px] text-ink-muted md:hidden">#{cat.id}</div>
       </td>

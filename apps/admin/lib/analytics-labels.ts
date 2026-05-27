@@ -5,7 +5,7 @@ export const ANALYTICS_PAGE = {
   description:
     "O que os clientes fazem no cardápio digital no site. Os números vêm de acessos reais ao menu público da unidade selecionada.",
   emptyHint:
-    "Ainda não há dados neste período. Abra o cardápio no celular ou peça para alguém navegar no site — em alguns segundos os números aparecem aqui.",
+    "Ainda não há dados neste período. Abra o cardápio no celular ou peça para alguém navegar no site, em alguns segundos os números aparecem aqui.",
 } as const;
 
 export const STAT_LABELS = {
@@ -31,7 +31,7 @@ export const STAT_LABELS = {
   },
   depth: {
     label: "Pratos por visita",
-    hint: "Em média, quantos pratos cada visita viu — somando rolagem e detalhes abertos.",
+    hint: "Em média, quantos pratos cada visita viu, somando rolagem e detalhes abertos.",
   },
 } as const;
 
@@ -61,7 +61,7 @@ export const CHART_LABELS = {
     seeMore: (total: number) => `Ver lista completa (${total} itens)`,
     modalTitle: "Todos os pratos exibidos",
     modalDescription: (total: number) =>
-      `${total} itens no período · ordenados por número de pessoas diferentes que viram`,
+      `${total} itens no período, ordenados por número de pessoas diferentes que viram`,
   },
   insights: {
     title: "Destaques do período",

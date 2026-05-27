@@ -23,7 +23,7 @@ export default function LoginPage() {
             Atualize pratos e categorias do cardápio. As mudanças refletem no site em tempo real.
           </p>
         </div>
-        <p className="text-xs text-white/40">Kanpai Blue · Admin</p>
+        <p className="text-xs text-white/40">Kanpai Blue | Admin</p>
       </div>
 
       <div className="flex flex-1 items-center justify-center px-6 py-12">

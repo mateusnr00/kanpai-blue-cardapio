@@ -15,7 +15,7 @@ function fmtPct(rate: number): string {
 }
 
 function fmtDuration(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds <= 0) return "—";
+  if (!Number.isFinite(seconds) || seconds <= 0) return "-";
   const total = Math.round(seconds);
   const m = Math.floor(total / 60);
   const s = total % 60;
@@ -69,7 +69,7 @@ export async function PostHogPanel() {
         <StatCard
           label="Taxa de saída rápida"
           value={fmtPct(kpis.bounceRate30d)}
-          hint="% das sessões que viram só uma página e foram embora. Quanto menor, melhor — sinaliza que o cardápio prendeu atenção."
+          hint="% das sessões que viram só uma página e foram embora. Quanto menor, melhor: sinaliza que o cardápio prendeu atenção."
         />
         <StatCard
           label="Tempo médio na página"

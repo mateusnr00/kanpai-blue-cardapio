@@ -36,7 +36,7 @@ export function InsightsPanel({
           icon: SquaresFour,
           label: "Categoria mais aberta",
           value: topCategoryName ?? insights.topCategory.id,
-          detail: `${fmt(insights.topCategory.count)} aberturas · ${fmt(insights.topCategory.people)} pessoas`,
+          detail: `${fmt(insights.topCategory.count)} aberturas | ${fmt(insights.topCategory.people)} pessoas`,
         }
       : null,
     insights.topDishImpression

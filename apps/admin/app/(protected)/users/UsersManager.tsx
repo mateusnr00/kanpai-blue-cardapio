@@ -12,7 +12,7 @@ type Props = {
 };
 
 function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Date(iso).toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -102,7 +102,7 @@ export function UsersManager({ users, currentUserId }: Props) {
                 </p>
                 <p className="truncate text-xs text-ink-muted">
                   Criado em {fmtDate(u.created_at)}
-                  {u.last_sign_in_at ? ` · último login ${fmtDate(u.last_sign_in_at)}` : ""}
+                  {u.last_sign_in_at ? ` | último login ${fmtDate(u.last_sign_in_at)}` : ""}
                 </p>
               </div>
               <button
@@ -153,7 +153,7 @@ export function UsersManager({ users, currentUserId }: Props) {
                 placeholder="mínimo 8 caracteres"
               />
               <p className="text-[11px] text-ink-soft">
-                Anote agora — não tem como ver depois. O usuário pode mudar depois.
+                Anote agora, não tem como ver depois. O usuário pode mudar depois.
               </p>
             </div>
             <div className="mt-2 flex justify-end gap-2">

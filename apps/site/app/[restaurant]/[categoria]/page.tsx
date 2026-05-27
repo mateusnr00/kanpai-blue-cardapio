@@ -24,15 +24,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { restaurant: string; categoria: string } }) {
   try {
     const r = await getRestaurantById(params.restaurant);
-    if (!r) return { title: "Categoria · Kanpai Blue" };
+    if (!r) return { title: "Categoria | Kanpai Blue" };
     const category = await getCategoryBySlug(r.id, params.categoria);
-    if (!category) return { title: `${r.name} · Cardápio` };
+    if (!category) return { title: `${r.name} | Cardápio` };
     return {
-      title: `${category.name} · ${r.name}`,
-      description: `${category.itemCount} · ${category.detail}`,
+      title: `${category.name} | ${r.name}`,
+      description: `${category.itemCount} - ${category.detail}`,
     };
   } catch {
-    return { title: "Categoria · Kanpai Blue" };
+    return { title: "Categoria | Kanpai Blue" };
   }
 }
 

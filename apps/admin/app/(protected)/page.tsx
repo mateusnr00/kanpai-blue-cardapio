@@ -23,7 +23,7 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
         title={selected?.name ?? "Cardápio"}
         description={
           selected
-            ? `${selected.total} ${selected.total === 1 ? "item" : "itens"} · ${selected.active} ativo${selected.active === 1 ? "" : "s"}`
+            ? `${selected.total} ${selected.total === 1 ? "item" : "itens"} | ${selected.active} ativo${selected.active === 1 ? "" : "s"}`
             : "Selecione uma categoria"
         }
         action={

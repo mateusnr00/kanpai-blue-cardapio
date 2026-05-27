@@ -211,7 +211,7 @@ export function ImageUpload({ name, initialPath, aspect = 1, maxOutputSize = 120
         ) : null}
 
         <p className="text-[11px] leading-snug text-ink-muted">
-          JPEG, PNG, WebP ou AVIF · max. 8MB · cortado pra {cropLabel}
+          JPEG, PNG, WebP ou AVIF, max. 8MB, cortado pra {cropLabel}
         </p>
         <input type="hidden" name={`${name}__remove`} value={shouldRemove ? "true" : "false"} readOnly />
         <input type="hidden" name={`${name}__blur`} value={blurDataUrl} readOnly />

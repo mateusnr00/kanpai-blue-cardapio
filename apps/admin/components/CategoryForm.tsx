@@ -65,7 +65,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       {mode === "create" ? (
         <div className="flex flex-col gap-1.5">
           <label htmlFor="id" className="admin-label">
-            Slug (deixa vazio pra gerar do nome — imutável depois)
+            Slug (deixa vazio pra gerar do nome, imutável depois)
           </label>
           <input
             id="id"
@@ -93,7 +93,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
           type="text"
           required
           defaultValue={initial?.description ?? ""}
-          placeholder='ex: "2 menus · principal experiência da casa"'
+          placeholder='ex: "2 menus, principal experiência da casa"'
           className="admin-input"
         />
       </div>
@@ -134,7 +134,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="admin-label">Foto da categoria (opcional — sobrescreve o gradient na home)</span>
+        <span className="admin-label">Foto da categoria (opcional, sobrescreve o gradient na home)</span>
         <ImageUpload
           name="image"
           initialPath={initial?.image_path ?? null}
@@ -144,7 +144,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="admin-label">Slideshow (opcional — várias fotos rotacionando no card)</span>
+        <span className="admin-label">Slideshow (opcional, várias fotos rotacionando no card)</span>
         <p className="text-xs text-ink-muted">
           Se preencher, o card da home mostra um cross-fade entre as fotos em vez da foto única acima.
           Recomendado pra promoções, eventos e cards de destaque.
@@ -153,7 +153,7 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="admin-label">Gradient (CSS) — fallback quando não tem foto</span>
+        <span className="admin-label">Gradient (CSS), fallback quando não tem foto</span>
         <GradientInput name="gradient" defaultValue={initial?.gradient ?? "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)"} />
       </div>
 
@@ -186,8 +186,8 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
           defaultValue={initial?.display_mode ?? "grid"}
           className="admin-input"
         >
-          <option value="grid">Cards com foto (padrão — pra pratos com foto)</option>
-          <option value="list">Lista de texto (sem foto — bom pra bebidas, drinks, vinhos)</option>
+          <option value="grid">Cards com foto (padrão, pra pratos com foto)</option>
+          <option value="list">Lista de texto (sem foto, bom pra bebidas, drinks, vinhos)</option>
         </select>
       </div>
 

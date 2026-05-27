@@ -129,8 +129,8 @@ export function AuditList({ rows, filters }: Props) {
                       {r.entity_label ?? <span className="italic text-ink-muted">sem nome</span>}
                     </p>
                     <p className="truncate text-xs text-ink-muted">
-                      {r.actor_email ?? r.actor_id?.slice(0, 8) ?? "—"}
-                      {r.restaurant_id ? ` · ${r.restaurant_id}` : ""}
+                      {r.actor_email ?? r.actor_id?.slice(0, 8) ?? "-"}
+                      {r.restaurant_id ? ` | ${r.restaurant_id}` : ""}
                     </p>
                   </div>
                   <span className="shrink-0 text-xs text-ink-muted">{fmtDate(r.created_at)}</span>

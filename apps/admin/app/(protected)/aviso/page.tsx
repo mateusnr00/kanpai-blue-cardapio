@@ -28,7 +28,7 @@ export default async function AvisoPage() {
     <section className="flex w-full flex-col gap-6">
       <PageHeader
         title="Aviso na home"
-        description="Modal que aparece na home do restaurante ativo (1 vez por sessão). Use pra avisos pontuais — soft open, promo, mudança de horário."
+        description="Modal que aparece na home do restaurante ativo (1 vez por sessão). Use pra avisos pontuais: soft open, promo, mudança de horário."
       />
       <div className="admin-card p-6 sm:p-8">
         <AnnouncementForm
