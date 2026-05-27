@@ -10,10 +10,19 @@ type Props = {
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
+type Aspect = "square" | "portrait";
+
+const ASPECT_CONFIG: Record<Aspect, { ratio: number; maxOutput: number; label: string }> = {
+  square: { ratio: 1, maxOutput: 1200, label: "Quadrada (1200×1200)" },
+  portrait: { ratio: 1080 / 1620, maxOutput: 1080, label: "Retrato (1080×1620)" },
+};
+
 export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState(initialActive);
+  const [aspect, setAspect] = useState<Aspect>("portrait");
+  const cfg = ASPECT_CONFIG[aspect];
 
   function action(formData: FormData) {
     setError(null);
@@ -41,18 +50,40 @@ export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: 
         <span className="flex flex-col gap-0.5">
           <span className="text-sm font-medium text-ink">Mostrar o aviso no site</span>
           <span className="text-xs text-ink-muted">
-            Quando ligado, o modal aparece na home do restaurante ativo. O cliente fecha clicando no X ou fora do
-            modal — não aparece de novo na mesma sessão.
+            Quando ligado, o modal aparece <strong>logo após a animação de intro</strong> na home do restaurante
+            ativo. Cliente fecha clicando no X, fora do modal ou apertando ESC — não aparece de novo na mesma
+            sessão.
           </span>
         </span>
       </label>
 
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="announcement_aspect" className="admin-label">
+          Formato da imagem
+        </label>
+        <select
+          id="announcement_aspect"
+          value={aspect}
+          onChange={(e) => setAspect(e.target.value as Aspect)}
+          className="admin-input max-w-sm"
+        >
+          <option value="portrait">Retrato (1080×1620) — recomendado pra mobile</option>
+          <option value="square">Quadrada (1200×1200)</option>
+        </select>
+        <p className="text-xs text-ink-muted">
+          Escolha antes de subir a imagem. O crop ajusta pro formato escolhido.
+        </p>
+      </div>
+
       <div className="flex flex-col gap-2">
         <span className="admin-label">Imagem do aviso</span>
-        <p className="text-xs text-ink-muted">
-          Recomendado: formato retrato (ex.: 1080×1620) ou quadrado. Imagem inteira aparece (object-fit contain).
-        </p>
-        <ImageUpload name="announcement_image" initialPath={initialImagePath} />
+        <ImageUpload
+          key={aspect}
+          name="announcement_image"
+          initialPath={initialImagePath}
+          aspect={cfg.ratio}
+          maxOutputSize={cfg.maxOutput}
+        />
       </div>
 
       {error ? (
