@@ -33,7 +33,12 @@ export async function createUser(input: {
   if (!email || !email.includes("@")) return { error: "Email invalido." };
   if (password.length < 8) return { error: "Senha precisa ter pelo menos 8 caracteres." };
 
-  const admin = createAdminClient();
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password,
@@ -62,7 +67,12 @@ export async function deleteUser(id: string): Promise<{ error?: string }> {
     return { error: "Voce nao pode excluir o proprio usuario." };
   }
 
-  const admin = createAdminClient();
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
   const { data: existing } = await admin.auth.admin.getUserById(id);
   const email = existing?.user?.email ?? null;
 
