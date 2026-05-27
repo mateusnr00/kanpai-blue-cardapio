@@ -6,6 +6,7 @@ import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
+import { preloadLightboxImage } from "@/lib/preload-lightbox";
 import { DishImage } from "./DishImage";
 import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
@@ -39,7 +40,9 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId,
 
   const onImpression = useCallback(() => {
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
-  }, [dish.id, restaurantId]);
+    // pre-carrega a versao do lightbox em background — abertura instantanea quando clicar
+    if (canZoom && dish.image) preloadLightboxImage(dish.image);
+  }, [canZoom, dish.id, dish.image, restaurantId]);
   const ref = useImpressionOnce<HTMLElement>(onImpression);
 
   const openDetails = useCallback(() => {
