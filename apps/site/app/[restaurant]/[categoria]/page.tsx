@@ -50,6 +50,9 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
   const rightLabel = restaurant.showCategoryFooterCount
     ? `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`
     : "";
+  const leftLabel = restaurant.showCategoryFooterPosition
+    ? `${category.number} / ${String(total).padStart(2, "0")}`
+    : "";
 
   return (
     <>
@@ -61,10 +64,7 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
           showSubtitle={restaurant.showCategorySubtitle}
         />
       </main>
-      <Footer
-        left={`${category.number} / ${String(total).padStart(2, "0")}`}
-        right={rightLabel}
-      />
+      <Footer left={leftLabel} right={rightLabel} />
       <div
         aria-hidden
         style={{

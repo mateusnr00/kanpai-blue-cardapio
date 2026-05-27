@@ -86,12 +86,11 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       )}
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="description" className="admin-label">Descrição (microcopy do card)</label>
+        <label htmlFor="description" className="admin-label">Descrição (microcopy do card, opcional)</label>
         <input
           id="description"
           name="description"
           type="text"
-          required
           defaultValue={initial?.description ?? ""}
           placeholder='ex: "2 menus, principal experiência da casa"'
           className="admin-input"

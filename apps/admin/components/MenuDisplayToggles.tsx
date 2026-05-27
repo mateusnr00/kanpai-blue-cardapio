@@ -33,6 +33,11 @@ const ITEMS: Array<{
     label: 'Mostrar "X pratos" no rodapé da categoria',
     hint: "Contador no canto direito do rodapé de cada página de categoria.",
   },
+  {
+    flag: "show_category_footer_position",
+    label: 'Mostrar "17 / 03" no rodapé da categoria',
+    hint: "Número da categoria atual / total no canto esquerdo do rodapé.",
+  },
 ];
 
 export function MenuDisplayToggles({ initial }: Props) {

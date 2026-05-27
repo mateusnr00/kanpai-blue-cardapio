@@ -201,8 +201,8 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
   const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
-  if (!name || !number || !description || !gradient) {
-    return { error: "Nome, número, descrição e gradient são obrigatórios." };
+  if (!name || !number || !gradient) {
+    return { error: "Nome, número e gradient são obrigatórios." };
   }
 
   const restaurantId = getActiveRestaurantId();
@@ -294,8 +294,8 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
   const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
-  if (!name || !number || !description || !gradient) {
-    return { error: "Nome, número, descrição e gradient são obrigatórios." };
+  if (!name || !number || !gradient) {
+    return { error: "Nome, número e gradient são obrigatórios." };
   }
 
   const { data: current } = await supabase

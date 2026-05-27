@@ -555,6 +555,7 @@ export type Database = {
           short_name: string
           show_category_eyebrow: boolean
           show_category_footer_count: boolean
+          show_category_footer_position: boolean
           show_category_subtitle: boolean
           show_home_footer_count: boolean
           updated_at: string
@@ -571,6 +572,7 @@ export type Database = {
           short_name: string
           show_category_eyebrow?: boolean
           show_category_footer_count?: boolean
+          show_category_footer_position?: boolean
           show_category_subtitle?: boolean
           show_home_footer_count?: boolean
           updated_at?: string
@@ -587,6 +589,7 @@ export type Database = {
           short_name?: string
           show_category_eyebrow?: boolean
           show_category_footer_count?: boolean
+          show_category_footer_position?: boolean
           show_category_subtitle?: boolean
           show_home_footer_count?: boolean
           updated_at?: string

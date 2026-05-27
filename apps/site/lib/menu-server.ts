@@ -29,6 +29,7 @@ export type RestaurantInfo = {
   showCategorySubtitle: boolean;
   showHomeFooterCount: boolean;
   showCategoryFooterCount: boolean;
+  showCategoryFooterPosition: boolean;
 };
 
 export type RestaurantAnnouncement = {
@@ -66,6 +67,7 @@ type RestaurantRowMaybe = {
   show_category_subtitle?: boolean | null;
   show_home_footer_count?: boolean | null;
   show_category_footer_count?: boolean | null;
+  show_category_footer_position?: boolean | null;
 };
 
 function toInfo(r: RestaurantRowMaybe): RestaurantInfo {
@@ -78,6 +80,7 @@ function toInfo(r: RestaurantRowMaybe): RestaurantInfo {
     showCategorySubtitle: r.show_category_subtitle ?? true,
     showHomeFooterCount: r.show_home_footer_count ?? true,
     showCategoryFooterCount: r.show_category_footer_count ?? true,
+    showCategoryFooterPosition: r.show_category_footer_position ?? true,
   };
 }
 
@@ -88,7 +91,7 @@ async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
   const full = await supabase
     .from("restaurants")
     .select(
-      "id, name, short_name, position, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+      "id, name, short_name, position, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count, show_category_footer_position",
     )
     .eq("active", true)
     .order("position");
@@ -115,7 +118,7 @@ async function getRestaurantByIdImpl(id: string): Promise<RestaurantInfo | null>
   const full = await supabase
     .from("restaurants")
     .select(
-      "id, name, short_name, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+      "id, name, short_name, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count, show_category_footer_position",
     )
     .eq("id", id)
     .eq("active", true)
