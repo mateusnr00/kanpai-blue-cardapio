@@ -32,6 +32,17 @@ const SIZES_BY_ASPECT: Record<Aspect, string> = {
   "2/1": "(max-width: 768px) 100vw, 900px",
 };
 
+const SUPABASE_HOST = "rxzohyrttklxevegdijm.supabase.co";
+
+/**
+ * Fotos de prato/categoria ja vivem no Supabase em WebP q=90 max 1200px (~50-150KB).
+ * Servir direto evita o cold-cache penalty do Next/Image optimizer (~1-2s na 1a visita).
+ * Logos/banners externos continuam via Next/Image.
+ */
+function isAlreadyOptimized(src: string): boolean {
+  return src.includes(SUPABASE_HOST) && src.includes("/dish-images/");
+}
+
 export function DishImage({
   src,
   alt,
@@ -55,17 +66,55 @@ export function DishImage({
     );
   }
 
+  const wrapperStyle: React.CSSProperties = {
+    position: "relative",
+    width: "100%",
+    aspectRatio: aspect,
+    overflow: "hidden",
+    background: gradient,
+  };
+
+  // Caminho rapido: foto ja otimizada vai direto do Supabase CDN, sem Next/Image
+  if (isAlreadyOptimized(src)) {
+    return (
+      <div
+        style={{
+          ...wrapperStyle,
+          // LQIP blur como background — aparece instantaneo, e coberto pela <img> ao carregar
+          ...(blurDataUrl
+            ? {
+                backgroundImage: `url("${blurDataUrl}")`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : {}),
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={alt}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          {...(priority ? { fetchPriority: "high" } : {})}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+        {topRight ? (
+          <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>{topRight}</div>
+        ) : null}
+      </div>
+    );
+  }
+
+  // URL externa nao conhecida: passa pelo Next/Image normal
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        aspectRatio: aspect,
-        overflow: "hidden",
-        // gradient do brand serve de skeleton enquanto a foto baixa — sem blur generico
-        background: gradient,
-      }}
-    >
+    <div style={wrapperStyle}>
       <Image
         src={src}
         alt={alt}
