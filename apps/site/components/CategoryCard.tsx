@@ -17,7 +17,7 @@ type CategoryCardProps = {
 export function CategoryCard({ category, restaurantId, priority }: CategoryCardProps) {
   const isFeatured = !!category.featured;
   const borderStyle = isFeatured ? "1px solid var(--ink)" : "0.5px solid var(--ink-faint)";
-  const aspect = category.fullWidth ? "3/1" : "1/1";
+  const aspect = category.fullWidth ? "3/1" : "16/9";
   const slideshow = category.slideshowImages ?? [];
   const hasSlideshow = slideshow.length > 0;
 

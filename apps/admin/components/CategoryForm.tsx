@@ -135,7 +135,12 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
 
       <div className="flex flex-col gap-2">
         <span className="admin-label">Foto da categoria (opcional — sobrescreve o gradient na home)</span>
-        <ImageUpload name="image" initialPath={initial?.image_path ?? null} />
+        <ImageUpload
+          name="image"
+          initialPath={initial?.image_path ?? null}
+          aspect={16 / 9}
+          maxOutputSize={1920}
+        />
       </div>
 
       <div className="flex flex-col gap-2">
