@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
 import { getCategories, getCategoryBySlug, getRestaurantById, listRestaurants } from "@/lib/menu-server";
-import { AppShell } from "@/components/AppShell";
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FAB } from "@/components/FAB";
 import { CategoryView } from "@/components/CategoryView";
@@ -52,8 +50,7 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
   const rightLabel = `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`;
 
   return (
-    <AppShell>
-      <Header showBack categories={categories} restaurantId={restaurant.id} />
+    <>
       <main style={{ position: "relative" }}>
         <CategoryView category={category} restaurantId={restaurant.id} />
       </main>
@@ -68,6 +65,6 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
         }}
       />
       <FAB restaurantId={restaurant.id} />
-    </AppShell>
+    </>
   );
 }
