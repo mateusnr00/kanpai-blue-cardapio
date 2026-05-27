@@ -124,7 +124,7 @@ export function HomePageClient({ categories, restaurantId, restaurantName }: Pro
         </main>
         <Footer
           left="Goiânia"
-          right={`${String(categories.length).padStart(2, "0")} categorias`}
+          right=""
         />
 
         <style>{`
