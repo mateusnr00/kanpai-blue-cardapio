@@ -24,8 +24,27 @@ function slugify(input: string): string {
     .slice(0, 64) || `categoria-${Date.now()}`;
 }
 
-function extractSubcategories(formData: FormData): string[] {
-  return formData.getAll("subcategory").map((s) => String(s).trim()).filter(Boolean);
+function extractSubcategories(formData: FormData): {
+  names: string[];
+  modes: Record<string, "grid" | "list">;
+} {
+  const count = Number(formData.get("subcategory_count") ?? "0");
+  if (count > 0) {
+    const names: string[] = [];
+    const modes: Record<string, "grid" | "list"> = {};
+    for (let i = 0; i < count; i++) {
+      const name = String(formData.get(`subcategory_${i}_name`) ?? "").trim();
+      if (!name) continue;
+      const rawMode = String(formData.get(`subcategory_${i}_mode`) ?? "grid").trim();
+      const mode = rawMode === "list" ? "list" : "grid";
+      names.push(name);
+      modes[name] = mode;
+    }
+    return { names, modes };
+  }
+  // Fallback legacy (sem o count): pega so os nomes via "subcategory"
+  const names = formData.getAll("subcategory").map((s) => String(s).trim()).filter(Boolean);
+  return { names, modes: {} };
 }
 
 async function handleCategoryImage(
@@ -151,7 +170,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
   const full_width = formData.get("full_width") === "on";
   const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
-  const subcategories = extractSubcategories(formData);
+  const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
   if (!name || !number || !description || !gradient) {
     return { error: "Nome, número, descrição e gradient são obrigatórios." };
@@ -189,6 +208,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
       active: true,
       position,
       subcategories,
+      subcategory_display_modes,
     })
     .select("id")
     .single();
@@ -232,7 +252,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
   const full_width = formData.get("full_width") === "on";
   const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
-  const subcategories = extractSubcategories(formData);
+  const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
   if (!name || !number || !description || !gradient) {
     return { error: "Nome, número, descrição e gradient são obrigatórios." };
@@ -267,6 +287,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
       full_width,
       display_mode,
       subcategories,
+      subcategory_display_modes,
       image_path: imagePath,
       slideshow_image_paths: slideshowPaths,
       updated_at: new Date().toISOString(),

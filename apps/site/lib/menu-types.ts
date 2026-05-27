@@ -55,5 +55,7 @@ export type Category = {
   slideshowImages?: string[];
   fullWidth?: boolean;
   displayMode?: "grid" | "list";
+  /** Override por subcategoria. Se ausente, usa displayMode (ou 'grid'). */
+  subcategoryDisplayModes?: Record<string, "grid" | "list">;
   dishes: Dish[];
 };

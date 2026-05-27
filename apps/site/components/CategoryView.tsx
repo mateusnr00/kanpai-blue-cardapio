@@ -261,7 +261,13 @@ export function CategoryView({ category, restaurantId }: Props) {
                   </header>
                 ) : null}
 
-                {category.displayMode === "list" ? (
+                {(() => {
+                  const subcatOverride = group.subcategory
+                    ? category.subcategoryDisplayModes?.[group.subcategory]
+                    : undefined;
+                  const effectiveMode = subcatOverride ?? category.displayMode ?? "grid";
+                  return effectiveMode === "list";
+                })() ? (
                   <div
                     style={{
                       background: "var(--bg-card)",

@@ -10,6 +10,15 @@ function imageUrl(path: string | null): string | undefined {
   return `${STORAGE_BASE}${path}`;
 }
 
+function parseSubcatModes(raw: unknown): Record<string, "grid" | "list"> | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const out: Record<string, "grid" | "list"> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (v === "list" || v === "grid") out[k] = v;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 export type RestaurantInfo = {
   id: string;
   name: string;
@@ -63,7 +72,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   const [catsRes, dishesRes, sectionsRes, componentsRes] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width, slideshow_image_paths, display_mode")
+      .select("id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode")
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
@@ -169,6 +178,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .filter((u): u is string => Boolean(u)),
     fullWidth: c.full_width,
     displayMode: (c.display_mode === "list" ? "list" : "grid") as "grid" | "list",
+    subcategoryDisplayModes: parseSubcatModes((c as { subcategory_display_modes?: unknown }).subcategory_display_modes),
     dishes: dishesByCategoryUuid.get(c.id) ?? [],
   }));
 }
