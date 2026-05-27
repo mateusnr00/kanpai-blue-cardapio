@@ -5,9 +5,9 @@ import { ChartEmpty, ChartPanel } from "./ChartPanel";
 
 type Props = {
   visitors: number;
-  categoryOpens: number;
-  dishImpressions: number;
-  dishViews: number;
+  peopleOpenedCategory: number;
+  peopleSawDishes: number;
+  peopleOpenedDetails: number;
 };
 
 type Step = {
@@ -25,37 +25,39 @@ function fmtPct(n: number): string {
   return `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
 }
 
-export function FunnelChart({ visitors, categoryOpens, dishImpressions, dishViews }: Props) {
-  const total = visitors + categoryOpens + dishImpressions + dishViews;
-
-  if (total === 0) {
+export function FunnelChart({
+  visitors,
+  peopleOpenedCategory,
+  peopleSawDishes,
+  peopleOpenedDetails,
+}: Props) {
+  if (visitors === 0) {
     return (
-      <ChartPanel title="Funil do cardápio" description="Jornada do visitante até ver detalhes">
-        <ChartEmpty message="Sem eventos suficientes no período." />
+      <ChartPanel title="Funil do cardápio" description="De cada visitante, quantos avançaram em cada etapa">
+        <ChartEmpty message="Sem visitantes neste período." />
       </ChartPanel>
     );
   }
 
   const steps: Step[] = [
-    { label: "Visitantes", hint: "Pessoas distintas", value: visitors, color: CHART_PRIMARY },
-    { label: "Categorias abertas", hint: "Cliques em seções", value: categoryOpens, color: CHART_ACCENT },
-    { label: "Itens impressos", hint: "Pratos vistos na lista", value: dishImpressions, color: CHART_SECONDARY },
-    { label: "Detalhes abertos", hint: "Cliques em \"ver mais\"", value: dishViews, color: CHART_LIGHT },
+    { label: "Visitantes", hint: "Pessoas que abriram o cardápio", value: visitors, color: CHART_PRIMARY },
+    { label: "Entraram numa categoria", hint: "Pessoas que clicaram em alguma seção", value: peopleOpenedCategory, color: CHART_ACCENT },
+    { label: "Chegaram a ver pratos", hint: "Pessoas que rolaram a lista", value: peopleSawDishes, color: CHART_SECONDARY },
+    { label: "Clicaram em \"ver mais\"", hint: "Pessoas que abriram detalhes de um prato", value: peopleOpenedDetails, color: CHART_LIGHT },
   ];
 
-  const max = Math.max(...steps.map((s) => s.value), 1);
-  const base = steps[0].value || 1;
+  const base = steps[0].value;
 
   return (
     <ChartPanel
       title="Funil do cardápio"
-      description="Jornada do visitante até ver detalhes"
+      description="De cada visitante, quantos avançaram em cada etapa"
       className="!p-4 sm:!p-5"
     >
       <ul className="flex flex-col gap-3">
         {steps.map((step, i) => {
-          const widthPct = (step.value / max) * 100;
-          const convPct = i === 0 ? null : (step.value / base) * 100;
+          const convPct = (step.value / base) * 100;
+          const widthPct = convPct; // sempre <= 100 porque step.value <= base (pessoas únicas)
           const dropPct =
             i === 0 || steps[i - 1].value === 0
               ? null
@@ -72,15 +74,15 @@ export function FunnelChart({ visitors, categoryOpens, dishImpressions, dishView
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-sm font-semibold tabular-nums text-ink">{fmt(step.value)}</p>
-                  {convPct != null ? (
+                  {i === 0 ? (
+                    <p className="text-[11px] tabular-nums text-ink-muted">100% (base)</p>
+                  ) : (
                     <p className="text-[11px] tabular-nums text-ink-muted">
-                      {fmtPct(convPct)} do topo
+                      {fmtPct(convPct)} dos visitantes
                       {dropPct != null && dropPct > 0 ? (
                         <span className="ml-1 text-rose-500">−{fmtPct(dropPct)}</span>
                       ) : null}
                     </p>
-                  ) : (
-                    <p className="text-[11px] tabular-nums text-ink-muted">base</p>
                   )}
                 </div>
               </div>

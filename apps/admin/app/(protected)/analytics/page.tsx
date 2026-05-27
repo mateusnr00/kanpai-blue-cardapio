@@ -28,12 +28,32 @@ function fmtDecimal(n: number): string {
 }
 
 function fmtPct(n: number): string {
-  return `${(n * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+  return `${Math.round(n * 100).toLocaleString("pt-BR")}%`;
 }
 
+/**
+ * Mostra fração crua (ex: "1 de 3") quando amostra é pequena demais
+ * para % fazer sentido. Acima do limiar, mostra % arredondado.
+ */
+function fmtRate(numerator: number, denominator: number, lowSampleThreshold = 20): string {
+  if (denominator === 0) return "—";
+  if (denominator < lowSampleThreshold) {
+    return `${numerator} de ${denominator}`;
+  }
+  return fmtPct(numerator / denominator);
+}
+
+/**
+ * Delta vs período anterior. Retorna null quando:
+ *  - prev é ausente
+ *  - prev é pequeno demais para % fazer sentido (< MIN_PREV)
+ *  - prev é 0 (não há base de comparação)
+ * Assim evitamos "−100%" em vermelho gritante quando a amostra mal existe.
+ */
+const MIN_PREV_FOR_DELTA = 5;
 function delta(current: number, prev: number | undefined | null): number | null {
   if (prev == null) return null;
-  if (prev === 0) return current === 0 ? 0 : null;
+  if (prev < MIN_PREV_FOR_DELTA) return null;
   return (current - prev) / prev;
 }
 
@@ -52,6 +72,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
     stats.visitors === 0
       ? "0"
       : fmtDecimal((stats.dishImpressions + stats.dishViews) / stats.visitors);
+
+  const sessionsWithDish = Math.round(stats.engagementRate * stats.sessions);
+  const engagementDisplay = fmtRate(sessionsWithDish, stats.sessions);
 
   const hasData = stats.homeViews > 0 || stats.categoryOpens > 0 || stats.dishImpressions > 0;
 
@@ -87,7 +110,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         />
         <StatCard
           label={STAT_LABELS.engagement.label}
-          value={fmtPct(stats.engagementRate)}
+          value={engagementDisplay}
           hint={STAT_LABELS.engagement.hint}
           delta={delta(stats.engagementRate, prevStats?.engagementRate)}
         />
@@ -97,7 +120,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         insights={insights}
         topCategoryName={topCategories[0]?.name}
         topDishName={topDishes[0]?.name}
-        engagementPct={fmtPct(stats.engagementRate)}
+        engagementPct={engagementDisplay}
         dishDetailsCount={stats.dishViews}
         itemsPerVisitor={itemsPerVisitor}
         itemsPerSession={fmtDecimal(stats.itemsPerVisit)}
@@ -115,9 +138,9 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         <CategoriesDonutChart categories={topCategories} />
         <FunnelChart
           visitors={stats.visitors}
-          categoryOpens={stats.categoryOpens}
-          dishImpressions={stats.dishImpressions}
-          dishViews={stats.dishViews}
+          peopleOpenedCategory={stats.peopleOpenedCategory}
+          peopleSawDishes={stats.peopleSawDishes}
+          peopleOpenedDetails={stats.peopleOpenedDetails}
         />
         <DishesBarList dishes={topDishes} />
       </div>

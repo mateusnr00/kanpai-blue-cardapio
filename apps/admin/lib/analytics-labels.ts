@@ -45,7 +45,7 @@ export const CHART_LABELS = {
   },
   hours: {
     title: "Horário do dia",
-    description: "Quando o cardápio é mais acessado (horário do servidor)",
+    description: "Quando o cardápio é mais acessado (horário de Brasília)",
     empty: "Sem acessos neste período.",
   },
   categories: {
