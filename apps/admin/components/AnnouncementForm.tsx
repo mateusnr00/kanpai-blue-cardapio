@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { ImageUpload } from "./ImageUpload";
+import { publicImageUrl } from "@/lib/storage";
 
 type Props = {
   initialActive: boolean;
@@ -23,6 +24,7 @@ export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: 
   const [active, setActive] = useState(initialActive);
   const [aspect, setAspect] = useState<Aspect>("portrait");
   const cfg = ASPECT_CONFIG[aspect];
+  const currentUrl = publicImageUrl(initialImagePath);
 
   function action(formData: FormData) {
     setError(null);
@@ -56,6 +58,23 @@ export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: 
           </span>
         </span>
       </label>
+
+      {currentUrl ? (
+        <div className="rounded-lg border border-ink-ghost bg-bg-surface p-3 text-xs">
+          <p className="mb-2 font-medium text-ink">URL da imagem atual:</p>
+          <a
+            href={currentUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="break-all text-accent underline hover:no-underline"
+          >
+            {currentUrl}
+          </a>
+          <p className="mt-2 text-ink-muted">
+            Clica pra abrir num tab novo — se não carregar aqui, também não vai carregar no modal do site.
+          </p>
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="announcement_aspect" className="admin-label">

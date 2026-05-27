@@ -26,6 +26,7 @@ const FAST_DELAY_MS = 200;
  */
 export function AnnouncementModal({ imageUrl, storageKey }: Props) {
   const [open, setOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -34,8 +35,6 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
     } catch {
       // sessionStorage indisponível: mostra mesmo assim
     }
-    // Se a intro ja foi vista nessa sessao, abre rapido. Senao espera
-    // a intro acabar (2100ms + buffer).
     let introSeen = false;
     try {
       introSeen = sessionStorage.getItem("kanpai-intro-seen") === "1";
@@ -106,31 +105,53 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
               borderRadius: 18,
               overflow: "hidden",
               boxShadow: "0 20px 60px rgba(0, 0, 0, 0.55)",
-              background: "#000",
+              background: "#0a0418",
               cursor: "default",
+              minWidth: 240,
+              minHeight: 240,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            {/*
-              Usa <img> nativo: a foto ja vem otimizada do Supabase (WebP)
-              e nao temos um aspect fixo aqui (suporta quadrada 1:1 e
-              retrato 2:3). O browser dimensiona conforme o natural ratio
-              da imagem, com max-height pra nao cortar em telas baixas.
-            */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageUrl}
-              alt="Aviso"
-              decoding="async"
-              fetchPriority="high"
-              style={{
-                display: "block",
-                width: "auto",
-                height: "auto",
-                maxWidth: "100%",
-                maxHeight: "calc(100vh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
-                objectFit: "contain",
-              }}
-            />
+            {imgError ? (
+              <div
+                style={{
+                  padding: 24,
+                  textAlign: "center",
+                  color: "rgba(250, 250, 248, 0.85)",
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                }}
+              >
+                <p style={{ margin: 0, fontWeight: 500 }}>Não foi possível carregar a imagem.</p>
+                <p style={{ margin: "8px 0 0", fontSize: 11, opacity: 0.7, wordBreak: "break-all" }}>
+                  {imageUrl}
+                </p>
+              </div>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={imageUrl}
+                src={imageUrl}
+                alt="Aviso"
+                decoding="async"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  // eslint-disable-next-line no-console
+                  console.error("[AnnouncementModal] falha ao carregar imagem:", imageUrl, e);
+                  setImgError(true);
+                }}
+                style={{
+                  display: "block",
+                  width: "auto",
+                  height: "auto",
+                  maxWidth: "100%",
+                  maxHeight: "calc(100vh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+                  objectFit: "contain",
+                }}
+              />
+            )}
             <button
               type="button"
               onClick={dismiss}
@@ -138,7 +159,7 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
               style={{
                 position: "absolute",
                 top: 12,
-                right: 12,
+                left: 12,
                 width: 36,
                 height: 36,
                 display: "inline-flex",
