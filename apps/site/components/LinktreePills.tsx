@@ -1,16 +1,21 @@
 import Link from "next/link";
 import { fs } from "@/lib/scale";
 import type { LinktreeButton } from "@/lib/linktree-server";
+import type { LinktreeTheme } from "@/lib/linktree-theme-server";
+import { buttonStyle } from "@/lib/linktree-theme-server";
 
 type Props = {
   buttons: LinktreeButton[];
+  theme: LinktreeTheme;
 };
 
 function isExternal(href: string): boolean {
   return /^https?:\/\//i.test(href);
 }
 
-export function LinktreePills({ buttons }: Props) {
+export function LinktreePills({ buttons, theme }: Props) {
+  const themed = buttonStyle(theme);
+
   return (
     <nav
       aria-label="Atalhos"
@@ -28,16 +33,13 @@ export function LinktreePills({ buttons }: Props) {
           display: "block",
           width: "100%",
           padding: "16px 22px",
-          borderRadius: 999,
-          border: "1px solid var(--ink)",
-          background: "transparent",
-          color: "var(--ink)",
           fontSize: fs(14),
           fontWeight: 500,
           letterSpacing: "-0.005em",
           textAlign: "center" as const,
           textDecoration: "none",
           transition: "background 160ms ease, color 160ms ease, transform 120ms ease",
+          ...themed,
         };
 
         // Sem href e sem child_slug: placeholder dashed (em breve)

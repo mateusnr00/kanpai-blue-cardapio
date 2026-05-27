@@ -6,6 +6,7 @@ export type AuditEntity =
   | "dish"
   | "category"
   | "linktree_button"
+  | "linktree_theme"
   | "review"
   | "restaurant"
   | "user";

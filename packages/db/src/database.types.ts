@@ -473,6 +473,75 @@ export type Database = {
           },
         ]
       }
+      linktree_theme: {
+        Row: {
+          id: string
+          title: string
+          subtitle: string
+          footer: string
+          logo_url: string | null
+          bg_kind: string
+          bg_color: string
+          bg_gradient_from: string
+          bg_gradient_to: string
+          bg_image_url: string | null
+          text_color: string
+          subtitle_color: string
+          button_style: string
+          button_border_color: string
+          button_bg_color: string
+          button_text_color: string
+          button_radius: number
+          button_shadow: boolean
+          font_family: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title?: string
+          subtitle?: string
+          footer?: string
+          logo_url?: string | null
+          bg_kind?: string
+          bg_color?: string
+          bg_gradient_from?: string
+          bg_gradient_to?: string
+          bg_image_url?: string | null
+          text_color?: string
+          subtitle_color?: string
+          button_style?: string
+          button_border_color?: string
+          button_bg_color?: string
+          button_text_color?: string
+          button_radius?: number
+          button_shadow?: boolean
+          font_family?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          subtitle?: string
+          footer?: string
+          logo_url?: string | null
+          bg_kind?: string
+          bg_color?: string
+          bg_gradient_from?: string
+          bg_gradient_to?: string
+          bg_image_url?: string | null
+          text_color?: string
+          subtitle_color?: string
+          button_style?: string
+          button_border_color?: string
+          button_bg_color?: string
+          button_text_color?: string
+          button_radius?: number
+          button_shadow?: boolean
+          font_family?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       restaurants: {
         Row: {
           active: boolean
