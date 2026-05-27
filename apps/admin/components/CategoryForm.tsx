@@ -151,7 +151,10 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
         <GradientInput name="gradient" defaultValue={initial?.gradient ?? "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)"} />
       </div>
 
-      <SubcategoriesEditor initial={initial?.subcategories ?? []} />
+      <SubcategoriesEditor
+        initial={initial?.subcategories ?? []}
+        initialModes={initial?.subcategory_display_modes ?? {}}
+      />
 
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="featured" defaultChecked={initial?.featured ?? false} />

@@ -24,6 +24,7 @@ export type CategoryRow = {
   active: boolean;
   position: number;
   subcategories: string[];
+  subcategory_display_modes: Record<string, "grid" | "list">;
   image_path: string | null;
   slideshow_image_paths: string[];
   full_width: boolean;
@@ -32,7 +33,7 @@ export type CategoryRow = {
 };
 
 const CATEGORY_FIELDS =
-  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, image_path, slideshow_image_paths, full_width, display_mode, restaurant_id";
+  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, subcategory_display_modes, image_path, slideshow_image_paths, full_width, display_mode, restaurant_id";
 
 export async function listCategoriesWithCounts(restaurantId: string): Promise<CategoryListItem[]> {
   const supabase = createServerClient();
@@ -74,7 +75,14 @@ export async function listCategoriesWithCounts(restaurantId: string): Promise<Ca
 
 function coerceRow(row: Record<string, unknown>): CategoryRow {
   const mode = row.display_mode === "list" ? "list" : "grid";
-  return { ...row, display_mode: mode } as CategoryRow;
+  const rawModes = row.subcategory_display_modes;
+  const subcategory_display_modes: Record<string, "grid" | "list"> = {};
+  if (rawModes && typeof rawModes === "object" && !Array.isArray(rawModes)) {
+    for (const [k, v] of Object.entries(rawModes)) {
+      subcategory_display_modes[k] = v === "list" ? "list" : "grid";
+    }
+  }
+  return { ...row, display_mode: mode, subcategory_display_modes } as CategoryRow;
 }
 
 export async function listCategoriesAll(restaurantId: string): Promise<CategoryRow[]> {

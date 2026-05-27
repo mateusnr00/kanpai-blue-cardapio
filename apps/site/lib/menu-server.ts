@@ -10,6 +10,15 @@ function imageUrl(path: string | null): string | undefined {
   return `${STORAGE_BASE}${path}`;
 }
 
+function parseSubcatModes(raw: unknown): Record<string, "grid" | "list"> | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const out: Record<string, "grid" | "list"> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (v === "list" || v === "grid") out[k] = v;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 export type RestaurantInfo = {
   id: string;
   name: string;
@@ -64,7 +73,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     supabase
       .from("categories")
       .select(
-        "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width, slideshow_image_paths, display_mode",
+        "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode",
       )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
@@ -82,25 +91,53 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;
 
-  // Sections/components sao filtrados em memoria pelo map dishByUuid abaixo.
-  // Filtrar via .in([dishUuids]) explode o tamanho da URL (>16KB) quando o
-  // restaurante tem 200+ pratos -> erro do Supabase.
-  const [sectionsRes, componentsRes] = await Promise.all([
-    supabase
-      .from("dish_detail_sections")
-      .select("dish_id, label, description, position")
-      .order("position"),
-    supabase
-      .from("dish_components")
-      .select("parent_dish_id, child_dish_id, kind, position")
-      .order("position"),
-  ]);
+  const dishUuids = (dishesRes.data ?? []).map((d) => d.id);
 
-  if (sectionsRes.error) throw sectionsRes.error;
-  if (componentsRes.error) throw componentsRes.error;
+  // Chunk pra evitar Headers Overflow Error: ".in('id', [400+ uuids])" estoura
+  // 16KB no URL do PostgREST. Quebramos em batches de 80 ids (~3KB cada).
+  const CHUNK = 80;
+  function chunkArray<T>(arr: T[], size: number): T[][] {
+    if (arr.length === 0) return [];
+    const out: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    return out;
+  }
+  const chunks = chunkArray(dishUuids, CHUNK);
+
+  const sectionsBatches = await Promise.all(
+    chunks.map((c) =>
+      supabase
+        .from("dish_detail_sections")
+        .select("dish_id, label, description, position")
+        .in("dish_id", c)
+        .order("position"),
+    ),
+  );
+  const componentsBatches = await Promise.all(
+    chunks.map((c) =>
+      supabase
+        .from("dish_components")
+        .select("parent_dish_id, child_dish_id, kind, position")
+        .in("parent_dish_id", c)
+        .order("position"),
+    ),
+  );
+
+  type SectionRow = { dish_id: string; label: string; description: string; position: number };
+  type ComponentRow = { parent_dish_id: string; child_dish_id: string; kind: string; position: number };
+  const sectionsData: SectionRow[] = [];
+  for (const r of sectionsBatches) {
+    if (r.error) throw r.error;
+    sectionsData.push(...((r.data ?? []) as SectionRow[]));
+  }
+  const componentsData: ComponentRow[] = [];
+  for (const r of componentsBatches) {
+    if (r.error) throw r.error;
+    componentsData.push(...((r.data ?? []) as ComponentRow[]));
+  }
 
   const sectionsByDish = new Map<string, DishDetailSection[]>();
-  for (const s of sectionsRes.data ?? []) {
+  for (const s of sectionsData) {
     const arr = sectionsByDish.get(s.dish_id) ?? [];
     arr.push({ label: s.label, description: s.description });
     sectionsByDish.set(s.dish_id, arr);
@@ -113,7 +150,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
 
   // Componentes agrupados por parent uuid
   const componentsByParent = new Map<string, DishComponent[]>();
-  for (const c of componentsRes.data ?? []) {
+  for (const c of componentsData) {
     const child = dishByUuid.get(c.child_dish_id);
     if (!child) continue;
     const arr = componentsByParent.get(c.parent_dish_id) ?? [];
@@ -180,6 +217,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .filter((u): u is string => Boolean(u)),
     fullWidth: c.full_width,
     displayMode: (c.display_mode === "list" ? "list" : "grid") as "grid" | "list",
+    subcategoryDisplayModes: parseSubcatModes((c as { subcategory_display_modes?: unknown }).subcategory_display_modes),
     dishes: dishesByCategoryUuid.get(c.id) ?? [],
   }));
 }
