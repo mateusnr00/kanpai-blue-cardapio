@@ -86,6 +86,7 @@ async function fetchEvents(
     .from("analytics_events")
     .select("visitor_id, session_id, event_type, category_id, dish_slug, created_at")
     .eq("restaurant_id", restaurantId)
+    .eq("is_internal", false)
     .lt("created_at", end);
   if (start) q = q.gte("created_at", start);
   if (categorySlug) q = q.eq("category_id", categorySlug);
@@ -109,7 +110,37 @@ export type Stats = {
   peopleSawDishes: number;
 };
 
+/**
+ * Sessões "úteis": tiveram >= 2 eventos OU duração >= 3s.
+ * Filtra reloads/testes rápidos da equipe que inflam o total de acessos.
+ */
+const MIN_USEFUL_EVENTS = 2;
+const MIN_USEFUL_DURATION_MS = 3000;
+
+function selectUsefulSessions(events: EventRow[]): Set<string> {
+  const bySession = new Map<string, { count: number; min: number; max: number }>();
+  for (const e of events) {
+    const t = new Date(e.created_at).getTime();
+    const cur = bySession.get(e.session_id);
+    if (!cur) bySession.set(e.session_id, { count: 1, min: t, max: t });
+    else {
+      cur.count += 1;
+      if (t < cur.min) cur.min = t;
+      if (t > cur.max) cur.max = t;
+    }
+  }
+  const useful = new Set<string>();
+  for (const [sid, info] of bySession) {
+    if (info.count >= MIN_USEFUL_EVENTS || info.max - info.min >= MIN_USEFUL_DURATION_MS) {
+      useful.add(sid);
+    }
+  }
+  return useful;
+}
+
 function computeStats(events: EventRow[]): Stats {
+  const usefulSessions = selectUsefulSessions(events);
+
   const visitors = new Set<string>();
   const sessions = new Set<string>();
   const sessionsWithDish = new Set<string>();
@@ -120,6 +151,10 @@ function computeStats(events: EventRow[]): Stats {
   let dishImpressions = 0;
   let dishViews = 0;
   for (const e of events) {
+    // home_views de sessões não-úteis (reload rapido sem interação) são descartados.
+    // Outros eventos sempre contam — se houve clique/impressão, a sessão já é útil.
+    if (e.event_type === "home_view" && !usefulSessions.has(e.session_id)) continue;
+
     visitors.add(e.visitor_id);
     sessions.add(e.session_id);
     if (e.event_type === "home_view") homeViews += 1;

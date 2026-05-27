@@ -11,7 +11,7 @@ import { loadDashboard, loadCategoryOptions, type Range } from "@/lib/data/analy
 import { ANALYTICS_PAGE, STAT_LABELS } from "@/lib/analytics-labels";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
-type SearchParams = { range?: string; category?: string };
+type SearchParams = { range?: string; category?: string; detailed?: string };
 
 const VALID_RANGES: Range[] = ["today", "yesterday", "7d", "30d", "90d", "all"];
 
@@ -60,6 +60,7 @@ function delta(current: number, prev: number | undefined | null): number | null 
 export default async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   const range = asRange(searchParams.range);
   const categorySlug = searchParams.category ?? null;
+  const detailed = searchParams.detailed === "1";
   const restaurantId = getActiveRestaurantId();
 
   const filterCategories = await loadCategoryOptions(restaurantId);
@@ -81,10 +82,16 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
           activeRange={range}
           activeCategory={categorySlug}
           categories={filterCategories}
+          detailed={detailed}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div
+        className={
+          "grid grid-cols-1 gap-4 sm:grid-cols-2 " +
+          (detailed ? "xl:grid-cols-4" : "xl:grid-cols-3")
+        }
+      >
         <StatCard
           label={STAT_LABELS.visitors.label}
           value={fmtNumber(stats.visitors)}
@@ -98,17 +105,19 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
           delta={delta(stats.homeViews, prevStats?.homeViews)}
         />
         <StatCard
-          label={STAT_LABELS.dishTouches.label}
-          value={fmtNumber(stats.dishImpressions)}
-          hint={STAT_LABELS.dishTouches.hint}
-          delta={delta(stats.dishImpressions, prevStats?.dishImpressions)}
-        />
-        <StatCard
           label={STAT_LABELS.engagement.label}
           value={engagementDisplay}
           hint={STAT_LABELS.engagement.hint}
           delta={delta(stats.engagementRate, prevStats?.engagementRate)}
         />
+        {detailed ? (
+          <StatCard
+            label={STAT_LABELS.dishTouches.label}
+            value={fmtNumber(stats.dishImpressions)}
+            hint={STAT_LABELS.dishTouches.hint}
+            delta={delta(stats.dishImpressions, prevStats?.dishImpressions)}
+          />
+        ) : null}
       </div>
 
       <InsightsPanel
@@ -121,20 +130,23 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         emptyHint={ANALYTICS_PAGE.emptyHint}
       />
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
-        <VisitsAreaChart points={daySeries} />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <CategoriesDonutChart categories={topCategories} />
         <HourBarChart hours={hourHistogram} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        <CategoriesDonutChart categories={topCategories} />
-        <FunnelChart
-          visitors={stats.visitors}
-          peopleOpenedCategory={stats.peopleOpenedCategory}
-          peopleSawDishes={stats.peopleSawDishes}
-        />
-        <DishesBarList dishes={topDishes} />
-      </div>
+      <DishesBarList dishes={topDishes} />
+
+      {detailed ? (
+        <>
+          <VisitsAreaChart points={daySeries} />
+          <FunnelChart
+            visitors={stats.visitors}
+            peopleOpenedCategory={stats.peopleOpenedCategory}
+            peopleSawDishes={stats.peopleSawDishes}
+          />
+        </>
+      ) : null}
     </section>
   );
 }

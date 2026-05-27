@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Minus } from "@phosphor-icons/react/dist/ssr";
+import { ArrowDown, ArrowUp, Info, Minus } from "@phosphor-icons/react/dist/ssr";
 
 type Props = {
   label: string;
@@ -38,9 +38,21 @@ export function StatCard({ label, value, hint, delta }: Props) {
 
   return (
     <div className="admin-stat-card">
-      <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted">{label}</div>
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+        <span>{label}</span>
+        {hint ? (
+          <span
+            tabIndex={0}
+            role="img"
+            aria-label={hint}
+            title={hint}
+            className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center text-ink-faint transition hover:text-accent focus:outline-none focus:text-accent"
+          >
+            <Info size={14} weight="regular" />
+          </span>
+        ) : null}
+      </div>
       <div className="mt-2 text-3xl font-semibold tracking-tight text-ink">{value}</div>
-      {hint ? <div className="mt-1.5 text-xs leading-relaxed text-ink-muted">{hint}</div> : null}
       {deltaNode ? <div className="mt-3">{deltaNode}</div> : null}
     </div>
   );

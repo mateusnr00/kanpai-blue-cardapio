@@ -68,6 +68,7 @@ export type Database = {
           dish_slug: string | null
           event_type: string
           id: string
+          is_internal: boolean
           pathname: string | null
           referrer: string | null
           restaurant_id: string
@@ -81,6 +82,7 @@ export type Database = {
           dish_slug?: string | null
           event_type: string
           id?: string
+          is_internal?: boolean
           pathname?: string | null
           referrer?: string | null
           restaurant_id: string
@@ -94,6 +96,7 @@ export type Database = {
           dish_slug?: string | null
           event_type?: string
           id?: string
+          is_internal?: boolean
           pathname?: string | null
           referrer?: string | null
           restaurant_id?: string

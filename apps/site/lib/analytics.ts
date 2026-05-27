@@ -5,6 +5,26 @@ import type { Database } from "@kanpai/db";
 
 const VISITOR_KEY = "kanpai-visitor-id";
 const SESSION_KEY = "kanpai-session-id";
+const INTERNAL_KEY = "kanpai-internal-traffic";
+
+/**
+ * Marca o aparelho como tráfego interno (equipe do restaurante).
+ * Ativa via ?staff=1 e desativa via ?staff=0. A flag fica no localStorage,
+ * então uma vez marcado o aparelho continua sendo filtrado nas analytics
+ * mesmo em visitas futuras — sem precisar repassar o query param toda vez.
+ */
+function syncInternalFlag(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const staff = params.get("staff");
+    if (staff === "1") window.localStorage.setItem(INTERNAL_KEY, "1");
+    else if (staff === "0") window.localStorage.removeItem(INTERNAL_KEY);
+    return window.localStorage.getItem(INTERNAL_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 function safeUuid(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -53,6 +73,7 @@ export async function track(input: AnalyticsEventInput): Promise<void> {
     const session_id = getOrCreate(window.sessionStorage, SESSION_KEY);
     const supabase = getClient();
     if (!supabase) return;
+    const is_internal = syncInternalFlag();
     await supabase.from("analytics_events").insert({
       visitor_id,
       session_id,
@@ -63,6 +84,7 @@ export async function track(input: AnalyticsEventInput): Promise<void> {
       pathname: window.location.pathname,
       referrer: document.referrer || null,
       user_agent: navigator.userAgent.slice(0, 200),
+      is_internal,
     });
   } catch {
     // analytics nunca pode quebrar a UI

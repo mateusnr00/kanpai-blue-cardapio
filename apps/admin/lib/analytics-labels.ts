@@ -10,37 +10,37 @@ export const ANALYTICS_PAGE = {
 
 export const STAT_LABELS = {
   visitors: {
-    label: "Pessoas diferentes",
-    hint: "Quantos visitantes únicos abriram o cardápio (mesmo aparelho conta uma vez no período).",
+    label: "Visitantes únicos",
+    hint: "Pessoas diferentes que abriram o cardápio. O mesmo aparelho conta uma vez por período.",
   },
   homeViews: {
-    label: "Aberturas do cardápio",
-    hint: "Quantas vezes a tela inicial do restaurante foi carregada.",
+    label: "Total de acessos",
+    hint: "Vezes que a tela inicial foi carregada. Reloads rápidos sem interação (testes da equipe, bots) são descartados.",
   },
   dishTouches: {
-    label: "Pratos na tela",
-    hint: "Vezes que um prato apareceu na lista ao rolar (cada aparição conta).",
+    label: "Pratos exibidos ao rolar",
+    hint: "Quantas vezes algum prato apareceu na lista ao rolar a tela. Conta cada aparição.",
   },
   dishDetails: {
-    label: "Detalhes abertos",
-    hint: 'Cliques em "ver itens" ou abertura da ficha completa do prato.',
+    label: "Cliques em \"ver mais\"",
+    hint: "Quantas vezes alguém abriu a ficha completa de um prato para ler detalhes ou preço.",
   },
   engagement: {
-    label: "Viram algum prato",
-    hint: "Porcentagem das visitas em que a pessoa chegou a ver pelo menos um item na lista.",
+    label: "Chegaram a ver pratos",
+    hint: "De cada 100 visitas, quantas chegaram a ver ao menos um prato na lista. Mede a saúde do cardápio.",
   },
   depth: {
     label: "Pratos por visita",
-    hint: "Em média, quantas aparições de pratos cada visita gerou (rolagem + detalhes).",
+    hint: "Em média, quantos pratos cada visita viu — somando rolagem e detalhes abertos.",
   },
 } as const;
 
 export const CHART_LABELS = {
   daySeries: {
     title: "Movimento por dia",
-    description: "Aberturas do cardápio e pessoas diferentes por dia",
-    home: "Aberturas do cardápio",
-    uniques: "Pessoas diferentes",
+    description: "Acessos ao cardápio e visitantes únicos por dia",
+    home: "Total de acessos",
+    uniques: "Visitantes únicos",
     empty: "Sem acessos neste período.",
   },
   hours: {
