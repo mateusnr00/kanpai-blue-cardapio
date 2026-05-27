@@ -14,8 +14,13 @@ export function parseScheduleFromForm(formData: FormData, prefix = "schedule"): 
   const endRaw = String(formData.get(`${prefix}_end`) ?? "").trim();
   const offRaw = String(formData.get(`${prefix}_off_days`) ?? "").trim();
 
+  // ATENCAO: filtrar string vazia ANTES de Number() — Number("") === 0,
+  // o que passaria no .filter() abaixo e injetaria Domingo (0) em toda
+  // categoria/prato sem programacao. Bug ja causou hide de itens no Dom.
   const off = offRaw
     .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
     .map((s) => Number(s))
     .filter((n) => Number.isInteger(n) && n >= 0 && n <= 6);
 
