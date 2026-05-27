@@ -93,34 +93,51 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
 
   const dishUuids = (dishesRes.data ?? []).map((d) => d.id);
 
-  const [sectionsRes, componentsRes] = await Promise.all([
-    dishUuids.length === 0
-      ? (Promise.resolve({ data: [], error: null }) as Promise<{
-          data: { dish_id: string; label: string; description: string; position: number }[];
-          error: null;
-        }>)
-      : supabase
-          .from("dish_detail_sections")
-          .select("dish_id, label, description, position")
-          .in("dish_id", dishUuids)
-          .order("position"),
-    dishUuids.length === 0
-      ? (Promise.resolve({ data: [], error: null }) as Promise<{
-          data: { parent_dish_id: string; child_dish_id: string; kind: string; position: number }[];
-          error: null;
-        }>)
-      : supabase
-          .from("dish_components")
-          .select("parent_dish_id, child_dish_id, kind, position")
-          .in("parent_dish_id", dishUuids)
-          .order("position"),
-  ]);
+  // Chunk pra evitar Headers Overflow Error: ".in('id', [400+ uuids])" estoura
+  // 16KB no URL do PostgREST. Quebramos em batches de 80 ids (~3KB cada).
+  const CHUNK = 80;
+  function chunkArray<T>(arr: T[], size: number): T[][] {
+    if (arr.length === 0) return [];
+    const out: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    return out;
+  }
+  const chunks = chunkArray(dishUuids, CHUNK);
 
-  if (sectionsRes.error) throw sectionsRes.error;
-  if (componentsRes.error) throw componentsRes.error;
+  const sectionsBatches = await Promise.all(
+    chunks.map((c) =>
+      supabase
+        .from("dish_detail_sections")
+        .select("dish_id, label, description, position")
+        .in("dish_id", c)
+        .order("position"),
+    ),
+  );
+  const componentsBatches = await Promise.all(
+    chunks.map((c) =>
+      supabase
+        .from("dish_components")
+        .select("parent_dish_id, child_dish_id, kind, position")
+        .in("parent_dish_id", c)
+        .order("position"),
+    ),
+  );
+
+  type SectionRow = { dish_id: string; label: string; description: string; position: number };
+  type ComponentRow = { parent_dish_id: string; child_dish_id: string; kind: string; position: number };
+  const sectionsData: SectionRow[] = [];
+  for (const r of sectionsBatches) {
+    if (r.error) throw r.error;
+    sectionsData.push(...((r.data ?? []) as SectionRow[]));
+  }
+  const componentsData: ComponentRow[] = [];
+  for (const r of componentsBatches) {
+    if (r.error) throw r.error;
+    componentsData.push(...((r.data ?? []) as ComponentRow[]));
+  }
 
   const sectionsByDish = new Map<string, DishDetailSection[]>();
-  for (const s of sectionsRes.data ?? []) {
+  for (const s of sectionsData) {
     const arr = sectionsByDish.get(s.dish_id) ?? [];
     arr.push({ label: s.label, description: s.description });
     sectionsByDish.set(s.dish_id, arr);
@@ -133,7 +150,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
 
   // Componentes agrupados por parent uuid
   const componentsByParent = new Map<string, DishComponent[]>();
-  for (const c of componentsRes.data ?? []) {
+  for (const c of componentsData) {
     const child = dishByUuid.get(c.child_dish_id);
     if (!child) continue;
     const arr = componentsByParent.get(c.parent_dish_id) ?? [];
