@@ -47,7 +47,6 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
   if (!category) notFound();
 
   const total = categories.length;
-  const rightLabel = `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`;
 
   return (
     <>
@@ -56,7 +55,7 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
       </main>
       <Footer
         left={`${category.number} / ${String(total).padStart(2, "0")}`}
-        right={rightLabel}
+        right=""
       />
       <div
         aria-hidden
