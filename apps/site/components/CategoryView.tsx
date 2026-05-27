@@ -7,6 +7,7 @@ import { track } from "@/lib/analytics";
 import { SubcategoryChips } from "./SubcategoryChips";
 import { DishCardSmall } from "./DishCardSmall";
 import { DishCardFeatured } from "./DishCardFeatured";
+import { DishListItem } from "./DishListItem";
 
 type Props = {
   category: Category;
@@ -260,45 +261,66 @@ export function CategoryView({ category, restaurantId }: Props) {
                   </header>
                 ) : null}
 
-                {rows.map((row, rowIdx) => {
-                  if (row.kind === "featured") {
-                    return (
-                      <DishCardFeatured
-                        key={`f-${row.dish.id}`}
-                        dish={row.dish}
-                        number={row.number}
-                        variant={row.featuredIndex % 2 === 0 ? "blue" : "beige"}
+                {category.displayMode === "list" ? (
+                  <div
+                    style={{
+                      background: "var(--bg-card)",
+                      border: "0.5px solid var(--ink-faint)",
+                      borderRadius: 18,
+                      padding: "4px 18px",
+                      boxShadow: "0 1px 2px rgba(26, 14, 110, 0.04), 0 8px 24px rgba(26, 14, 110, 0.06)",
+                    }}
+                  >
+                    {group.dishes.map(({ dish }, dIdx) => (
+                      <DishListItem
+                        key={dish.id}
+                        dish={dish}
                         restaurantId={restaurantId}
+                        isLast={dIdx === group.dishes.length - 1}
                       />
-                    );
-                  }
-                  return (
-                    <div
-                      key={`p-${row.left.dish.id}-${rowIdx}`}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                        gap: 14,
-                        alignItems: "start",
-                      }}
-                    >
-                      <DishCardSmall
-                        dish={row.left.dish}
-                        number={row.left.number}
-                        gradientIndex={rowIdx}
-                        restaurantId={restaurantId}
-                      />
-                      {row.right && (
-                        <DishCardSmall
-                          dish={row.right.dish}
-                          number={row.right.number}
-                          gradientIndex={rowIdx + 1}
+                    ))}
+                  </div>
+                ) : (
+                  rows.map((row, rowIdx) => {
+                    if (row.kind === "featured") {
+                      return (
+                        <DishCardFeatured
+                          key={`f-${row.dish.id}`}
+                          dish={row.dish}
+                          number={row.number}
+                          variant={row.featuredIndex % 2 === 0 ? "blue" : "beige"}
                           restaurantId={restaurantId}
                         />
-                      )}
-                    </div>
-                  );
-                })}
+                      );
+                    }
+                    return (
+                      <div
+                        key={`p-${row.left.dish.id}-${rowIdx}`}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                          gap: 14,
+                          alignItems: "start",
+                        }}
+                      >
+                        <DishCardSmall
+                          dish={row.left.dish}
+                          number={row.left.number}
+                          gradientIndex={rowIdx}
+                          restaurantId={restaurantId}
+                        />
+                        {row.right && (
+                          <DishCardSmall
+                            dish={row.right.dish}
+                            number={row.right.number}
+                            gradientIndex={rowIdx + 1}
+                            restaurantId={restaurantId}
+                          />
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </section>
             );
           })}

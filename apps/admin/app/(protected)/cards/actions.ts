@@ -149,6 +149,8 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
   const gradient = String(formData.get("gradient") ?? "").trim();
   const featured = formData.get("featured") === "on";
   const full_width = formData.get("full_width") === "on";
+  const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
+  const display_mode = display_mode_raw === "list" ? "list" : "grid";
   const subcategories = extractSubcategories(formData);
 
   if (!name || !number || !description || !gradient) {
@@ -183,6 +185,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
       gradient,
       featured,
       full_width,
+      display_mode,
       active: true,
       position,
       subcategories,
@@ -227,6 +230,8 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
   const gradient = String(formData.get("gradient") ?? "").trim();
   const featured = formData.get("featured") === "on";
   const full_width = formData.get("full_width") === "on";
+  const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
+  const display_mode = display_mode_raw === "list" ? "list" : "grid";
   const subcategories = extractSubcategories(formData);
 
   if (!name || !number || !description || !gradient) {
@@ -260,6 +265,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
       gradient,
       featured,
       full_width,
+      display_mode,
       subcategories,
       image_path: imagePath,
       slideshow_image_paths: slideshowPaths,
