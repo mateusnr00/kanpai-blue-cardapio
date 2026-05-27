@@ -27,7 +27,7 @@ async function loadDisplayFlags(restaurantId: string): Promise<Record<DisplayFla
   const { data, error } = await supabase
     .from("restaurants")
     .select(
-      "show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+      "show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count, show_category_footer_position",
     )
     .eq("id", restaurantId)
     .maybeSingle();
@@ -42,6 +42,7 @@ async function loadDisplayFlags(restaurantId: string): Promise<Record<DisplayFla
     show_category_subtitle: row?.show_category_subtitle ?? true,
     show_home_footer_count: row?.show_home_footer_count ?? true,
     show_category_footer_count: row?.show_category_footer_count ?? true,
+    show_category_footer_position: row?.show_category_footer_position ?? true,
   };
 }
 

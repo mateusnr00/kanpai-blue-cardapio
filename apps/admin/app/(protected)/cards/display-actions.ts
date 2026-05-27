@@ -10,7 +10,8 @@ export type DisplayFlag =
   | "show_category_eyebrow"
   | "show_category_subtitle"
   | "show_home_footer_count"
-  | "show_category_footer_count";
+  | "show_category_footer_count"
+  | "show_category_footer_position";
 
 export async function toggleDisplayFlag(
   flag: DisplayFlag,

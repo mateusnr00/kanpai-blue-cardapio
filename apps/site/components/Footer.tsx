@@ -6,6 +6,7 @@ type Props = {
 };
 
 export function Footer({ left, right }: Props) {
+  if (!left && !right) return null;
   return (
     <footer
       className="flex items-center justify-between"
