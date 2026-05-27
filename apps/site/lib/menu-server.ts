@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { createServerClient } from "./supabase-server";
 import { tags } from "./cache-tags";
 import { isScheduleActive } from "./schedule";
-import type { Category, Dish, DishDetailSection, DishComponent } from "./menu-types";
+import type { Category, Dish, DishDetailSection, DishComponent, DishVariant } from "./menu-types";
 
 const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/dish-images/`;
 
@@ -205,9 +205,19 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
         .order("position"),
     ),
   );
+  const variantsBatches = await Promise.all(
+    chunks.map((c) =>
+      supabase
+        .from("dish_variants")
+        .select("dish_id, name, price, position")
+        .in("dish_id", c)
+        .order("position"),
+    ),
+  );
 
   type SectionRow = { dish_id: string; label: string; description: string; position: number };
   type ComponentRow = { parent_dish_id: string; child_dish_id: string; kind: string; position: number };
+  type VariantRow = { dish_id: string; name: string; price: string; position: number };
   const sectionsData: SectionRow[] = [];
   for (const r of sectionsBatches) {
     if (r.error) throw r.error;
@@ -217,6 +227,17 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   for (const r of componentsBatches) {
     if (r.error) throw r.error;
     componentsData.push(...((r.data ?? []) as ComponentRow[]));
+  }
+  const variantsData: VariantRow[] = [];
+  for (const r of variantsBatches) {
+    if (r.error) throw r.error;
+    variantsData.push(...((r.data ?? []) as VariantRow[]));
+  }
+  const variantsByDish = new Map<string, DishVariant[]>();
+  for (const v of variantsData) {
+    const arr = variantsByDish.get(v.dish_id) ?? [];
+    arr.push({ name: v.name, price: v.price });
+    variantsByDish.set(v.dish_id, arr);
   }
 
   const sectionsByDish = new Map<string, DishDetailSection[]>();
@@ -280,6 +301,10 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     }
     if (components && components.length > 0) {
       dish.components = components;
+    }
+    const variants = variantsByDish.get(d.id);
+    if (variants && variants.length > 0) {
+      dish.variants = variants;
     }
     const arr = dishesByCategoryUuid.get(d.category_id) ?? [];
     arr.push(dish);
