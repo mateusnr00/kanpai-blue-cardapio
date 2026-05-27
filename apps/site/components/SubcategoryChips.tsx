@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fs } from "@/lib/scale";
 
 type Props = {
@@ -15,6 +15,19 @@ export function SubcategoryChips({ options, onSelect, active: activeProp }: Prop
   const [activeState, setActiveState] = useState(options[0] ?? "Todos");
   const active = activeProp ?? activeState;
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const chipRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  // Auto-scroll horizontal: quando o chip ativo muda (via scroll-spy),
+  // centraliza ele na barra pra ficar sempre visivel.
+  useEffect(() => {
+    const container = containerRef.current;
+    const chip = chipRefs.current[active];
+    if (!container || !chip) return;
+    const target = chip.offsetLeft - container.clientWidth / 2 + chip.clientWidth / 2;
+    container.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+  }, [active]);
+
   const handle = (option: string) => {
     setActiveState(option);
     onSelect?.(option);
@@ -22,6 +35,7 @@ export function SubcategoryChips({ options, onSelect, active: activeProp }: Prop
 
   return (
     <div
+      ref={containerRef}
       className="no-scrollbar"
       role="tablist"
       aria-label="Subcategorias"
@@ -43,6 +57,9 @@ export function SubcategoryChips({ options, onSelect, active: activeProp }: Prop
         return (
           <button
             key={option}
+            ref={(el) => {
+              chipRefs.current[option] = el;
+            }}
             type="button"
             role="tab"
             aria-selected={isActive}
