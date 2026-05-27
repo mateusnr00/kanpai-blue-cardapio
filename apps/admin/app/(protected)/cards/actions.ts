@@ -199,8 +199,6 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
   const full_width = formData.get("full_width") === "on";
   const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
-  const cover_aspect_raw = String(formData.get("cover_aspect") ?? "wide").trim();
-  const cover_aspect = cover_aspect_raw === "square" ? "square" : "wide";
   const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
   if (!name || !number || !gradient) {
@@ -237,7 +235,6 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
       featured,
       full_width,
       display_mode,
-      cover_aspect,
       active: true,
       position,
       subcategories,
@@ -295,8 +292,6 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
   const full_width = formData.get("full_width") === "on";
   const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
-  const cover_aspect_raw = String(formData.get("cover_aspect") ?? "wide").trim();
-  const cover_aspect = cover_aspect_raw === "square" ? "square" : "wide";
   const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
   if (!name || !number || !gradient) {
@@ -332,7 +327,6 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
       featured,
       full_width,
       display_mode,
-      cover_aspect,
       subcategories,
       subcategory_display_modes,
       image_path: imagePath,
