@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FontSizeToggle } from "./FontSizeToggle";
 import { SearchBar } from "./SearchBar";
 import type { Category } from "@/lib/menu-types";
@@ -11,12 +12,18 @@ const SPONSOR_URL =
   "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/PATROCINADORES/logo_linq_azul_cor_1x.png";
 
 type Props = {
+  /** Override manual (default: detecta via pathname — true se for sub-rota de /[restaurant]). */
   showBack?: boolean;
   categories: Category[];
   restaurantId?: string;
 };
 
-export function Header({ showBack = false, categories, restaurantId }: Props) {
+export function Header({ showBack, categories, restaurantId }: Props) {
+  const pathname = usePathname();
+  // detecta automaticamente quando esta numa sub-rota da unidade ("/flamboyant/festival")
+  const detectedShowBack =
+    !!restaurantId && pathname !== `/${restaurantId}` && pathname.startsWith(`/${restaurantId}/`);
+  const back = showBack ?? detectedShowBack;
   const homeHref = restaurantId ? `/${restaurantId}` : "/";
   return (
     <header
@@ -29,7 +36,7 @@ export function Header({ showBack = false, categories, restaurantId }: Props) {
       }}
     >
       <div className="flex items-center gap-3">
-        {showBack && (
+        {back && (
           <Link
             href={homeHref}
             aria-label="Voltar para o cardápio"
@@ -58,7 +65,7 @@ export function Header({ showBack = false, categories, restaurantId }: Props) {
             alt="Kanpai Blue"
             width={1280}
             height={352}
-            fetchPriority="high"
+            loading="eager"
             style={{
               height: 22,
               width: "auto",

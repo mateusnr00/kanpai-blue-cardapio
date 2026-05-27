@@ -78,7 +78,6 @@ export function IntroAnimation({ onDone }: Props) {
             alt=""
             width={1080}
             height={400}
-            priority
             sizes="(max-width: 767px) 56vw, 480px"
             style={{
               height: "clamp(64px, 15vw, 140px)",
@@ -108,7 +107,6 @@ export function IntroAnimation({ onDone }: Props) {
             alt=""
             width={500}
             height={500}
-            priority
             sizes="(max-width: 767px) 24vw, 180px"
             style={{
               height: "clamp(64px, 15vw, 140px)",

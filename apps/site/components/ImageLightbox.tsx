@@ -141,7 +141,8 @@ export function ImageLightbox({ src, alt, description, onClose }: Props) {
               src={src}
               alt={alt}
               decoding="async"
-              fetchPriority="high"
+              loading="eager"
+              fetchPriority="auto"
               style={{
                 position: "absolute",
                 inset: 0,

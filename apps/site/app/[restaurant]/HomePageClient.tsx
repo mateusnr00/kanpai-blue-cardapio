@@ -5,8 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Category } from "@/lib/menu-types";
 import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
-import { AppShell } from "@/components/AppShell";
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CategoryCard } from "@/components/CategoryCard";
 import { IntroAnimation } from "@/components/IntroAnimation";
@@ -45,9 +43,7 @@ export function HomePageClient({ categories, restaurantId, restaurantName }: Pro
 
   return (
     <>
-      <AppShell>
-        <Header categories={categories} />
-        <main>
+      <main>
           <section style={{ padding: "40px 22px 28px" }}>
             <motion.h1
               initial={{ opacity: 0, y: 14 }}
@@ -119,7 +115,7 @@ export function HomePageClient({ categories, restaurantId, restaurantName }: Pro
                   <CategoryCard
                     category={category}
                     restaurantId={restaurantId}
-                    priority={idx < 2}
+                    priority={idx === 0}
                   />
                 </motion.div>
               ))}
@@ -139,7 +135,6 @@ export function HomePageClient({ categories, restaurantId, restaurantName }: Pro
             }
           }
         `}</style>
-      </AppShell>
 
       <AnimatePresence>
         {showIntro && <IntroAnimation key="intro" onDone={handleIntroDone} />}
