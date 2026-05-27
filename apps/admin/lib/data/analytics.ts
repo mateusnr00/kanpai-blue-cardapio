@@ -86,6 +86,7 @@ async function fetchEvents(
     .from("analytics_events")
     .select("visitor_id, session_id, event_type, category_id, dish_slug, created_at")
     .eq("restaurant_id", restaurantId)
+    .eq("is_internal", false)
     .lt("created_at", end);
   if (start) q = q.gte("created_at", start);
   if (categorySlug) q = q.eq("category_id", categorySlug);
