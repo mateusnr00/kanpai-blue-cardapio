@@ -24,6 +24,7 @@ export type RestaurantInfo = {
   id: string;
   name: string;
   shortName: string;
+  likesEnabled: boolean;
 };
 
 export type RestaurantAnnouncement = {
@@ -56,11 +57,16 @@ async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("restaurants")
-    .select("id, name, short_name, position")
+    .select("id, name, short_name, position, likes_enabled")
     .eq("active", true)
     .order("position");
   if (error) throw error;
-  return (data ?? []).map((r) => ({ id: r.id, name: r.name, shortName: r.short_name }));
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    name: r.name,
+    shortName: r.short_name,
+    likesEnabled: r.likes_enabled ?? true,
+  }));
 }
 
 export const listRestaurants = unstable_cache(listRestaurantsImpl, ["restaurants:list"], {
@@ -72,13 +78,18 @@ async function getRestaurantByIdImpl(id: string): Promise<RestaurantInfo | null>
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("restaurants")
-    .select("id, name, short_name")
+    .select("id, name, short_name, likes_enabled")
     .eq("id", id)
     .eq("active", true)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  return { id: data.id, name: data.name, shortName: data.short_name };
+  return {
+    id: data.id,
+    name: data.name,
+    shortName: data.short_name,
+    likesEnabled: data.likes_enabled ?? true,
+  };
 }
 
 export const getRestaurantById = unstable_cache(getRestaurantByIdImpl, ["restaurants:byId"], {

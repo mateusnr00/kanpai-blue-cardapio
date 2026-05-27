@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
+import { LikesEnabledProvider } from "@/components/LikesEnabledProvider";
 import { getCategories, getRestaurantById } from "@/lib/menu-server";
 
 /**
@@ -25,8 +26,10 @@ export default async function RestaurantLayout({
 
   return (
     <AppShell>
-      <Header categories={categories} restaurantId={restaurant.id} />
-      {children}
+      <LikesEnabledProvider enabled={restaurant.likesEnabled}>
+        <Header categories={categories} restaurantId={restaurant.id} />
+        {children}
+      </LikesEnabledProvider>
     </AppShell>
   );
 }
