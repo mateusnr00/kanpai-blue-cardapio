@@ -16,10 +16,19 @@ type Props = {
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
+type CoverAspect = "wide" | "square";
+
+const COVER_PRESETS: Record<CoverAspect, { ratio: number; maxOutput: number; label: string }> = {
+  wide: { ratio: 16 / 9, maxOutput: 1920, label: "Paisagem 1920×1080 (destaque, fileira inteira)" },
+  square: { ratio: 1, maxOutput: 1200, label: "Quadrada 1200×1200 (normal)" },
+};
+
 export function CategoryForm({ mode, initial, onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [coverAspect, setCoverAspect] = useState<CoverAspect>(initial?.cover_aspect ?? "wide");
   const router = useRouter();
+  const coverCfg = COVER_PRESETS[coverAspect];
 
   function action(formData: FormData) {
     setError(null);
@@ -134,11 +143,30 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
 
       <div className="flex flex-col gap-2">
         <span className="admin-label">Foto da categoria (opcional, sobrescreve o gradient na home)</span>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cover_aspect" className="admin-label">Formato</label>
+          <select
+            id="cover_aspect"
+            name="cover_aspect"
+            value={coverAspect}
+            onChange={(e) => setCoverAspect(e.target.value as CoverAspect)}
+            className="admin-input max-w-md"
+          >
+            <option value="wide">{COVER_PRESETS.wide.label}</option>
+            <option value="square">{COVER_PRESETS.square.label}</option>
+          </select>
+          <p className="text-xs text-ink-muted">
+            Escolha antes de subir a foto. O crop ajusta pro formato escolhido.
+          </p>
+        </div>
+
         <ImageUpload
+          key={coverAspect}
           name="image"
           initialPath={initial?.image_path ?? null}
-          aspect={16 / 9}
-          maxOutputSize={1920}
+          aspect={coverCfg.ratio}
+          maxOutputSize={coverCfg.maxOutput}
         />
       </div>
 

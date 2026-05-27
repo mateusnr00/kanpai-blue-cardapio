@@ -70,6 +70,8 @@ export type Category = {
   slideshowImages?: string[];
   fullWidth?: boolean;
   displayMode?: "grid" | "list";
+  /** Proporção da capa: 'wide' (16:9) ou 'square' (1:1). Default 'wide'. */
+  coverAspect?: "wide" | "square";
   /** Override por subcategoria. Se ausente, usa displayMode (ou 'grid'). */
   subcategoryDisplayModes?: Record<string, "grid" | "list">;
   dishes: Dish[];

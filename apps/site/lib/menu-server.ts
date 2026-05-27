@@ -152,15 +152,30 @@ export const getRestaurantById = unstable_cache(getRestaurantByIdImpl, ["restaur
 async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   const supabase = createServerClient();
 
-  const [catsRes, dishesRes] = await Promise.all([
-    supabase
+  // cover_aspect pode nao existir ainda (migration nao rodou). Tenta com
+  // ele e se 42703, refaz sem essa coluna.
+  async function fetchCategories() {
+    const full = await supabase
+      .from("categories")
+      .select(
+        "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode, cover_aspect, schedule_start, schedule_end, schedule_off_days",
+      )
+      .eq("restaurant_id", restaurantId)
+      .eq("active", true)
+      .order("position");
+    if (!full.error || full.error.code !== "42703") return full;
+    return supabase
       .from("categories")
       .select(
         "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode, schedule_start, schedule_end, schedule_off_days",
       )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
-      .order("position"),
+      .order("position");
+  }
+
+  const [catsRes, dishesRes] = await Promise.all([
+    fetchCategories(),
     supabase
       .from("dishes")
       .select(
@@ -328,6 +343,9 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .filter((u): u is string => Boolean(u)),
     fullWidth: c.full_width,
     displayMode: (c.display_mode === "list" ? "list" : "grid") as "grid" | "list",
+    coverAspect: ((c as { cover_aspect?: string }).cover_aspect === "square"
+      ? "square"
+      : "wide") as "wide" | "square",
     subcategoryDisplayModes: parseSubcatModes((c as { subcategory_display_modes?: unknown }).subcategory_display_modes),
     scheduleStart: c.schedule_start ?? null,
     scheduleEnd: c.schedule_end ?? null,
