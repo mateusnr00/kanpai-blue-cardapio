@@ -23,6 +23,7 @@ export default async function HomePage() {
   return (
     <>
       {fontHref ? <link rel="stylesheet" href={fontHref} /> : null}
+      <style>{`html, body { padding: 0 !important; margin: 0 !important; background: ${theme.bgColor} !important; }`}</style>
       <main
         style={{
           minHeight: "100vh",

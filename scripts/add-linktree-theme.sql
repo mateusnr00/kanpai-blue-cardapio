@@ -62,3 +62,11 @@ CREATE POLICY "linktree_theme update"
   TO authenticated
   USING (true)
   WITH CHECK (true);
+
+-- Insert também (o admin usa upsert; sem essa policy o upsert quebra
+-- mesmo quando a linha 'default' já existe)
+DROP POLICY IF EXISTS "linktree_theme insert" ON public.linktree_theme;
+CREATE POLICY "linktree_theme insert"
+  ON public.linktree_theme FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
