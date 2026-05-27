@@ -5,6 +5,7 @@ import {
   FunnelSimple,
   Info,
   VideoCamera,
+  Flask,
 } from "@phosphor-icons/react/dist/ssr";
 import { Suspense } from "react";
 import { PageHeader } from "@/components/PageHeader";
@@ -56,6 +57,17 @@ export default function ComportamentoPage() {
         title="Comportamento"
         description="Métricas agregadas do PostHog e atalhos para gravações de sessão, heatmaps e funis avançados."
       />
+
+      <div className="flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm leading-relaxed text-violet-900">
+        <Flask size={20} weight="duotone" className="mt-0.5 shrink-0" />
+        <div>
+          <p className="font-medium">Em teste e validação</p>
+          <p className="mt-1 text-violet-800">
+            Esta área ainda está em fase de testes. As métricas e atalhos podem mudar
+            sem aviso e alguns números podem não estar 100% consolidados.
+          </p>
+        </div>
+      </div>
 
       {!linksConfigured ? (
         <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900">
