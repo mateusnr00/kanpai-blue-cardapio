@@ -343,6 +343,7 @@ export type Database = {
           description: string | null
           featured: boolean
           featured_gradient: string | null
+          featured_label: string | null
           id: string
           image_path: string | null
           is_component_only: boolean
@@ -369,6 +370,7 @@ export type Database = {
           description?: string | null
           featured?: boolean
           featured_gradient?: string | null
+          featured_label?: string | null
           id?: string
           image_path?: string | null
           is_component_only?: boolean
@@ -395,6 +397,7 @@ export type Database = {
           description?: string | null
           featured?: boolean
           featured_gradient?: string | null
+          featured_label?: string | null
           id?: string
           image_path?: string | null
           is_component_only?: boolean

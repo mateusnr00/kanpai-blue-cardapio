@@ -23,6 +23,7 @@ export type DishDetail = DishListRow & {
   long_description: string | null;
   subcategory: string | null;
   featured: boolean;
+  featured_label: string | null;
   original_price: string | null;
   badges: string[];
   is_component_only: boolean;
@@ -56,7 +57,7 @@ export async function getDish(id: string): Promise<DishDetail | null> {
   const { data, error } = await supabase
     .from("dishes")
     .select(
-      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, original_price, image_path, active, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days"
+      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, featured_label, original_price, image_path, active, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days"
     )
     .eq("id", id)
     .maybeSingle();

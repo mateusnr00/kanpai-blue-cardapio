@@ -184,8 +184,29 @@ export function DishForm({
           onChange={(e) => setFeatured(e.target.checked)}
           className="h-4 w-4 rounded border-ink-ghost text-accent focus:ring-accent/30"
         />
-        Prato em destaque (linha cheia 16:9 + badge DESTAQUE)
+        Prato em destaque (linha cheia 16:9 + badge)
       </label>
+
+      {featured ? (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="featured_label" className="admin-label">
+            Texto do badge de destaque
+          </label>
+          <input
+            id="featured_label"
+            name="featured_label"
+            type="text"
+            defaultValue={initial?.featured_label ?? ""}
+            placeholder="DESTAQUE"
+            maxLength={32}
+            className="admin-input max-w-xs uppercase"
+          />
+          <p className="text-xs text-ink-muted">
+            Aparece no canto direito da foto. Deixe vazio para usar &ldquo;DESTAQUE&rdquo;.
+            Ex.: NOVO, MAIS PEDIDO, PROMOÇÃO, EXCLUSIVO.
+          </p>
+        </div>
+      ) : null}
 
         </div>
 

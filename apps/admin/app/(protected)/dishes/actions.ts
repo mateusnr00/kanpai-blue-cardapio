@@ -221,6 +221,9 @@ async function createDishCore(
   const originalPrice = String(formData.get("original_price") ?? "").trim() || null;
   const subcategory = String(formData.get("subcategory") ?? "").trim() || null;
   const featured = formData.get("featured") === "on";
+  const featuredLabel = featured
+    ? String(formData.get("featured_label") ?? "").trim().toUpperCase() || null
+    : null;
   const badges = extractBadges(formData);
 
   if (!name || !categoryId) return { error: "Nome e categoria obrigatórios." };
@@ -257,6 +260,7 @@ async function createDishCore(
       original_price: originalPrice,
       subcategory,
       featured,
+      featured_label: featuredLabel,
       badges,
       active: true,
       position,
@@ -361,6 +365,9 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   const originalPrice = String(formData.get("original_price") ?? "").trim() || null;
   const subcategory = String(formData.get("subcategory") ?? "").trim() || null;
   const featured = formData.get("featured") === "on";
+  const featuredLabel = featured
+    ? String(formData.get("featured_label") ?? "").trim().toUpperCase() || null
+    : null;
   const badges = extractBadges(formData);
 
   if (!name || !categoryId) return { error: "Nome e categoria obrigatórios." };
@@ -394,6 +401,7 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     original_price: originalPrice,
     subcategory,
     featured,
+    featured_label: featuredLabel,
     badges,
     image_path: imagePath,
     updated_at: new Date().toISOString(),

@@ -152,6 +152,27 @@ export const getRestaurantById = unstable_cache(getRestaurantByIdImpl, ["restaur
 async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   const supabase = createServerClient();
 
+  // featured_label pode nao existir ainda se a migration nao rodou
+  async function fetchDishes() {
+    const full = await supabase
+      .from("dishes")
+      .select(
+        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, featured_label, original_price, image_path, blur_data_url, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days",
+      )
+      .eq("restaurant_id", restaurantId)
+      .eq("active", true)
+      .order("position");
+    if (!full.error || full.error.code !== "42703") return full;
+    return supabase
+      .from("dishes")
+      .select(
+        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, blur_data_url, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days",
+      )
+      .eq("restaurant_id", restaurantId)
+      .eq("active", true)
+      .order("position");
+  }
+
   const [catsRes, dishesRes] = await Promise.all([
     supabase
       .from("categories")
@@ -161,14 +182,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
-    supabase
-      .from("dishes")
-      .select(
-        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, blur_data_url, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days",
-      )
-      .eq("restaurant_id", restaurantId)
-      .eq("active", true)
-      .order("position"),
+    fetchDishes(),
   ]);
 
   if (catsRes.error) throw catsRes.error;
@@ -284,6 +298,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       unit: d.unit ?? undefined,
       description: d.description ?? undefined,
       featured: d.featured,
+      featuredLabel: (d as { featured_label?: string | null }).featured_label?.trim() || undefined,
       subcategory: d.subcategory ?? undefined,
       originalPrice: d.original_price ?? undefined,
       tags: d.badges?.length ? d.badges : undefined,
