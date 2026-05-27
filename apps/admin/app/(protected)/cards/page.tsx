@@ -24,18 +24,24 @@ async function countByCategory(restaurantId: string): Promise<Record<string, num
 
 async function loadDisplayFlags(restaurantId: string): Promise<Record<DisplayFlag, boolean>> {
   const supabase = createServerClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("restaurants")
     .select(
       "show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
     )
     .eq("id", restaurantId)
     .maybeSingle();
+  // 42703 = coluna inexistente. Mantem o /cards carregando se a migration
+  // ainda nao rodou — os toggles aparecem como "ligado" (default).
+  if (error && error.code !== "42703") {
+    console.warn("[loadDisplayFlags]", error.message);
+  }
+  const row = data as Record<DisplayFlag, boolean | null | undefined> | null;
   return {
-    show_category_eyebrow: data?.show_category_eyebrow ?? true,
-    show_category_subtitle: data?.show_category_subtitle ?? true,
-    show_home_footer_count: data?.show_home_footer_count ?? true,
-    show_category_footer_count: data?.show_category_footer_count ?? true,
+    show_category_eyebrow: row?.show_category_eyebrow ?? true,
+    show_category_subtitle: row?.show_category_subtitle ?? true,
+    show_home_footer_count: row?.show_home_footer_count ?? true,
+    show_category_footer_count: row?.show_category_footer_count ?? true,
   };
 }
 
