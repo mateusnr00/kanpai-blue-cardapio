@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_label: string | null
+          entity_type: string
+          id: string
+          restaurant_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_label?: string | null
+          entity_type: string
+          id?: string
+          restaurant_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_label?: string | null
+          entity_type?: string
+          id?: string
+          restaurant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_log_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_events: {
         Row: {
           category_id: string | null
@@ -82,6 +129,9 @@ export type Database = {
           number: string
           position: number
           restaurant_id: string
+          schedule_end: string | null
+          schedule_off_days: number[]
+          schedule_start: string | null
           short_name: string | null
           slideshow_image_paths: string[]
           slug: string
@@ -106,6 +156,9 @@ export type Database = {
           number: string
           position: number
           restaurant_id: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           short_name?: string | null
           slideshow_image_paths?: string[]
           slug: string
@@ -130,6 +183,9 @@ export type Database = {
           number?: string
           position?: number
           restaurant_id?: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           short_name?: string | null
           slideshow_image_paths?: string[]
           slug?: string
@@ -293,6 +349,9 @@ export type Database = {
           position: number
           price: string | null
           restaurant_id: string
+          schedule_end: string | null
+          schedule_off_days: number[]
+          schedule_start: string | null
           slug: string
           subcategory: string | null
           unit: string | null
@@ -316,6 +375,9 @@ export type Database = {
           position: number
           price?: string | null
           restaurant_id: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           slug: string
           subcategory?: string | null
           unit?: string | null
@@ -339,6 +401,9 @@ export type Database = {
           position?: number
           price?: string | null
           restaurant_id?: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           slug?: string
           subcategory?: string | null
           unit?: string | null
@@ -357,6 +422,50 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linktree_buttons: {
+        Row: {
+          active: boolean
+          child_slug: string | null
+          created_at: string
+          href: string | null
+          id: string
+          label: string
+          parent_id: string | null
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          child_slug?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          label: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          child_slug?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          label?: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linktree_buttons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "linktree_buttons"
             referencedColumns: ["id"]
           },
         ]

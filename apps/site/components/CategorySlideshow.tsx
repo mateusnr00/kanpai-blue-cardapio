@@ -19,6 +19,13 @@ type Props = {
   priority?: boolean;
 };
 
+const SIZES_BY_ASPECT: Record<Aspect, string> = {
+  "1/1": "(max-width: 768px) 44vw, (max-width: 1100px) 30vw, 220px",
+  "3/1": "(max-width: 768px) 92vw, (max-width: 1100px) 92vw, 900px",
+  "16/9": "(max-width: 768px) 92vw, (max-width: 1100px) 46vw, 560px",
+  "16/10": "(max-width: 768px) 92vw, (max-width: 1100px) 46vw, 560px",
+};
+
 /**
  * Cross-fade slideshow 100% CSS. Sem JS de timer, sem reflow:
  * cada slide tem sua animation com delay escalonado, GPU-acelerada
@@ -80,7 +87,7 @@ export function CategorySlideshow({
           src={src}
           alt={i === 0 ? alt : ""}
           fill
-          sizes="(max-width: 768px) 100vw, 480px"
+          sizes={SIZES_BY_ASPECT[aspect]}
           priority={priority && i === 0}
           loading={priority && i === 0 ? "eager" : "lazy"}
           style={{

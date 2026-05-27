@@ -45,7 +45,7 @@ export const CHART_LABELS = {
   },
   hours: {
     title: "Horário do dia",
-    description: "Quando o cardápio é mais acessado (horário do servidor)",
+    description: "Quando o cardápio é mais acessado (horário de Brasília)",
     empty: "Sem acessos neste período.",
   },
   categories: {
@@ -55,13 +55,13 @@ export const CHART_LABELS = {
     center: "aberturas",
   },
   dishes: {
-    title: "Pratos que mais apareceram",
-    description: "Itens que mais surgiram na tela ao rolar as listas",
+    title: "Pratos que mais chamaram atenção",
+    description: "Pratos vistos por mais pessoas diferentes ao rolar o cardápio",
     empty: "Nenhum prato foi exibido na lista neste período.",
     seeMore: (total: number) => `Ver lista completa (${total} itens)`,
     modalTitle: "Todos os pratos exibidos",
     modalDescription: (total: number) =>
-      `${total} itens no período · ordenados por quantas vezes apareceram na tela`,
+      `${total} itens no período · ordenados por número de pessoas diferentes que viram`,
   },
   insights: {
     title: "Destaques do período",

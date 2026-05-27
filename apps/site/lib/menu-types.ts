@@ -24,6 +24,15 @@ export type DishComponent = {
   blurDataUrl?: string;
 };
 
+export type ScheduleFields = {
+  /** Programacao YYYY-MM-DD (inicio inclusivo). null = sem inicio. */
+  scheduleStart?: string | null;
+  /** Programacao YYYY-MM-DD (fim inclusivo). null = sem fim. */
+  scheduleEnd?: string | null;
+  /** Dias da semana off (0=Dom, 1=Seg, ..., 6=Sab). */
+  scheduleOffDays?: number[] | null;
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -38,7 +47,7 @@ export type Dish = {
   image?: string;
   blurDataUrl?: string;
   components?: DishComponent[];
-};
+} & ScheduleFields;
 
 export type Category = {
   id: string;
@@ -58,4 +67,4 @@ export type Category = {
   /** Override por subcategoria. Se ausente, usa displayMode (ou 'grid'). */
   subcategoryDisplayModes?: Record<string, "grid" | "list">;
   dishes: Dish[];
-};
+} & ScheduleFields;

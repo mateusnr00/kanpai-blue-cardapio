@@ -25,23 +25,12 @@ type Props = {
 };
 
 const SIZES_BY_ASPECT: Record<Aspect, string> = {
-  "1/1": "(max-width: 768px) 50vw, 280px",
-  "16/9": "(max-width: 768px) 100vw, 600px",
-  "16/10": "(max-width: 768px) 100vw, 600px",
-  "3/1": "(max-width: 768px) 100vw, 900px",
-  "2/1": "(max-width: 768px) 100vw, 900px",
+  "1/1": "(max-width: 768px) 44vw, (max-width: 1100px) 30vw, 220px",
+  "16/9": "(max-width: 768px) 92vw, (max-width: 1100px) 46vw, 560px",
+  "16/10": "(max-width: 768px) 92vw, (max-width: 1100px) 46vw, 560px",
+  "3/1": "(max-width: 768px) 92vw, (max-width: 1100px) 92vw, 900px",
+  "2/1": "(max-width: 768px) 92vw, (max-width: 1100px) 92vw, 900px",
 };
-
-const SUPABASE_HOST = "rxzohyrttklxevegdijm.supabase.co";
-
-/**
- * Fotos de prato/categoria ja vivem no Supabase em WebP q=90 max 1200px (~50-150KB).
- * Servir direto evita o cold-cache penalty do Next/Image optimizer (~1-2s na 1a visita).
- * Logos/banners externos continuam via Next/Image.
- */
-function isAlreadyOptimized(src: string): boolean {
-  return src.includes(SUPABASE_HOST) && src.includes("/dish-images/");
-}
 
 export function DishImage({
   src,
@@ -74,45 +63,6 @@ export function DishImage({
     background: gradient,
   };
 
-  // Caminho rapido: foto ja otimizada vai direto do Supabase CDN, sem Next/Image
-  if (isAlreadyOptimized(src)) {
-    return (
-      <div
-        style={{
-          ...wrapperStyle,
-          // LQIP blur como background — aparece instantaneo, e coberto pela <img> ao carregar
-          ...(blurDataUrl
-            ? {
-                backgroundImage: `url("${blurDataUrl}")`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : {}),
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt={alt}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
-          {...(priority ? { fetchPriority: "high" } : {})}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-        />
-        {topRight ? (
-          <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>{topRight}</div>
-        ) : null}
-      </div>
-    );
-  }
-
-  // URL externa nao conhecida: passa pelo Next/Image normal
   return (
     <div style={wrapperStyle}>
       <Image
@@ -123,7 +73,7 @@ export function DishImage({
         style={{ objectFit: "cover" }}
         priority={priority}
         loading={priority ? "eager" : "lazy"}
-        quality={80}
+        quality={72}
         {...(blurDataUrl
           ? { placeholder: "blur" as const, blurDataURL: blurDataUrl }
           : {})}

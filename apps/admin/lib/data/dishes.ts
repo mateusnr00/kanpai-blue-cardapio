@@ -12,6 +12,9 @@ export type DishListRow = {
   subcategory: string | null;
   featured: boolean;
   is_component_only: boolean;
+  schedule_start: string | null;
+  schedule_end: string | null;
+  schedule_off_days: number[];
 };
 
 export type DishDetail = DishListRow & {
@@ -40,7 +43,7 @@ export async function listDishesByCategory(
   const supabase = createServerClient();
   let q = supabase
     .from("dishes")
-    .select("id, slug, name, description, price, image_path, active, position, subcategory, featured, is_component_only")
+    .select("id, slug, name, description, price, image_path, active, position, subcategory, featured, is_component_only, schedule_start, schedule_end, schedule_off_days")
     .eq("category_id", categoryId);
   if (!opts.includeComponentOnly) q = q.eq("is_component_only", false);
   const { data, error } = await q.order("position");
@@ -53,7 +56,7 @@ export async function getDish(id: string): Promise<DishDetail | null> {
   const { data, error } = await supabase
     .from("dishes")
     .select(
-      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, original_price, image_path, active, position, badges, is_component_only"
+      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, original_price, image_path, active, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days"
     )
     .eq("id", id)
     .maybeSingle();

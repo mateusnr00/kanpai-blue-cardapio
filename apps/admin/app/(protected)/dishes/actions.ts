@@ -7,6 +7,8 @@ import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-acti
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 import { tags } from "@/lib/cache-tags";
 import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
+import { logAudit } from "@/lib/audit";
+import { parseScheduleFromForm } from "@/lib/schedule-form";
 
 function revalidateMenu() {
   const restaurantId = getActiveRestaurantId();
@@ -26,11 +28,24 @@ function slugify(input: string): string {
 
 export async function toggleDishActive(id: string, nextActive: boolean) {
   const supabase = createServerClient();
+  const { data: existing } = await supabase
+    .from("dishes")
+    .select("name, restaurant_id")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await supabase
     .from("dishes")
     .update({ active: nextActive, updated_at: new Date().toISOString() })
     .eq("id", id);
   if (error) return { error: error.message };
+  await logAudit({
+    action: "toggle",
+    entityType: "dish",
+    entityId: id,
+    entityLabel: existing?.name ?? null,
+    restaurantId: existing?.restaurant_id ?? null,
+    details: { active: nextActive },
+  });
   revalidatePath("/");
   revalidateMenu();
   return { ok: true as const };
@@ -38,10 +53,21 @@ export async function toggleDishActive(id: string, nextActive: boolean) {
 
 export async function deleteDish(id: string) {
   const supabase = createServerClient();
-  const { data: dish } = await supabase.from("dishes").select("image_path").eq("id", id).maybeSingle();
+  const { data: dish } = await supabase
+    .from("dishes")
+    .select("image_path, name, restaurant_id")
+    .eq("id", id)
+    .maybeSingle();
   if (dish?.image_path) await deleteDishImageAction(dish.image_path);
   const { error } = await supabase.from("dishes").delete().eq("id", id);
   if (error) return { error: error.message };
+  await logAudit({
+    action: "delete",
+    entityType: "dish",
+    entityId: id,
+    entityLabel: dish?.name ?? null,
+    restaurantId: dish?.restaurant_id ?? null,
+  });
   revalidatePath("/");
   revalidateMenu();
   return { ok: true as const };
@@ -55,6 +81,13 @@ export async function reorderDishes(categoryId: string, orderedIds: string[]) {
   const results = await Promise.all(updates);
   const firstErr = results.find((r) => r.error)?.error;
   if (firstErr) return { error: firstErr.message };
+  await logAudit({
+    action: "reorder",
+    entityType: "dish",
+    entityLabel: `${orderedIds.length} pratos na categoria`,
+    restaurantId: getActiveRestaurantId(),
+    details: { category_id: categoryId, count: orderedIds.length },
+  });
   revalidatePath("/");
   revalidateMenu();
   return { ok: true as const };
@@ -211,6 +244,7 @@ async function createDishCore(
     .maybeSingle();
   const position = (maxRow?.position ?? -1) + 1;
 
+  const schedule = parseScheduleFromForm(formData);
   const { data: inserted, error } = await supabase
     .from("dishes")
     .insert({
@@ -227,6 +261,7 @@ async function createDishCore(
       active: true,
       position,
       is_component_only: opts.isComponentOnly,
+      ...schedule,
     })
     .select("id")
     .single();
@@ -257,6 +292,15 @@ async function createDishCore(
   } catch (e) {
     return { error: (e as Error).message };
   }
+
+  await logAudit({
+    action: "create",
+    entityType: "dish",
+    entityId: inserted.id,
+    entityLabel: name,
+    restaurantId: cat.restaurant_id,
+    details: { category_id: categoryId, is_component_only: opts.isComponentOnly, price },
+  });
 
   revalidatePath("/");
   revalidateMenu();
@@ -340,6 +384,7 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   const variants = parseVariants(formData);
   const components = parseComponents(formData);
 
+  const schedule = parseScheduleFromForm(formData);
   const baseUpdate = {
     category_id: categoryId,
     restaurant_id: cat.restaurant_id,
@@ -352,6 +397,7 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     badges,
     image_path: imagePath,
     updated_at: new Date().toISOString(),
+    ...schedule,
   };
   const updateWithBlur =
     blurDataUrl !== undefined ? { ...baseUpdate, blur_data_url: blurDataUrl } : baseUpdate;
@@ -365,6 +411,15 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   ]);
 
   if (updRes.error) return { error: updRes.error.message };
+
+  await logAudit({
+    action: "update",
+    entityType: "dish",
+    entityId: id,
+    entityLabel: name,
+    restaurantId: cat.restaurant_id,
+    details: { category_id: categoryId, price, featured, image_changed: blurDataUrl !== undefined },
+  });
 
   revalidatePath("/");
   revalidateMenu();

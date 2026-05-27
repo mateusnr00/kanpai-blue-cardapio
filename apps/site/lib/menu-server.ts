@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { createServerClient } from "./supabase-server";
 import { tags } from "./cache-tags";
+import { isScheduleActive } from "./schedule";
 import type { Category, Dish, DishDetailSection, DishComponent } from "./menu-types";
 
 const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/dish-images/`;
@@ -99,7 +100,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     supabase
       .from("categories")
       .select(
-        "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode",
+        "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode, schedule_start, schedule_end, schedule_off_days",
       )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
@@ -107,7 +108,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     supabase
       .from("dishes")
       .select(
-        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, blur_data_url, position, badges, is_component_only",
+        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, blur_data_url, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days",
       )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
@@ -211,6 +212,9 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       tags: d.badges?.length ? d.badges : undefined,
       image: imageUrl(d.image_path),
       blurDataUrl: d.blur_data_url ?? undefined,
+      scheduleStart: d.schedule_start ?? null,
+      scheduleEnd: d.schedule_end ?? null,
+      scheduleOffDays: d.schedule_off_days ?? null,
     };
     if (d.long_description || sections.length > 0) {
       dish.details = {
@@ -244,8 +248,27 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     fullWidth: c.full_width,
     displayMode: (c.display_mode === "list" ? "list" : "grid") as "grid" | "list",
     subcategoryDisplayModes: parseSubcatModes((c as { subcategory_display_modes?: unknown }).subcategory_display_modes),
+    scheduleStart: c.schedule_start ?? null,
+    scheduleEnd: c.schedule_end ?? null,
+    scheduleOffDays: c.schedule_off_days ?? null,
     dishes: dishesByCategoryUuid.get(c.id) ?? [],
   }));
+}
+
+function applyScheduleFilter(categories: Category[]): Category[] {
+  const now = new Date();
+  const fits = (s: { scheduleStart?: string | null; scheduleEnd?: string | null; scheduleOffDays?: number[] | null }) =>
+    isScheduleActive(
+      {
+        schedule_start: s.scheduleStart ?? null,
+        schedule_end: s.scheduleEnd ?? null,
+        schedule_off_days: s.scheduleOffDays ?? null,
+      },
+      now,
+    );
+  return categories
+    .filter(fits)
+    .map((c) => ({ ...c, dishes: c.dishes.filter(fits) }));
 }
 
 export async function getCategories(restaurantId: string): Promise<Category[]> {
@@ -254,7 +277,10 @@ export async function getCategories(restaurantId: string): Promise<Category[]> {
     [`menu:categories:${restaurantId}`],
     { tags: [tags.menu(restaurantId)], revalidate: 86400 }
   );
-  return cached();
+  const all = await cached();
+  // Filtro de programacao roda em runtime, fora do cache, pra refletir
+  // a janela do dia atual sem precisar invalidar cache toda hora.
+  return applyScheduleFilter(all);
 }
 
 export async function getCategoryBySlug(

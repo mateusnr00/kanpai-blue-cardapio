@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { FontSizeToggle } from "./FontSizeToggle";
 import { SearchBar } from "./SearchBar";
@@ -59,13 +60,12 @@ export function Header({ showBack, categories, restaurantId }: Props) {
           aria-label="Kanpai Blue, ir para o cardápio"
           style={{ display: "inline-flex", alignItems: "center" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={LOGO_URL}
             alt="Kanpai Blue"
-            width={1280}
-            height={352}
-            loading="eager"
+            width={71}
+            height={22}
+            priority={false}
             style={{
               height: 22,
               width: "auto",
@@ -92,14 +92,12 @@ export function Header({ showBack, categories, restaurantId }: Props) {
           role="img"
           style={{ display: "inline-flex", alignItems: "center", flexShrink: 0 }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={SPONSOR_URL}
             alt="Linq Telecom, patrocinador"
-            width={2120}
-            height={782}
+            width={60}
+            height={22}
             loading="lazy"
-            decoding="async"
             style={{
               height: 22,
               width: "auto",

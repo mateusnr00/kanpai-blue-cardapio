@@ -7,6 +7,8 @@ import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-acti
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 import { tags } from "@/lib/cache-tags";
 import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
+import { logAudit } from "@/lib/audit";
+import { parseScheduleFromForm } from "@/lib/schedule-form";
 
 function revalidateMenu() {
   const restaurantId = getActiveRestaurantId();
@@ -110,11 +112,24 @@ async function handleSlideshowImages(
 
 export async function toggleCategoryActive(id: string, nextActive: boolean) {
   const supabase = createServerClient();
+  const { data: existing } = await supabase
+    .from("categories")
+    .select("name, restaurant_id")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await supabase
     .from("categories")
     .update({ active: nextActive, updated_at: new Date().toISOString() })
     .eq("id", id);
   if (error) return { error: error.message };
+  await logAudit({
+    action: "toggle",
+    entityType: "category",
+    entityId: id,
+    entityLabel: existing?.name ?? null,
+    restaurantId: existing?.restaurant_id ?? null,
+    details: { active: nextActive },
+  });
   revalidatePath("/cards");
   revalidatePath("/");
   revalidateMenu();
@@ -125,7 +140,7 @@ export async function deleteCategory(id: string) {
   const supabase = createServerClient();
   const { data: cat } = await supabase
     .from("categories")
-    .select("image_path, slideshow_image_paths")
+    .select("image_path, slideshow_image_paths, name, restaurant_id")
     .eq("id", id)
     .maybeSingle();
   if (cat?.image_path) await deleteDishImageAction(cat.image_path);
@@ -136,6 +151,13 @@ export async function deleteCategory(id: string) {
 
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) return { error: error.message };
+  await logAudit({
+    action: "delete",
+    entityType: "category",
+    entityId: id,
+    entityLabel: cat?.name ?? null,
+    restaurantId: cat?.restaurant_id ?? null,
+  });
   revalidatePath("/cards");
   revalidatePath("/");
   revalidateMenu();
@@ -150,6 +172,13 @@ export async function reorderCategories(orderedIds: string[]) {
   const results = await Promise.all(updates);
   const firstErr = results.find((r) => r.error)?.error;
   if (firstErr) return { error: firstErr.message };
+  await logAudit({
+    action: "reorder",
+    entityType: "category",
+    entityLabel: `${orderedIds.length} categorias`,
+    restaurantId: getActiveRestaurantId(),
+    details: { count: orderedIds.length },
+  });
   revalidatePath("/cards");
   revalidatePath("/");
   revalidateMenu();
@@ -190,6 +219,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
     .maybeSingle();
   const position = (maxRow?.position ?? -1) + 1;
 
+  const schedule = parseScheduleFromForm(formData);
   const { data: inserted, error: insertErr } = await supabase
     .from("categories")
     .insert({
@@ -209,6 +239,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
       position,
       subcategories,
       subcategory_display_modes,
+      ...schedule,
     })
     .select("id")
     .single();
@@ -231,6 +262,15 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
   } catch (e) {
     return { error: (e as Error).message };
   }
+
+  await logAudit({
+    action: "create",
+    entityType: "category",
+    entityId: inserted.id,
+    entityLabel: name,
+    restaurantId,
+    details: { slug, featured, full_width, display_mode },
+  });
 
   revalidatePath("/cards");
   revalidatePath("/");
@@ -273,6 +313,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
     return { error: (e as Error).message };
   }
 
+  const schedule = parseScheduleFromForm(formData);
   const { error } = await supabase
     .from("categories")
     .update({
@@ -291,10 +332,20 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
       image_path: imagePath,
       slideshow_image_paths: slideshowPaths,
       updated_at: new Date().toISOString(),
+      ...schedule,
     })
     .eq("id", id);
 
   if (error) return { error: error.message };
+
+  await logAudit({
+    action: "update",
+    entityType: "category",
+    entityId: id,
+    entityLabel: name,
+    restaurantId: getActiveRestaurantId(),
+    details: { featured, full_width, display_mode },
+  });
 
   revalidatePath("/cards");
   revalidatePath("/");

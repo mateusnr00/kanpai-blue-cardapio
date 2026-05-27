@@ -8,6 +8,7 @@ import { ImageUpload } from "./ImageUpload";
 import { BadgeCheckboxes } from "./BadgeCheckboxes";
 import { VariantsEditor } from "./VariantsEditor";
 import { DishComponentsEditor } from "./DishComponentsEditor";
+import { ScheduleEditor } from "./ScheduleEditor";
 import type { DishDetail, DishVariantRow, DishComponentRow } from "@/lib/data/dishes";
 import type { CategoryListItem } from "@/lib/data/categories";
 
@@ -164,6 +165,14 @@ export function DishForm({
           choices={componentChoices}
           categories={categories}
           parentCategoryId={currentCategoryId}
+        />
+      )}
+
+      {embedded ? null : (
+        <ScheduleEditor
+          initialStart={(initial as { schedule_start?: string | null } | undefined)?.schedule_start ?? null}
+          initialEnd={(initial as { schedule_end?: string | null } | undefined)?.schedule_end ?? null}
+          initialOffDays={(initial as { schedule_off_days?: number[] | null } | undefined)?.schedule_off_days ?? null}
         />
       )}
 

@@ -14,6 +14,20 @@ function isoDaysAgo(days: number): string {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 
+const BRASILIA_TZ = "America/Sao_Paulo";
+const HOUR_FMT = new Intl.DateTimeFormat("en-US", {
+  timeZone: BRASILIA_TZ,
+  hour: "2-digit",
+  hour12: false,
+});
+
+function hourInBrasilia(iso: string): number {
+  const parts = HOUR_FMT.formatToParts(new Date(iso));
+  const h = parts.find((p) => p.type === "hour")?.value ?? "0";
+  const n = Number.parseInt(h, 10);
+  return Number.isFinite(n) ? n % 24 : 0;
+}
+
 function startOfToday(): Date {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -90,12 +104,17 @@ export type Stats = {
   categoryOpens: number;
   dishImpressions: number;
   dishViews: number;
+  // Funil em PESSOAS únicas (não eventos) — para % sempre <= 100%.
+  peopleOpenedCategory: number;
+  peopleSawDishes: number;
 };
 
 function computeStats(events: EventRow[]): Stats {
   const visitors = new Set<string>();
   const sessions = new Set<string>();
   const sessionsWithDish = new Set<string>();
+  const peopleCategory = new Set<string>();
+  const peopleDishes = new Set<string>();
   let homeViews = 0;
   let categoryOpens = 0;
   let dishImpressions = 0;
@@ -104,10 +123,13 @@ function computeStats(events: EventRow[]): Stats {
     visitors.add(e.visitor_id);
     sessions.add(e.session_id);
     if (e.event_type === "home_view") homeViews += 1;
-    else if (e.event_type === "category_open") categoryOpens += 1;
-    else if (e.event_type === "dish_impression") {
+    else if (e.event_type === "category_open") {
+      categoryOpens += 1;
+      peopleCategory.add(e.visitor_id);
+    } else if (e.event_type === "dish_impression") {
       dishImpressions += 1;
       sessionsWithDish.add(e.session_id);
+      peopleDishes.add(e.visitor_id);
     } else if (e.event_type === "dish_view") {
       dishViews += 1;
       sessionsWithDish.add(e.session_id);
@@ -125,6 +147,8 @@ function computeStats(events: EventRow[]): Stats {
     categoryOpens,
     dishImpressions,
     dishViews,
+    peopleOpenedCategory: peopleCategory.size,
+    peopleSawDishes: peopleDishes.size,
   };
 }
 
@@ -158,8 +182,7 @@ function computeInsights(events: EventRow[]): Insights {
       r.people.add(e.visitor_id);
       viewCount.set(e.dish_slug, r);
     }
-    const h = new Date(e.created_at).getHours();
-    hourCount[h] += 1;
+    hourCount[hourInBrasilia(e.created_at)] += 1;
   }
 
   function topOf(m: Map<string, { count: number; people: Set<string> }>) {
@@ -221,7 +244,7 @@ function computeDaySeries(events: EventRow[], range: RangeWindow): SeriesPoint[]
 function computeHourHistogram(events: EventRow[]): number[] {
   const h = new Array<number>(24).fill(0);
   for (const e of events) {
-    h[new Date(e.created_at).getHours()] += 1;
+    h[hourInBrasilia(e.created_at)] += 1;
   }
   return h;
 }
@@ -281,7 +304,9 @@ function computeTopDishes(events: EventRow[], dishNames: Map<string, string>): D
       views: v.views,
       people: v.people.size,
     }))
-    .sort((a, b) => b.impressions - a.impressions);
+    // Ordena por pessoas distintas; desempate por impressões.
+    // Evita "Água com Gás" no topo só por estar no início da lista.
+    .sort((a, b) => b.people - a.people || b.impressions - a.impressions);
 }
 
 export type DashboardData = {
