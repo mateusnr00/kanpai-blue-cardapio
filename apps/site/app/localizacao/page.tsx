@@ -3,8 +3,8 @@ import Link from "next/link";
 import { fs } from "@/lib/scale";
 
 export const metadata = {
-  title: "Kanpai Blue",
-  description: "Cardápio digital, reservas e contato — Kanpai Blue Goiânia.",
+  title: "Localização · Kanpai Blue",
+  description: "Encontre o Kanpai Blue Flamboyant ou Goiânia Shopping.",
 };
 
 const LOGO_URL =
@@ -13,21 +13,22 @@ const LOGO_URL =
 type LinkItem = {
   label: string;
   href: string;
-  highlight?: boolean;
-  external?: boolean;
   disabled?: boolean;
 };
 
 const LINKS: LinkItem[] = [
-  { label: "Cardápio · Flamboyant", href: "/flamboyant", highlight: true },
-  { label: "Cardápio · Goiânia Shopping", href: "/goianiashopping", highlight: true },
-  { label: "Reservas", href: "/reservas" },
-  { label: "Fale conosco", href: "#", disabled: true },
-  { label: "Localização", href: "/localizacao" },
-  { label: "Avalie-nos", href: "/avaliacao" },
+  {
+    label: "Kanpai Blue · Flamboyant",
+    href: "https://www.google.com/maps/place/kanpai+blue/data=!4m2!3m1!1s0x935ef05314772ca9:0xecc60aa28b103ac0?sa=X&ved=1t:242&ictx=111",
+  },
+  {
+    label: "Kanpai Blue · Goiânia Shopping",
+    href: "#",
+    disabled: true,
+  },
 ];
 
-export default function HomePage() {
+export default function LocalizacaoPage() {
   return (
     <main
       style={{
@@ -36,10 +37,35 @@ export default function HomePage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "48px 22px 64px",
+        padding: "32px 22px 64px",
         gap: 28,
       }}
     >
+      <Link
+        href="/"
+        aria-label="Voltar"
+        style={{
+          alignSelf: "flex-start",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          color: "var(--ink-soft)",
+          fontSize: fs(12),
+          textDecoration: "none",
+        }}
+      >
+        <svg width="8" height="12" viewBox="0 0 8 12" fill="none" aria-hidden>
+          <path
+            d="M6.5 1L1.5 6L6.5 11"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Voltar
+      </Link>
+
       <Image
         src={LOGO_URL}
         alt="Kanpai Blue"
@@ -60,7 +86,7 @@ export default function HomePage() {
             color: "var(--ink)",
           }}
         >
-          Kanpai Blue
+          Localização
         </h1>
         <p
           style={{
@@ -71,12 +97,12 @@ export default function HomePage() {
             letterSpacing: "-0.005em",
           }}
         >
-          Culinária japonesa contemporânea · Goiânia
+          Escolha a unidade
         </p>
       </header>
 
       <nav
-        aria-label="Atalhos"
+        aria-label="Localização por unidade"
         style={{
           width: "100%",
           maxWidth: 420,
@@ -126,26 +152,14 @@ export default function HomePage() {
               href={link.href}
               className="kanpai-link-pill"
               style={baseStyle}
-              {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               {link.label}
             </Link>
           );
         })}
       </nav>
-
-      <footer
-        style={{
-          marginTop: "auto",
-          paddingTop: 24,
-          fontSize: fs(10),
-          color: "var(--ink-soft)",
-          letterSpacing: "0.05em",
-          textTransform: "uppercase",
-        }}
-      >
-        © Kanpai Blue
-      </footer>
     </main>
   );
 }
