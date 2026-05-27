@@ -141,7 +141,7 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId,
                 borderRadius: 999,
               }}
             >
-              DESTAQUE
+              {dish.featuredLabel || "DESTAQUE"}
             </span>
           }
         />

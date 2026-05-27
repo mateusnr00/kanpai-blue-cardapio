@@ -45,6 +45,8 @@ export type Dish = {
   unit?: string;
   description?: string;
   featured?: boolean;
+  /** Texto custom do badge de destaque (default "DESTAQUE" quando vazio). */
+  featuredLabel?: string;
   subcategory?: string;
   originalPrice?: string;
   tags?: string[];
