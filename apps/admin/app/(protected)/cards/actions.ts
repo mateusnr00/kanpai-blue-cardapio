@@ -8,6 +8,7 @@ import { getActiveRestaurantId } from "@/lib/active-restaurant";
 import { tags } from "@/lib/cache-tags";
 import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
 import { logAudit } from "@/lib/audit";
+import { parseScheduleFromForm } from "@/lib/schedule-form";
 
 function revalidateMenu() {
   const restaurantId = getActiveRestaurantId();
@@ -218,6 +219,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
     .maybeSingle();
   const position = (maxRow?.position ?? -1) + 1;
 
+  const schedule = parseScheduleFromForm(formData);
   const { data: inserted, error: insertErr } = await supabase
     .from("categories")
     .insert({
@@ -237,6 +239,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
       position,
       subcategories,
       subcategory_display_modes,
+      ...schedule,
     })
     .select("id")
     .single();
@@ -310,6 +313,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
     return { error: (e as Error).message };
   }
 
+  const schedule = parseScheduleFromForm(formData);
   const { error } = await supabase
     .from("categories")
     .update({
@@ -328,6 +332,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
       image_path: imagePath,
       slideshow_image_paths: slideshowPaths,
       updated_at: new Date().toISOString(),
+      ...schedule,
     })
     .eq("id", id);
 

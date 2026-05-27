@@ -129,6 +129,9 @@ export type Database = {
           number: string
           position: number
           restaurant_id: string
+          schedule_end: string | null
+          schedule_off_days: number[]
+          schedule_start: string | null
           short_name: string | null
           slideshow_image_paths: string[]
           slug: string
@@ -153,6 +156,9 @@ export type Database = {
           number: string
           position: number
           restaurant_id: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           short_name?: string | null
           slideshow_image_paths?: string[]
           slug: string
@@ -177,6 +183,9 @@ export type Database = {
           number?: string
           position?: number
           restaurant_id?: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           short_name?: string | null
           slideshow_image_paths?: string[]
           slug?: string
@@ -340,6 +349,9 @@ export type Database = {
           position: number
           price: string | null
           restaurant_id: string
+          schedule_end: string | null
+          schedule_off_days: number[]
+          schedule_start: string | null
           slug: string
           subcategory: string | null
           unit: string | null
@@ -363,6 +375,9 @@ export type Database = {
           position: number
           price?: string | null
           restaurant_id: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           slug: string
           subcategory?: string | null
           unit?: string | null
@@ -386,6 +401,9 @@ export type Database = {
           position?: number
           price?: string | null
           restaurant_id?: string
+          schedule_end?: string | null
+          schedule_off_days?: number[]
+          schedule_start?: string | null
           slug?: string
           subcategory?: string | null
           unit?: string | null

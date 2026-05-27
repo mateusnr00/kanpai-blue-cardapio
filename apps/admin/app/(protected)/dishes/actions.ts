@@ -8,6 +8,7 @@ import { getActiveRestaurantId } from "@/lib/active-restaurant";
 import { tags } from "@/lib/cache-tags";
 import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
 import { logAudit } from "@/lib/audit";
+import { parseScheduleFromForm } from "@/lib/schedule-form";
 
 function revalidateMenu() {
   const restaurantId = getActiveRestaurantId();
@@ -243,6 +244,7 @@ async function createDishCore(
     .maybeSingle();
   const position = (maxRow?.position ?? -1) + 1;
 
+  const schedule = parseScheduleFromForm(formData);
   const { data: inserted, error } = await supabase
     .from("dishes")
     .insert({
@@ -259,6 +261,7 @@ async function createDishCore(
       active: true,
       position,
       is_component_only: opts.isComponentOnly,
+      ...schedule,
     })
     .select("id")
     .single();
@@ -381,6 +384,7 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   const variants = parseVariants(formData);
   const components = parseComponents(formData);
 
+  const schedule = parseScheduleFromForm(formData);
   const baseUpdate = {
     category_id: categoryId,
     restaurant_id: cat.restaurant_id,
@@ -393,6 +397,7 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     badges,
     image_path: imagePath,
     updated_at: new Date().toISOString(),
+    ...schedule,
   };
   const updateWithBlur =
     blurDataUrl !== undefined ? { ...baseUpdate, blur_data_url: blurDataUrl } : baseUpdate;

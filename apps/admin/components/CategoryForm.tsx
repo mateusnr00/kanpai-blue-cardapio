@@ -7,6 +7,7 @@ import { GradientInput } from "./GradientInput";
 import { ImageUpload } from "./ImageUpload";
 import { SlideshowImagesEditor } from "./SlideshowImagesEditor";
 import { SubcategoriesEditor } from "./SubcategoriesEditor";
+import { ScheduleEditor } from "./ScheduleEditor";
 import type { CategoryRow } from "@/lib/data/categories";
 
 type Props = {
@@ -154,6 +155,12 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       <SubcategoriesEditor
         initial={initial?.subcategories ?? []}
         initialModes={initial?.subcategory_display_modes ?? {}}
+      />
+
+      <ScheduleEditor
+        initialStart={(initial as { schedule_start?: string | null } | undefined)?.schedule_start ?? null}
+        initialEnd={(initial as { schedule_end?: string | null } | undefined)?.schedule_end ?? null}
+        initialOffDays={(initial as { schedule_off_days?: number[] | null } | undefined)?.schedule_off_days ?? null}
       />
 
       <label className="flex items-center gap-2 text-sm">
