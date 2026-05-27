@@ -6,6 +6,7 @@ import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
 import { LikeButton } from "./LikeButton";
+import { LikeCount } from "./LikeCount";
 
 type Props = {
   dish: Dish;
@@ -157,11 +158,14 @@ export function DishListItem({ dish, restaurantId, isLast }: Props) {
       <div
         style={{
           display: "flex",
+          alignItems: "center",
           justifyContent: "flex-end",
+          gap: 10,
           marginTop: 6,
         }}
       >
-        <LikeButton dishId={dish.id} size="small" />
+        <LikeCount dishId={dish.id} fontSize={11} />
+        <LikeButton dishId={dish.id} size={24} />
       </div>
     </article>
   );

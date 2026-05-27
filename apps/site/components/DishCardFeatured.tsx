@@ -10,6 +10,7 @@ import { useImpressionOnce } from "@/lib/use-impression";
 import { preloadLightboxImage } from "@/lib/preload-lightbox";
 import { DishImage } from "./DishImage";
 import { LikeButton } from "./LikeButton";
+import { LikeCount } from "./LikeCount";
 
 const ImageLightbox = dynamic(
   () => import("./ImageLightbox").then((m) => m.ImageLightbox),
@@ -302,7 +303,10 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId,
               </svg>
             </button>
           )}
-          <LikeButton dishId={dish.id} size="large" />
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>
+            <LikeCount dishId={dish.id} fontSize={13} />
+            <LikeButton dishId={dish.id} size={32} />
+          </div>
         </div>
       </div>
     </article>

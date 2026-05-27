@@ -7,6 +7,7 @@ import type { Dish, DishComponent } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
+import { LikeCount } from "./LikeCount";
 
 const KIND_LABEL: Record<DishComponent["kind"], string> = {
   entrada: "Entradas",
@@ -443,9 +444,11 @@ export function DishDetailsModal({ dish, onClose }: Props) {
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
+            gap: 12,
           }}
         >
-          <LikeButton dishId={dish.id} size="large" />
+          <LikeCount dishId={dish.id} fontSize={13} />
+          <LikeButton dishId={dish.id} size={32} />
         </div>
       </motion.div>
 
