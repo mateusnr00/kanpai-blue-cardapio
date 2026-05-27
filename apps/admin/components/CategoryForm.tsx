@@ -163,6 +163,19 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
         Card ocupa a fileira inteira na home (empurra os próximos pra próxima linha)
       </label>
 
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="display_mode" className="admin-label">Como exibir os itens dentro da categoria</label>
+        <select
+          id="display_mode"
+          name="display_mode"
+          defaultValue={initial?.display_mode ?? "grid"}
+          className="admin-input"
+        >
+          <option value="grid">Cards com foto (padrão — pra pratos com foto)</option>
+          <option value="list">Lista de texto (sem foto — bom pra bebidas, drinks, vinhos)</option>
+        </select>
+      </div>
+
       {error ? (
         <p className="rounded-lg bg-danger-soft px-3 py-2 text-xs font-medium text-danger">{error}</p>
       ) : null}

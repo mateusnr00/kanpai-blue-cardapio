@@ -54,5 +54,6 @@ export type Category = {
   image?: string;
   slideshowImages?: string[];
   fullWidth?: boolean;
+  displayMode?: "grid" | "list";
   dishes: Dish[];
 };

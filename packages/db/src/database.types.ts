@@ -71,6 +71,7 @@ export type Database = {
           created_at: string
           description: string
           detail: string | null
+          display_mode: string
           featured: boolean
           full_width: boolean
           gradient: string
@@ -93,6 +94,7 @@ export type Database = {
           created_at?: string
           description: string
           detail?: string | null
+          display_mode?: string
           featured?: boolean
           full_width?: boolean
           gradient: string
@@ -115,6 +117,7 @@ export type Database = {
           created_at?: string
           description?: string
           detail?: string | null
+          display_mode?: string
           featured?: boolean
           full_width?: boolean
           gradient?: string
