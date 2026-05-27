@@ -16,19 +16,14 @@ type Props = {
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
-type CoverAspect = "wide" | "square";
-
-const COVER_PRESETS: Record<CoverAspect, { ratio: number; maxOutput: number; label: string }> = {
-  wide: { ratio: 16 / 9, maxOutput: 1920, label: "Paisagem 1920×1080 (destaque, fileira inteira)" },
-  square: { ratio: 1, maxOutput: 1200, label: "Quadrada 1200×1200 (normal)" },
-};
-
 export function CategoryForm({ mode, initial, onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [coverAspect, setCoverAspect] = useState<CoverAspect>(initial?.cover_aspect ?? "wide");
+  const [featured, setFeatured] = useState<boolean>(initial?.featured ?? false);
   const router = useRouter();
-  const coverCfg = COVER_PRESETS[coverAspect];
+  const coverRatio = featured ? 16 / 9 : 1;
+  const coverMaxOutput = featured ? 1920 : 1200;
+  const coverLabel = featured ? "1920×1080 (destaque, fileira inteira)" : "1200×1200 (formato normal)";
 
   function action(formData: FormData) {
     setError(null);
@@ -143,30 +138,15 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
 
       <div className="flex flex-col gap-2">
         <span className="admin-label">Foto da categoria (opcional, sobrescreve o gradient na home)</span>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="cover_aspect" className="admin-label">Formato</label>
-          <select
-            id="cover_aspect"
-            name="cover_aspect"
-            value={coverAspect}
-            onChange={(e) => setCoverAspect(e.target.value as CoverAspect)}
-            className="admin-input max-w-md"
-          >
-            <option value="wide">{COVER_PRESETS.wide.label}</option>
-            <option value="square">{COVER_PRESETS.square.label}</option>
-          </select>
-          <p className="text-xs text-ink-muted">
-            Escolha antes de subir a foto. O crop ajusta pro formato escolhido.
-          </p>
-        </div>
-
+        <p className="text-xs text-ink-muted">
+          Formato: <strong>{coverLabel}</strong>. Determinado pela opção <em>Categoria em destaque</em> abaixo.
+        </p>
         <ImageUpload
-          key={coverAspect}
+          key={featured ? "wide" : "square"}
           name="image"
           initialPath={initial?.image_path ?? null}
-          aspect={coverCfg.ratio}
-          maxOutputSize={coverCfg.maxOutput}
+          aspect={coverRatio}
+          maxOutputSize={coverMaxOutput}
         />
       </div>
 
@@ -196,8 +176,13 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
       />
 
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="featured" defaultChecked={initial?.featured ?? false} />
-        Categoria em destaque (borda azul Kanpai + placeholder em gradiente azul)
+        <input
+          type="checkbox"
+          name="featured"
+          checked={featured}
+          onChange={(e) => setFeatured(e.target.checked)}
+        />
+        Categoria em destaque (foto 1920×1080, borda azul Kanpai)
       </label>
 
       <label className="flex items-center gap-2 text-sm">
