@@ -22,7 +22,7 @@ type HogQLResponse = {
   types?: string[];
 };
 
-async function hogQL(query: string): Promise<HogQLResponse> {
+async function hogQL(query: string, name: string): Promise<HogQLResponse> {
   if (!API_KEY || !PROJECT_ID) {
     throw new Error("PostHog API nao configurada");
   }
@@ -34,6 +34,8 @@ async function hogQL(query: string): Promise<HogQLResponse> {
     },
     body: JSON.stringify({
       query: { kind: "HogQLQuery", query },
+      // name aparece no Query Log do PostHog — facilita debug se algo lentificar.
+      name,
     }),
     // Revalida a cada 5min — evita martelar API a cada navegacao.
     next: { revalidate: 300 },
@@ -53,34 +55,43 @@ function firstRowFirstCol(r: HogQLResponse): number {
 export type PostHogKpis = {
   visitors30d: number;
   pageviews30d: number;
-  visitors7d: number;
-  pageviews7d: number;
+  /** % sessões com 1 só pageview. PostHog define $is_bounce. */
+  bounceRate30d: number;
+  /** Duração média de sessão em segundos. */
+  avgSessionSeconds30d: number;
 };
 
 export async function loadPostHogKpis(): Promise<PostHogKpis> {
-  const [v30, p30, v7, p7] = await Promise.all([
+  // Visitors/pageviews vem de events; bounce/duration vem da tabela sessions
+  // (PostHog pre-computa $is_bounce e $session_duration por sessao).
+  const [visitorsR, pageviewsR, sessionR] = await Promise.all([
     hogQL(
-      `SELECT count(DISTINCT distinct_id) FROM events
+      `SELECT count(DISTINCT distinct_id)
+       FROM events
        WHERE event = '$pageview' AND timestamp > now() - INTERVAL 30 DAY`,
+      "kanpai:visitors_30d",
     ),
     hogQL(
-      `SELECT count() FROM events
+      `SELECT count()
+       FROM events
        WHERE event = '$pageview' AND timestamp > now() - INTERVAL 30 DAY`,
+      "kanpai:pageviews_30d",
     ),
     hogQL(
-      `SELECT count(DISTINCT distinct_id) FROM events
-       WHERE event = '$pageview' AND timestamp > now() - INTERVAL 7 DAY`,
-    ),
-    hogQL(
-      `SELECT count() FROM events
-       WHERE event = '$pageview' AND timestamp > now() - INTERVAL 7 DAY`,
+      `SELECT
+         avg(toInt8($is_bounce)) AS bounce_rate,
+         avg($session_duration) AS avg_duration_sec
+       FROM sessions
+       WHERE $start_timestamp > now() - INTERVAL 30 DAY`,
+      "kanpai:session_health_30d",
     ),
   ]);
+  const sessionRow = sessionR.results?.[0] ?? [];
   return {
-    visitors30d: firstRowFirstCol(v30),
-    pageviews30d: firstRowFirstCol(p30),
-    visitors7d: firstRowFirstCol(v7),
-    pageviews7d: firstRowFirstCol(p7),
+    visitors30d: firstRowFirstCol(visitorsR),
+    pageviews30d: firstRowFirstCol(pageviewsR),
+    bounceRate30d: Number(sessionRow[0] ?? 0),
+    avgSessionSeconds30d: Number(sessionRow[1] ?? 0),
   };
 }
 
@@ -96,6 +107,7 @@ export async function loadPostHogDailySeries(): Promise<PostHogDailyPoint[]> {
      WHERE event = '$pageview' AND timestamp > now() - INTERVAL 30 DAY
      GROUP BY day
      ORDER BY day`,
+    "kanpai:daily_series_30d",
   );
   return (r.results ?? []).map((row) => ({
     day: String(row[0]),
@@ -115,9 +127,11 @@ export async function loadPostHogTopPages(limit = 8): Promise<PostHogTopPage[]> 
      GROUP BY path
      ORDER BY views DESC
      LIMIT ${Math.max(1, Math.min(50, Math.trunc(limit)))}`,
+    "kanpai:top_pages_30d",
   );
   return (r.results ?? []).map((row) => ({
     path: String(row[0] ?? "/"),
     views: Number(row[1] ?? 0),
   }));
 }
+

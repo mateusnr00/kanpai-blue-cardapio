@@ -10,8 +10,21 @@ function fmt(n: number): string {
   return n.toLocaleString("pt-BR");
 }
 
+function fmtPct(rate: number): string {
+  return `${Math.round(rate * 100)}%`;
+}
+
+function fmtDuration(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "—";
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  if (m === 0) return `${s}s`;
+  return `${m}min ${String(s).padStart(2, "0")}s`;
+}
+
 export async function PostHogPanel() {
-  let kpis = { visitors30d: 0, pageviews30d: 0, visitors7d: 0, pageviews7d: 0 };
+  let kpis = { visitors30d: 0, pageviews30d: 0, bounceRate30d: 0, avgSessionSeconds30d: 0 };
   let series: Awaited<ReturnType<typeof loadPostHogDailySeries>> = [];
   let topPages: Awaited<ReturnType<typeof loadPostHogTopPages>> = [];
   let error: string | null = null;
@@ -44,24 +57,24 @@ export async function PostHogPanel() {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Visitantes (7d)"
-          value={fmt(kpis.visitors7d)}
-          hint="Pessoas distintas que abriram o cardápio nos últimos 7 dias (via PostHog)."
-        />
-        <StatCard
-          label="Acessos (7d)"
-          value={fmt(kpis.pageviews7d)}
-          hint="Total de pageviews nos últimos 7 dias."
-        />
-        <StatCard
           label="Visitantes (30d)"
           value={fmt(kpis.visitors30d)}
-          hint="Pessoas distintas nos últimos 30 dias."
+          hint="Pessoas distintas que abriram o cardápio nos últimos 30 dias (PostHog)."
         />
         <StatCard
           label="Acessos (30d)"
           value={fmt(kpis.pageviews30d)}
           hint="Total de pageviews nos últimos 30 dias."
+        />
+        <StatCard
+          label="Taxa de saída rápida"
+          value={fmtPct(kpis.bounceRate30d)}
+          hint="% das sessões que viram só uma página e foram embora. Quanto menor, melhor — sinaliza que o cardápio prendeu atenção."
+        />
+        <StatCard
+          label="Tempo médio na página"
+          value={fmtDuration(kpis.avgSessionSeconds30d)}
+          hint="Duração média de cada sessão no cardápio nos últimos 30 dias."
         />
       </div>
 
