@@ -1,4 +1,4 @@
-const VIDEO_SRC = "/PEIXESKOL.mp4";
+const VIDEO_SRC = "/ssstwitter.com_1779851031461.mp4";
 
 export default function PeixeBebadoDeskolPage() {
   return (
