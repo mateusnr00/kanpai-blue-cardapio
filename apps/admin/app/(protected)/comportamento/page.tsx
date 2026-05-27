@@ -103,7 +103,7 @@ export default function ComportamentoPage() {
               <p className="mt-0.5 text-xs text-ink-muted">Compartilhado direto do PostHog</p>
             </div>
             <a
-              href={DASHBOARD_URL}
+              href={DASHBOARD_URL.replace("/embedded/", "/shared/")}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline"
@@ -117,6 +117,8 @@ export default function ComportamentoPage() {
               title="PostHog dashboard"
               className="h-[640px] w-full"
               loading="lazy"
+              allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
             />
           </div>
         </div>
