@@ -32,7 +32,7 @@ type Props = {
   initial: DishListRow[];
 };
 
-function SortableDishRow({ dish }: { dish: DishListRow }) {
+function SortableDishCard({ dish }: { dish: DishListRow }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: dish.id,
   });
@@ -44,50 +44,59 @@ function SortableDishRow({ dish }: { dish: DishListRow }) {
   const img = publicImageUrl(dish.image_path);
 
   return (
-    <tr ref={setNodeRef} style={style}>
-      <td className="w-10">
-        <div {...attributes} {...listeners}>
+    <article
+      ref={setNodeRef}
+      style={style}
+      className="border-b border-ink-ghost/60 transition last:border-b-0 hover:bg-bg-muted/30"
+    >
+      <div className="flex items-start gap-3 p-3 sm:items-center sm:p-4">
+        <div {...attributes} {...listeners} className="shrink-0 cursor-grab pt-0.5 sm:pt-0">
           <DragHandle />
         </div>
-      </td>
-      <td className="w-14 sm:w-16">
+
         {img ? (
           <Image
             src={img}
             alt=""
-            width={48}
-            height={48}
-            className="h-10 w-10 rounded-lg object-cover ring-1 ring-ink-ghost sm:h-12 sm:w-12"
+            width={56}
+            height={56}
+            className="h-12 w-12 shrink-0 rounded-lg object-cover ring-1 ring-ink-ghost sm:h-14 sm:w-14"
           />
         ) : (
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-muted text-ink-faint sm:h-12 sm:w-12">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-bg-muted text-ink-faint sm:h-14 sm:w-14">
             <ImageIcon size={20} />
           </div>
         )}
-      </td>
-      <td>
-        <div className="font-medium text-ink">{dish.name}</div>
-        {dish.description ? (
-          <div className="line-clamp-1 max-w-xl text-xs text-ink-muted">{dish.description}</div>
-        ) : null}
-        <div className="mt-1 text-xs text-ink-muted sm:hidden">{dish.price ?? "-"}</div>
-      </td>
-      <td className="hidden w-28 whitespace-nowrap font-medium tabular-nums sm:table-cell">
-        {dish.price ?? "-"}
-      </td>
-      <td className="w-20">
-        <DishToggleActive id={dish.id} active={dish.active} />
-      </td>
-      <td className="text-right">
-        <div className="flex flex-wrap items-center justify-end gap-1">
-          <Link href={`/dishes/${dish.id}`} className="admin-btn-ghost">
-            <PencilSimple size={16} />
-            Editar
-          </Link>
-          <DishDeleteButton id={dish.id} name={dish.name} />
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-ink">{dish.name}</p>
+          {dish.description ? (
+            <p className="line-clamp-1 text-xs text-ink-muted">{dish.description}</p>
+          ) : null}
+          {dish.price ? (
+            <p className="mt-1 text-xs font-medium tabular-nums text-ink-muted sm:hidden">
+              {dish.price}
+            </p>
+          ) : null}
         </div>
-      </td>
-    </tr>
+
+        {dish.price ? (
+          <span className="hidden whitespace-nowrap text-sm font-medium tabular-nums text-ink sm:block">
+            {dish.price}
+          </span>
+        ) : null}
+
+        <DishToggleActive id={dish.id} active={dish.active} />
+      </div>
+
+      <div className="flex items-center justify-end gap-1 border-t border-ink-ghost/40 bg-bg-muted/30 px-3 py-1.5 sm:px-4">
+        <Link href={`/dishes/${dish.id}`} className="admin-btn-ghost">
+          <PencilSimple size={16} />
+          Editar
+        </Link>
+        <DishDeleteButton id={dish.id} name={dish.name} />
+      </div>
+    </article>
   );
 }
 
@@ -124,11 +133,8 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
     );
   }
 
-  // Detecta se a categoria usa subcategorias (>=1 prato com subcategory preenchido)
   const usesSubcategories = items.some((d) => d.subcategory);
 
-  // Agrupa preservando a ordem: itens sem subcategoria primeiro (destaques/topo),
-  // depois cada subcategoria na ordem em que aparece no array.
   const groups: Array<{ label: string | null; rows: DishListRow[] }> = [];
   if (usesSubcategories) {
     const seen = new Set<string | null>();
@@ -145,44 +151,33 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
   }
 
   return (
-    <div className="admin-table-wrap">
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th className="w-10" />
-            <th className="w-14 sm:w-16">Foto</th>
-            <th>Nome</th>
-            <th className="hidden w-28 sm:table-cell">Preço</th>
-            <th className="w-20">Ativo</th>
-            <th className="text-right">Ações</th>
-          </tr>
-        </thead>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-          <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
-            {groups.map((g) => (
-              <tbody key={g.label ?? "_top"}>
-                {usesSubcategories ? (
-                  <tr className="bg-bg-muted/60">
-                    <td colSpan={6} className="py-2.5">
-                      <div className="flex items-baseline justify-between gap-2 px-1">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                          {g.label ?? "Destaques"}
-                        </span>
-                        <span className="text-[11px] tabular-nums text-ink-faint">
-                          {g.rows.length} {g.rows.length === 1 ? "item" : "itens"}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : null}
-                {g.rows.map((d) => (
-                  <SortableDishRow key={d.id} dish={d} />
-                ))}
-              </tbody>
-            ))}
-          </SortableContext>
-        </DndContext>
-      </table>
+    <div className="admin-card overflow-hidden">
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+          {groups.map((g, gi) => (
+            <div key={g.label ?? "_top"}>
+              {usesSubcategories ? (
+                <div
+                  className={
+                    "flex items-baseline justify-between gap-2 bg-bg-muted/60 px-3 py-2.5 sm:px-4 " +
+                    (gi > 0 ? "border-t border-ink-ghost/60" : "")
+                  }
+                >
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                    {g.label ?? "Destaques"}
+                  </span>
+                  <span className="text-[11px] tabular-nums text-ink-faint">
+                    {g.rows.length} {g.rows.length === 1 ? "item" : "itens"}
+                  </span>
+                </div>
+              ) : null}
+              {g.rows.map((d) => (
+                <SortableDishCard key={d.id} dish={d} />
+              ))}
+            </div>
+          ))}
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }

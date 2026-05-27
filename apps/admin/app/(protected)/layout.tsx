@@ -34,6 +34,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
           email={user.email ?? null}
           activeRestaurant={activeRestaurant}
           restaurants={restaurants}
+          unreadReviews={unreadReviews}
         />
 
         <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 pb-20 sm:px-6 md:pb-6 lg:px-8 lg:py-8">

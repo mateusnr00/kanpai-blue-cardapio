@@ -2,37 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowSquareOut,
-  SignOut,
-  BookOpenText,
-  SquaresFour,
-  ChartLineUp,
-  Megaphone,
-  Star,
-  LinkSimple,
-  ClockCounterClockwise,
-  Users,
-  VideoCamera,
-  Heart,
-} from "@phosphor-icons/react";
+import { ArrowSquareOut, SignOut } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
-
-const NAV = [
-  { href: "/", label: "Cardápio", icon: BookOpenText, exact: true, badgeKey: null },
-  { href: "/cards", label: "Categorias", icon: SquaresFour, badgeKey: null },
-  { href: "/aviso", label: "Aviso", icon: Megaphone, badgeKey: null },
-  { href: "/linktree", label: "Linktree", icon: LinkSimple, badgeKey: null },
-  { href: "/reviews", label: "Avaliações", icon: Star, badgeKey: "unreadReviews" as const },
-  { href: "/likes", label: "Curtidas", icon: Heart, badgeKey: null },
-  { href: "/analytics", label: "Analytics", icon: ChartLineUp, badgeKey: null },
-  { href: "/comportamento", label: "Comportamento", icon: VideoCamera, badgeKey: null },
-  { href: "/historico", label: "Histórico", icon: ClockCounterClockwise, badgeKey: null },
-  { href: "/users", label: "Usuários", icon: Users, badgeKey: null },
-] as const;
+import { ADMIN_NAV } from "@/lib/admin-nav";
 
 type Props = {
   email: string | null;
@@ -59,7 +34,7 @@ export function AdminSidebar({ email, activeRestaurant, restaurants, unreadRevie
 
         <p className="px-5 pb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-faint">Menu</p>
         <nav className="admin-sidebar-nav">
-          {NAV.map(({ href, label, icon, badgeKey, ...rest }) => (
+          {ADMIN_NAV.map(({ href, label, icon, badgeKey, ...rest }) => (
             <NavLink
               key={href}
               href={href}
