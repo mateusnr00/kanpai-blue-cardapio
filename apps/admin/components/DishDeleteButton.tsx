@@ -1,6 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
 import { Trash } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "./ConfirmDialog";
@@ -12,17 +11,13 @@ type Props = {
 };
 
 export function DishDeleteButton({ id, name }: Props) {
-  const [pending, startTransition] = useTransition();
-
-  function onConfirm() {
-    startTransition(async () => {
-      const res = await deleteDish(id);
-      if ("error" in res) {
-        toast.error(`Falha: ${res.error}`);
-      } else {
-        toast.success("Prato excluído");
-      }
-    });
+  async function onConfirm() {
+    const res = await deleteDish(id);
+    if ("error" in res) {
+      toast.error(`Falha: ${res.error}`);
+      throw new Error(res.error);
+    }
+    toast.success("Prato excluído");
   }
 
   return (
@@ -30,7 +25,6 @@ export function DishDeleteButton({ id, name }: Props) {
       title="Excluir prato"
       description={`Tem certeza que quer excluir "${name}"? Esta ação não pode ser desfeita.`}
       confirmLabel="Excluir"
-      pending={pending}
       onConfirm={onConfirm}
       trigger={
         <button type="button" className="admin-btn-danger">

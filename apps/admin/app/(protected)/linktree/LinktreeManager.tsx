@@ -18,6 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Plus, PencilSimple, Trash, Link as LinkIcon, FolderSimple, Prohibit } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmProvider";
 import type { LinktreeNode } from "@/lib/data/linktree";
 import {
   createButton,
@@ -412,6 +413,7 @@ function EditDialog({
 }
 
 export function LinktreeManager({ initialTree }: Props) {
+  const confirm = useConfirm();
   const [tree, setTree] = useState(initialTree);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
   const [, startTransition] = useTransition();
@@ -439,8 +441,14 @@ export function LinktreeManager({ initialTree }: Props) {
     });
   }
 
-  function onDelete(id: string) {
-    if (!confirm("Excluir este botão? Sub-botões também serão removidos.")) return;
+  async function onDelete(id: string) {
+    const ok = await confirm({
+      title: "Excluir botão",
+      description: "Excluir este botão? Sub-botões vinculados também serão removidos.",
+      confirmLabel: "Excluir",
+      variant: "danger",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const r = await deleteButton(id);
       if (r.error) toast.error(r.error);

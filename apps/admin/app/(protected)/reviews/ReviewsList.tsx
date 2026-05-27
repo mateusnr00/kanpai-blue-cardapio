@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Star, CaretDown, Trash } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmProvider";
 import type { ReviewRow } from "@/lib/data/reviews";
 import { markReviewRead, deleteReview } from "./actions";
 
@@ -41,6 +42,7 @@ function fmtDate(iso: string): string {
 }
 
 export function ReviewsList({ reviews }: Props) {
+  const confirm = useConfirm();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -54,8 +56,14 @@ export function ReviewsList({ reviews }: Props) {
     }
   }
 
-  function onDelete(id: string) {
-    if (!confirm("Excluir esta avaliação? Esta ação não pode ser desfeita.")) return;
+  async function onDelete(id: string) {
+    const ok = await confirm({
+      title: "Excluir avaliação",
+      description: "Tem certeza que quer excluir esta avaliação? Esta ação não pode ser desfeita.",
+      confirmLabel: "Excluir",
+      variant: "danger",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const res = await deleteReview(id);
       if ("error" in res) toast.error(res.error);

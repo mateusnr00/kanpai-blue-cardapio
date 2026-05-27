@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Plus, Trash, User as UserIcon } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ConfirmProvider";
 import { createUser, deleteUser, type UserRow } from "./actions";
 
 type Props = {
@@ -22,6 +23,7 @@ function fmtDate(iso: string | null): string {
 }
 
 export function UsersManager({ users, currentUserId }: Props) {
+  const confirm = useConfirm();
   const [createOpen, setCreateOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,8 +47,14 @@ export function UsersManager({ users, currentUserId }: Props) {
     });
   }
 
-  function onDelete(id: string, label: string | null) {
-    if (!confirm(`Excluir ${label ?? "este usuário"}? A ação não pode ser desfeita.`)) return;
+  async function onDelete(id: string, label: string | null) {
+    const ok = await confirm({
+      title: "Excluir usuário",
+      description: `Tem certeza que quer excluir ${label ?? "este usuário"}? Esta ação não pode ser desfeita.`,
+      confirmLabel: "Excluir",
+      variant: "danger",
+    });
+    if (!ok) return;
     startTransition(async () => {
       const res = await deleteUser(id);
       if (res.error) toast.error(res.error);
