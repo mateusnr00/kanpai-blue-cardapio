@@ -143,21 +143,9 @@ export function CategoryView({ category, restaurantId }: Props) {
   return (
     <>
       <section style={{ padding: "32px 22px 18px" }}>
-        <p
-          style={{
-            margin: 0,
-            fontSize: fs(11),
-            fontWeight: 400,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "var(--ink-soft)",
-          }}
-        >
-          Categoria {category.number}
-        </p>
         <h1
           style={{
-            marginTop: 14,
+            marginTop: 0,
             marginBottom: 0,
             fontSize: fs(38),
             fontWeight: 500,
@@ -168,17 +156,19 @@ export function CategoryView({ category, restaurantId }: Props) {
         >
           {category.name}
         </h1>
-        <p
-          style={{
-            marginTop: 12,
-            marginBottom: 0,
-            fontSize: fs(12),
-            fontWeight: 400,
-            color: "var(--ink-soft)",
-          }}
-        >
-          {category.itemCount} - {category.detail}
-        </p>
+        {category.itemCount || category.detail ? (
+          <p
+            style={{
+              marginTop: 12,
+              marginBottom: 0,
+              fontSize: fs(12),
+              fontWeight: 400,
+              color: "var(--ink-soft)",
+            }}
+          >
+            {[category.itemCount, category.detail].filter(Boolean).join(", ")}
+          </p>
+        ) : null}
       </section>
 
       {hasSubcats && (
