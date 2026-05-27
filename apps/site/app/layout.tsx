@@ -27,6 +27,14 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" data-text-size="default" className={inter.variable}>
+      <head>
+        {/* Preconnect ao Supabase Storage — economiza DNS+TLS handshake no primeiro fetch de foto */}
+        <link
+          rel="preconnect"
+          href="https://rxzohyrttklxevegdijm.supabase.co"
+          crossOrigin=""
+        />
+      </head>
       <body>
         <FontSizeProvider>
           <LikesProvider>{children}</LikesProvider>
