@@ -11,7 +11,7 @@ type Props = {
   maxOutputSize?: number;
   outputType?: "image/jpeg" | "image/webp" | "image/png";
   onClose: () => void;
-  onConfirm: (file: File) => void;
+  onConfirm: (file: File, blurDataURL: string) => void;
 };
 
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -30,7 +30,7 @@ async function getCroppedFile(
   rotation: number,
   maxOutputSize: number,
   outputType: string,
-): Promise<File> {
+): Promise<{ file: File; blurDataURL: string }> {
   const image = await loadImage(sourceUrl);
 
   // Caminho rapido: sem rotacao, copia direto do <img> via crop area
@@ -84,7 +84,21 @@ async function getCroppedFile(
   );
 
   const ext = outputType === "image/png" ? "png" : outputType === "image/webp" ? "webp" : "jpg";
-  return new File([blob], `dish-image.${ext}`, { type: outputType });
+  const file = new File([blob], `dish-image.${ext}`, { type: outputType });
+
+  // Gera blur LQIP: 16px no lado maior, WebP q=0.4 (~200-300 bytes base64)
+  const blurMax = 16;
+  const blurRatio = blurMax / Math.max(outW, outH);
+  const blurW = Math.max(1, Math.round(outW * blurRatio));
+  const blurH = Math.max(1, Math.round(outH * blurRatio));
+  const blurCanvas = document.createElement("canvas");
+  blurCanvas.width = blurW;
+  blurCanvas.height = blurH;
+  const bctx = blurCanvas.getContext("2d")!;
+  bctx.drawImage(out, 0, 0, blurW, blurH);
+  const blurDataURL = blurCanvas.toDataURL("image/webp", 0.4);
+
+  return { file, blurDataURL };
 }
 
 export function ImageCropDialog({
@@ -131,8 +145,8 @@ export function ImageCropDialog({
     setProcessing(true);
     setError(null);
     try {
-      const file = await getCroppedFile(sourceUrl, pixelCrop, rotation, maxOutputSize, outputType);
-      onConfirm(file);
+      const { file, blurDataURL } = await getCroppedFile(sourceUrl, pixelCrop, rotation, maxOutputSize, outputType);
+      onConfirm(file, blurDataURL);
     } catch (err) {
       console.error("[ImageCropDialog] falhou:", err);
       setError((err as Error).message || "Falha ao processar a imagem.");

@@ -10,9 +10,11 @@ import { CategorySlideshow } from "./CategorySlideshow";
 type CategoryCardProps = {
   category: Category;
   restaurantId: string;
+  /** Marca essa categoria como acima da dobra (LCP) — vira fetchpriority=high + preload. */
+  priority?: boolean;
 };
 
-export function CategoryCard({ category, restaurantId }: CategoryCardProps) {
+export function CategoryCard({ category, restaurantId, priority }: CategoryCardProps) {
   const isFeatured = !!category.featured;
   const borderStyle = isFeatured ? "1px solid var(--ink)" : "0.5px solid var(--ink-faint)";
   const aspect = category.fullWidth ? "3/1" : "1/1";
@@ -62,6 +64,7 @@ export function CategoryCard({ category, restaurantId }: CategoryCardProps) {
             dark={isFeatured}
             topLeftNumber={category.number}
             topRight={star}
+            priority={priority}
           />
         ) : (
           <DishImage
@@ -72,6 +75,7 @@ export function CategoryCard({ category, restaurantId }: CategoryCardProps) {
             aspect={aspect}
             dark={isFeatured}
             topRight={star}
+            priority={priority}
           />
         )}
         <div

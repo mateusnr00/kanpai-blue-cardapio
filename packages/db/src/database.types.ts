@@ -67,6 +67,7 @@ export type Database = {
       categories: {
         Row: {
           active: boolean
+          blur_data_url: string | null
           created_at: string
           description: string
           detail: string | null
@@ -89,6 +90,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          blur_data_url?: string | null
           created_at?: string
           description: string
           detail?: string | null
@@ -111,6 +113,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          blur_data_url?: string | null
           created_at?: string
           description?: string
           detail?: string | null
@@ -272,6 +275,7 @@ export type Database = {
         Row: {
           active: boolean
           badges: string[]
+          blur_data_url: string | null
           category_id: string
           created_at: string
           description: string | null
@@ -294,6 +298,7 @@ export type Database = {
         Insert: {
           active?: boolean
           badges?: string[]
+          blur_data_url?: string | null
           category_id: string
           created_at?: string
           description?: string | null
@@ -316,6 +321,7 @@ export type Database = {
         Update: {
           active?: boolean
           badges?: string[]
+          blur_data_url?: string | null
           category_id?: string
           created_at?: string
           description?: string | null
@@ -381,6 +387,62 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          ambience: number | null
+          comment: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          food: number | null
+          id: string
+          overall: number
+          read_at: string | null
+          restaurant_id: string
+          service: number | null
+          waiter_name: string | null
+        }
+        Insert: {
+          ambience?: number | null
+          comment?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          food?: number | null
+          id?: string
+          overall: number
+          read_at?: string | null
+          restaurant_id: string
+          service?: number | null
+          waiter_name?: string | null
+        }
+        Update: {
+          ambience?: number | null
+          comment?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          food?: number | null
+          id?: string
+          overall?: number
+          read_at?: string | null
+          restaurant_id?: string
+          service?: number | null
+          waiter_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

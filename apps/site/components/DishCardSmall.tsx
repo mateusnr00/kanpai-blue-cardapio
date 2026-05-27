@@ -6,6 +6,7 @@ import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
+import { preloadLightboxImage } from "@/lib/preload-lightbox";
 import { DishImage } from "./DishImage";
 import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
@@ -24,14 +25,17 @@ type Props = {
   number: string;
   gradientIndex: number;
   restaurantId: string;
+  priority?: boolean;
 };
 
-export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Props) {
+export function DishCardSmall({ dish, number, gradientIndex, restaurantId, priority }: Props) {
   const gradient = SMALL_GRADIENTS[gradientIndex % SMALL_GRADIENTS.length];
   const hasPrice = dish.price && dish.price.length > 0;
   const onImpression = useCallback(() => {
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
-  }, [dish.id, restaurantId]);
+    // pre-carrega a versao do lightbox em background — abertura instantanea quando clicar
+    if (dish.image) preloadLightboxImage(dish.image);
+  }, [dish.id, dish.image, restaurantId]);
   const ref = useImpressionOnce<HTMLElement>(onImpression);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const canZoom = !!dish.image;
@@ -71,7 +75,7 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId }: Pro
         aria-label={canZoom ? `Ampliar foto de ${dish.name}` : undefined}
         style={{ cursor: canZoom ? "zoom-in" : "default" }}
       >
-        <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" />
+        <DishImage src={dish.image} alt={dish.name} gradient={gradient} number={number} aspect="1/1" priority={priority} blurDataUrl={dish.blurDataUrl} />
       </div>
       <div
         style={{

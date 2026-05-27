@@ -15,6 +15,8 @@ type Props = {
   topRight?: ReactNode;
   topLeftNumber?: string;
   dark?: boolean;
+  /** Marca o primeiro slide como priority (LCP / above-the-fold). */
+  priority?: boolean;
 };
 
 /**
@@ -33,6 +35,7 @@ export function CategorySlideshow({
   topRight,
   topLeftNumber: _topLeftNumber,
   dark: _dark,
+  priority,
 }: Props) {
   const n = images.length;
   if (n === 0) return null;
@@ -78,7 +81,8 @@ export function CategorySlideshow({
           alt={i === 0 ? alt : ""}
           fill
           sizes="(max-width: 768px) 100vw, 480px"
-          priority={i === 0}
+          priority={priority && i === 0}
+          loading={priority && i === 0 ? "eager" : "lazy"}
           style={{
             position: "absolute",
             inset: 0,

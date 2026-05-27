@@ -67,6 +67,7 @@ export function ImageUpload({ name, initialPath, aspect = 1, maxOutputSize = 120
   const [shouldRemove, setShouldRemove] = useState(false);
   const [cropSource, setCropSource] = useState<string | null>(null);
   const [preparing, setPreparing] = useState(false);
+  const [blurDataUrl, setBlurDataUrl] = useState<string>("");
 
   // Input que serializa o file pro form (escondido, manipulado por DataTransfer).
   const submitInputRef = useRef<HTMLInputElement>(null);
@@ -109,12 +110,13 @@ export function ImageUpload({ name, initialPath, aspect = 1, maxOutputSize = 120
     }
   }
 
-  function onCropConfirm(croppedFile: File) {
+  function onCropConfirm(croppedFile: File, blurDataURL: string) {
     if (submitInputRef.current) {
       const dt = new DataTransfer();
       dt.items.add(croppedFile);
       submitInputRef.current.files = dt.files;
     }
+    setBlurDataUrl(blurDataURL);
     const url = URL.createObjectURL(croppedFile);
     revokeIfBlob(preview);
     setPreview(url);
@@ -212,6 +214,7 @@ export function ImageUpload({ name, initialPath, aspect = 1, maxOutputSize = 120
           JPEG, PNG, WebP ou AVIF · max. 8MB · cortado pra {cropLabel}
         </p>
         <input type="hidden" name={`${name}__remove`} value={shouldRemove ? "true" : "false"} readOnly />
+        <input type="hidden" name={`${name}__blur`} value={blurDataUrl} readOnly />
       </div>
 
       <ImageCropDialog
@@ -219,7 +222,7 @@ export function ImageUpload({ name, initialPath, aspect = 1, maxOutputSize = 120
         sourceUrl={cropSource}
         aspect={aspect}
         maxOutputSize={maxOutputSize}
-        outputType="image/jpeg"
+        outputType="image/webp"
         onClose={onCropCancel}
         onConfirm={onCropConfirm}
       />

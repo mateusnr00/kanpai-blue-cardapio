@@ -197,7 +197,7 @@ export function CategoryView({ category, restaurantId }: Props) {
           gap: 14,
         }}
       >
-        {groups.map((group) => {
+        {groups.map((group, groupIdx) => {
             // featured offset = total de featured anteriores
             const featuredOffset = groups
               .slice(0, groups.indexOf(group))
@@ -282,6 +282,8 @@ export function CategoryView({ category, restaurantId }: Props) {
                   </div>
                 ) : (
                   rows.map((row, rowIdx) => {
+                    // Prioriza apenas as primeiras linhas do primeiro grupo (above-the-fold)
+                    const isPriority = groupIdx === 0 && rowIdx < 2;
                     if (row.kind === "featured") {
                       return (
                         <DishCardFeatured
@@ -290,6 +292,7 @@ export function CategoryView({ category, restaurantId }: Props) {
                           number={row.number}
                           variant={row.featuredIndex % 2 === 0 ? "blue" : "beige"}
                           restaurantId={restaurantId}
+                          priority={isPriority}
                         />
                       );
                     }
@@ -308,6 +311,7 @@ export function CategoryView({ category, restaurantId }: Props) {
                           number={row.left.number}
                           gradientIndex={rowIdx}
                           restaurantId={restaurantId}
+                          priority={isPriority}
                         />
                         {row.right && (
                           <DishCardSmall
@@ -315,6 +319,7 @@ export function CategoryView({ category, restaurantId }: Props) {
                             number={row.right.number}
                             gradientIndex={rowIdx + 1}
                             restaurantId={restaurantId}
+                            priority={isPriority}
                           />
                         )}
                       </div>

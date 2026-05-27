@@ -18,6 +18,10 @@ type Props = {
   topRight?: ReactNode;
   /** Se true, força texto claro no placeholder (gradient escuro). */
   dark?: boolean;
+  /** Prioriza essa imagem no carregamento (above-the-fold / hero). */
+  priority?: boolean;
+  /** LQIP base64 vindo do banco (gerado no admin no upload). */
+  blurDataUrl?: string;
 };
 
 const SIZES_BY_ASPECT: Record<Aspect, string> = {
@@ -28,7 +32,28 @@ const SIZES_BY_ASPECT: Record<Aspect, string> = {
   "2/1": "(max-width: 768px) 100vw, 900px",
 };
 
-export function DishImage({ src, alt, gradient, number, aspect = "1/1", topRight, dark }: Props) {
+const SUPABASE_HOST = "rxzohyrttklxevegdijm.supabase.co";
+
+/**
+ * Fotos de prato/categoria ja vivem no Supabase em WebP q=90 max 1200px (~50-150KB).
+ * Servir direto evita o cold-cache penalty do Next/Image optimizer (~1-2s na 1a visita).
+ * Logos/banners externos continuam via Next/Image.
+ */
+function isAlreadyOptimized(src: string): boolean {
+  return src.includes(SUPABASE_HOST) && src.includes("/dish-images/");
+}
+
+export function DishImage({
+  src,
+  alt,
+  gradient,
+  number,
+  aspect = "1/1",
+  topRight,
+  dark,
+  priority,
+  blurDataUrl,
+}: Props) {
   if (!src) {
     return (
       <PlaceholderImage
@@ -41,21 +66,67 @@ export function DishImage({ src, alt, gradient, number, aspect = "1/1", topRight
     );
   }
 
+  const wrapperStyle: React.CSSProperties = {
+    position: "relative",
+    width: "100%",
+    aspectRatio: aspect,
+    overflow: "hidden",
+    background: gradient,
+  };
+
+  // Caminho rapido: foto ja otimizada vai direto do Supabase CDN, sem Next/Image
+  if (isAlreadyOptimized(src)) {
+    return (
+      <div
+        style={{
+          ...wrapperStyle,
+          // LQIP blur como background — aparece instantaneo, e coberto pela <img> ao carregar
+          ...(blurDataUrl
+            ? {
+                backgroundImage: `url("${blurDataUrl}")`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : {}),
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={alt}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          {...(priority ? { fetchPriority: "high" } : {})}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+        {topRight ? (
+          <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>{topRight}</div>
+        ) : null}
+      </div>
+    );
+  }
+
+  // URL externa nao conhecida: passa pelo Next/Image normal
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        aspectRatio: aspect,
-        overflow: "hidden",
-      }}
-    >
+    <div style={wrapperStyle}>
       <Image
         src={src}
         alt={alt}
         fill
         sizes={SIZES_BY_ASPECT[aspect]}
         style={{ objectFit: "cover" }}
+        priority={priority}
+        loading={priority ? "eager" : "lazy"}
+        quality={80}
+        {...(blurDataUrl
+          ? { placeholder: "blur" as const, blurDataURL: blurDataUrl }
+          : {})}
       />
       {topRight ? (
         <div style={{ position: "absolute", top: 12, right: 12, zIndex: 1 }}>{topRight}</div>

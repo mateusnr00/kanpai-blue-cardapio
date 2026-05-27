@@ -103,7 +103,7 @@ export function HomePageClient({ categories, restaurantId, restaurantName }: Pro
                 gap: 14,
               }}
             >
-              {categories.map((category) => (
+              {categories.map((category, idx) => (
                 <motion.div
                   key={category.id}
                   variants={{
@@ -116,7 +116,11 @@ export function HomePageClient({ categories, restaurantId, restaurantName }: Pro
                   }}
                   style={category.fullWidth ? { gridColumn: "1 / -1" } : undefined}
                 >
-                  <CategoryCard category={category} restaurantId={restaurantId} />
+                  <CategoryCard
+                    category={category}
+                    restaurantId={restaurantId}
+                    priority={idx < 2}
+                  />
                 </motion.div>
               ))}
             </motion.div>

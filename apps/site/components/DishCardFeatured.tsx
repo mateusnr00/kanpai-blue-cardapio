@@ -6,6 +6,7 @@ import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
 import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
+import { preloadLightboxImage } from "@/lib/preload-lightbox";
 import { DishImage } from "./DishImage";
 import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
@@ -20,9 +21,10 @@ type Props = {
   /** Forced gradient choice (alternated by parent for rhythm). */
   variant?: "blue" | "beige";
   restaurantId: string;
+  priority?: boolean;
 };
 
-export function DishCardFeatured({ dish, number, variant = "blue", restaurantId }: Props) {
+export function DishCardFeatured({ dish, number, variant = "blue", restaurantId, priority }: Props) {
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
   const hasPrice = dish.price && dish.price.length > 0;
@@ -38,7 +40,9 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
 
   const onImpression = useCallback(() => {
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
-  }, [dish.id, restaurantId]);
+    // pre-carrega a versao do lightbox em background — abertura instantanea quando clicar
+    if (canZoom && dish.image) preloadLightboxImage(dish.image);
+  }, [canZoom, dish.id, dish.image, restaurantId]);
   const ref = useImpressionOnce<HTMLElement>(onImpression);
 
   const openDetails = useCallback(() => {
@@ -109,6 +113,8 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId 
           number={number}
           aspect="16/9"
           dark={isDark}
+          priority={priority}
+          blurDataUrl={dish.blurDataUrl}
           topRight={
             <span
               style={{

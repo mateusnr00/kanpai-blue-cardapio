@@ -8,6 +8,7 @@ import {
   BookOpenText,
   SquaresFour,
   ChartLineUp,
+  Star,
 } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
@@ -15,18 +16,21 @@ import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH }
 import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
 
 const NAV = [
-  { href: "/", label: "Cardápio", icon: BookOpenText, exact: true },
-  { href: "/cards", label: "Categorias", icon: SquaresFour },
-  { href: "/analytics", label: "Analytics", icon: ChartLineUp },
+  { href: "/", label: "Cardápio", icon: BookOpenText, exact: true, badgeKey: null },
+  { href: "/cards", label: "Categorias", icon: SquaresFour, badgeKey: null },
+  { href: "/reviews", label: "Avaliações", icon: Star, badgeKey: "unreadReviews" as const },
+  { href: "/analytics", label: "Analytics", icon: ChartLineUp, badgeKey: null },
 ] as const;
 
 type Props = {
   email: string | null;
   activeRestaurant: string;
   restaurants: RestaurantRow[];
+  unreadReviews?: number;
 };
 
-export function AdminSidebar({ email, activeRestaurant, restaurants }: Props) {
+export function AdminSidebar({ email, activeRestaurant, restaurants, unreadReviews = 0 }: Props) {
+  const badges: Record<string, number> = { unreadReviews };
   return (
     <aside className="admin-sidebar">
       <div className="sticky top-0 flex h-screen flex-col">
@@ -43,8 +47,15 @@ export function AdminSidebar({ email, activeRestaurant, restaurants }: Props) {
 
         <p className="px-5 pb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-faint">Menu</p>
         <nav className="admin-sidebar-nav">
-          {NAV.map(({ href, label, icon, ...rest }) => (
-            <NavLink key={href} href={href} icon={icon} layout="sidebar" {...rest}>
+          {NAV.map(({ href, label, icon, badgeKey, ...rest }) => (
+            <NavLink
+              key={href}
+              href={href}
+              icon={icon}
+              layout="sidebar"
+              badge={badgeKey ? badges[badgeKey] : undefined}
+              {...rest}
+            >
               {label}
             </NavLink>
           ))}

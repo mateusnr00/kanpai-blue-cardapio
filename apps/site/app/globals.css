@@ -126,6 +126,79 @@ button {
   transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
 }
 
+/* Select customizado (avaliação e formulários públicos) */
+.site-select-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--ink-faint);
+  background: var(--bg-card);
+  color: var(--ink);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    border-radius 150ms ease;
+}
+
+.site-select-trigger:hover:not(:disabled) {
+  border-color: var(--ink-soft);
+  background: var(--bg-warm);
+}
+
+.site-select-trigger--open {
+  border-color: var(--ink-soft);
+  border-bottom-color: transparent;
+  border-radius: 12px 12px 0 0;
+  box-shadow: none;
+}
+
+.site-select-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--ink-soft);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  background: var(--bg-card);
+  box-shadow: 0 10px 28px rgba(26, 14, 110, 0.1);
+}
+
+.site-select-option {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.site-select-option:hover:not(.site-select-option--active) {
+  background: var(--ink-trace);
+}
+
+.site-select-option--active {
+  background: var(--ink);
+  color: #fafaf8;
+}
+
+/* Estrelas de avaliação */
+.rating-star-btn:active {
+  transform: scale(0.94) !important;
+}
+
 /* App shell · emulates device frame on mobile */
 .app-shell {
   background: var(--bg);
@@ -173,4 +246,15 @@ button {
   height: 5px;
   border: 0.5px solid var(--ink-faint);
   background: transparent;
+}
+
+/* Linktree pill: hover/active invertem */
+.kanpai-link-pill:hover,
+.kanpai-link-pill:focus-visible {
+  background: var(--ink);
+  color: #FAFAF8;
+  outline: none;
+}
+.kanpai-link-pill:active {
+  transform: scale(0.985);
 }
