@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { getCategories, getRestaurantById, listRestaurants } from "@/lib/menu-server";
+import { getCategories, getRestaurantAnnouncement, getRestaurantById, listRestaurants } from "@/lib/menu-server";
 import type { Category } from "@/lib/menu-types";
+import { AnnouncementModal } from "@/components/AnnouncementModal";
 import { HomePageClient } from "./HomePageClient";
 
 export const revalidate = 3600;
@@ -33,5 +34,23 @@ export default async function RestaurantHomePage({ params }: { params: { restaur
   } catch (err) {
     console.warn("[RestaurantHomePage] getCategories falhou:", (err as Error).message);
   }
-  return <HomePageClient restaurantId={restaurant.id} restaurantName={restaurant.name} categories={categories} />;
+
+  let announcement: Awaited<ReturnType<typeof getRestaurantAnnouncement>> = null;
+  try {
+    announcement = await getRestaurantAnnouncement(restaurant.id);
+  } catch (err) {
+    console.warn("[RestaurantHomePage] getRestaurantAnnouncement falhou:", (err as Error).message);
+  }
+
+  return (
+    <>
+      <HomePageClient restaurantId={restaurant.id} restaurantName={restaurant.name} categories={categories} />
+      {announcement ? (
+        <AnnouncementModal
+          imageUrl={announcement.imageUrl}
+          storageKey={`kanpai-announcement-${restaurant.id}`}
+        />
+      ) : null}
+    </>
+  );
 }

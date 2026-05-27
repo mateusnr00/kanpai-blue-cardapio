@@ -364,6 +364,8 @@ export type Database = {
       restaurants: {
         Row: {
           active: boolean
+          announcement_active: boolean
+          announcement_image_path: string | null
           created_at: string
           id: string
           name: string
@@ -373,6 +375,8 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          announcement_active?: boolean
+          announcement_image_path?: string | null
           created_at?: string
           id: string
           name: string
@@ -382,6 +386,8 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          announcement_active?: boolean
+          announcement_image_path?: string | null
           created_at?: string
           id?: string
           name?: string

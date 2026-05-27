@@ -25,6 +25,32 @@ export type RestaurantInfo = {
   shortName: string;
 };
 
+export type RestaurantAnnouncement = {
+  imageUrl: string;
+};
+
+async function getRestaurantAnnouncementImpl(id: string): Promise<RestaurantAnnouncement | null> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("restaurants")
+    .select("announcement_active, announcement_image_path")
+    .eq("id", id)
+    .eq("active", true)
+    .maybeSingle();
+  if (error) throw error;
+  const row = data as { announcement_active?: boolean; announcement_image_path?: string | null } | null;
+  if (!row?.announcement_active || !row.announcement_image_path) return null;
+  const url = imageUrl(row.announcement_image_path);
+  if (!url) return null;
+  return { imageUrl: url };
+}
+
+export const getRestaurantAnnouncement = unstable_cache(
+  getRestaurantAnnouncementImpl,
+  ["restaurants:announcement"],
+  { tags: [tags.restaurants()], revalidate: 86400 },
+);
+
 async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase

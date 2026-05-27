@@ -8,6 +8,7 @@ import {
   BookOpenText,
   SquaresFour,
   ChartLineUp,
+  Megaphone,
   Star,
 } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
@@ -18,6 +19,7 @@ import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-share
 const NAV = [
   { href: "/", label: "Cardápio", icon: BookOpenText, exact: true, badgeKey: null },
   { href: "/cards", label: "Categorias", icon: SquaresFour, badgeKey: null },
+  { href: "/aviso", label: "Aviso", icon: Megaphone, badgeKey: null },
   { href: "/reviews", label: "Avaliações", icon: Star, badgeKey: "unreadReviews" as const },
   { href: "/analytics", label: "Analytics", icon: ChartLineUp, badgeKey: null },
 ] as const;
