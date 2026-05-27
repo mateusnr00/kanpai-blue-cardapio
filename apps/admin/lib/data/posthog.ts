@@ -79,7 +79,7 @@ export async function loadPostHogKpis(): Promise<PostHogKpis> {
     ),
     hogQL(
       `SELECT
-         avg(toInt8($is_bounce)) AS bounce_rate,
+         avg(if($is_bounce, 1, 0)) AS bounce_rate,
          avg($session_duration) AS avg_duration_sec
        FROM sessions
        WHERE $start_timestamp > now() - INTERVAL 30 DAY`,
