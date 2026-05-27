@@ -66,8 +66,6 @@ export async function saveTheme(formData: FormData): Promise<{ error?: string }>
     bg_image_remove: String(formData.get("bg_image_remove") ?? "false") === "true",
   };
 
-  if (!input.title) return { error: "Título obrigatório." };
-
   // Processa logo
   let logoUrl: string | null = current?.logo_url ?? null;
   const logoFile = formData.get("logo_file");

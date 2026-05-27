@@ -47,32 +47,36 @@ export default async function HomePage() {
           />
         ) : null}
 
-        <header style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: fs(28),
-              fontWeight: 500,
-              letterSpacing: "-0.02em",
-              color: theme.textColor,
-            }}
-          >
-            {theme.title}
-          </h1>
-          {theme.subtitle ? (
-            <p
-              style={{
-                margin: 0,
-                fontSize: fs(13),
-                fontWeight: 400,
-                color: theme.subtitleColor,
-                letterSpacing: "-0.005em",
-              }}
-            >
-              {theme.subtitle}
-            </p>
-          ) : null}
-        </header>
+        {theme.title || theme.subtitle ? (
+          <header style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
+            {theme.title ? (
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: fs(28),
+                  fontWeight: 500,
+                  letterSpacing: "-0.02em",
+                  color: theme.textColor,
+                }}
+              >
+                {theme.title}
+              </h1>
+            ) : null}
+            {theme.subtitle ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: fs(13),
+                  fontWeight: 400,
+                  color: theme.subtitleColor,
+                  letterSpacing: "-0.005em",
+                }}
+              >
+                {theme.subtitle}
+              </p>
+            ) : null}
+          </header>
+        ) : null}
 
         <LinktreePills buttons={buttons} theme={theme} />
 

@@ -99,13 +99,13 @@ export function DesignForm({ initial, siteUrl }: Props) {
 
         {/* Perfil */}
         <Section title="Perfil">
-          <Field label="Título">
-            <input name="title" defaultValue={initial.title} required className="admin-input" />
+          <Field label="Título (opcional)">
+            <input name="title" defaultValue={initial.title} className="admin-input" />
           </Field>
-          <Field label="Subtítulo">
+          <Field label="Subtítulo (opcional)">
             <input name="subtitle" defaultValue={initial.subtitle} className="admin-input" />
           </Field>
-          <Field label="Rodapé">
+          <Field label="Rodapé (opcional)">
             <input name="footer" defaultValue={initial.footer} className="admin-input" />
           </Field>
           <Field label="Logo">
