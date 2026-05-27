@@ -29,7 +29,6 @@ export type CategoryRow = {
   slideshow_image_paths: string[];
   full_width: boolean;
   display_mode: "grid" | "list";
-  cover_aspect: "wide" | "square";
   restaurant_id: string;
   schedule_start: string | null;
   schedule_end: string | null;
@@ -37,7 +36,7 @@ export type CategoryRow = {
 };
 
 const CATEGORY_FIELDS =
-  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, subcategory_display_modes, image_path, slideshow_image_paths, full_width, display_mode, cover_aspect, restaurant_id, schedule_start, schedule_end, schedule_off_days";
+  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, subcategory_display_modes, image_path, slideshow_image_paths, full_width, display_mode, restaurant_id, schedule_start, schedule_end, schedule_off_days";
 
 export async function listCategoriesWithCounts(restaurantId: string): Promise<CategoryListItem[]> {
   const supabase = createServerClient();
