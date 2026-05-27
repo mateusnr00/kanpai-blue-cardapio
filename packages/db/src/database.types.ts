@@ -553,6 +553,10 @@ export type Database = {
           name: string
           position: number
           short_name: string
+          show_category_eyebrow: boolean
+          show_category_footer_count: boolean
+          show_category_subtitle: boolean
+          show_home_footer_count: boolean
           updated_at: string
         }
         Insert: {
@@ -565,6 +569,10 @@ export type Database = {
           name: string
           position?: number
           short_name: string
+          show_category_eyebrow?: boolean
+          show_category_footer_count?: boolean
+          show_category_subtitle?: boolean
+          show_home_footer_count?: boolean
           updated_at?: string
         }
         Update: {
@@ -577,6 +585,10 @@ export type Database = {
           name?: string
           position?: number
           short_name?: string
+          show_category_eyebrow?: boolean
+          show_category_footer_count?: boolean
+          show_category_subtitle?: boolean
+          show_home_footer_count?: boolean
           updated_at?: string
         }
         Relationships: []

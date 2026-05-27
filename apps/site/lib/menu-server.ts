@@ -25,6 +25,10 @@ export type RestaurantInfo = {
   name: string;
   shortName: string;
   likesEnabled: boolean;
+  showCategoryEyebrow: boolean;
+  showCategorySubtitle: boolean;
+  showHomeFooterCount: boolean;
+  showCategoryFooterCount: boolean;
 };
 
 export type RestaurantAnnouncement = {
@@ -57,7 +61,9 @@ async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("restaurants")
-    .select("id, name, short_name, position, likes_enabled")
+    .select(
+      "id, name, short_name, position, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+    )
     .eq("active", true)
     .order("position");
   if (error) throw error;
@@ -66,6 +72,10 @@ async function listRestaurantsImpl(): Promise<RestaurantInfo[]> {
     name: r.name,
     shortName: r.short_name,
     likesEnabled: r.likes_enabled ?? true,
+    showCategoryEyebrow: r.show_category_eyebrow ?? true,
+    showCategorySubtitle: r.show_category_subtitle ?? true,
+    showHomeFooterCount: r.show_home_footer_count ?? true,
+    showCategoryFooterCount: r.show_category_footer_count ?? true,
   }));
 }
 
@@ -78,7 +88,9 @@ async function getRestaurantByIdImpl(id: string): Promise<RestaurantInfo | null>
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("restaurants")
-    .select("id, name, short_name, likes_enabled")
+    .select(
+      "id, name, short_name, likes_enabled, show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+    )
     .eq("id", id)
     .eq("active", true)
     .maybeSingle();
@@ -89,6 +101,10 @@ async function getRestaurantByIdImpl(id: string): Promise<RestaurantInfo | null>
     name: data.name,
     shortName: data.short_name,
     likesEnabled: data.likes_enabled ?? true,
+    showCategoryEyebrow: data.show_category_eyebrow ?? true,
+    showCategorySubtitle: data.show_category_subtitle ?? true,
+    showHomeFooterCount: data.show_home_footer_count ?? true,
+    showCategoryFooterCount: data.show_category_footer_count ?? true,
   };
 }
 

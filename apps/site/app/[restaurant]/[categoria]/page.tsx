@@ -47,15 +47,23 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
   if (!category) notFound();
 
   const total = categories.length;
+  const rightLabel = restaurant.showCategoryFooterCount
+    ? `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`
+    : "";
 
   return (
     <>
       <main style={{ position: "relative" }}>
-        <CategoryView category={category} restaurantId={restaurant.id} />
+        <CategoryView
+          category={category}
+          restaurantId={restaurant.id}
+          showEyebrow={restaurant.showCategoryEyebrow}
+          showSubtitle={restaurant.showCategorySubtitle}
+        />
       </main>
       <Footer
         left={`${category.number} / ${String(total).padStart(2, "0")}`}
-        right=""
+        right={rightLabel}
       />
       <div
         aria-hidden

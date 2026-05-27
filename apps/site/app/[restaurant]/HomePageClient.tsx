@@ -15,9 +15,10 @@ type Props = {
   categories: Category[];
   restaurantId: string;
   restaurantName: string;
+  showFooterCount?: boolean;
 };
 
-export function HomePageClient({ categories, restaurantId, restaurantName }: Props) {
+export function HomePageClient({ categories, restaurantId, restaurantName, showFooterCount = true }: Props) {
   const [decided, setDecided] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
 
@@ -124,7 +125,7 @@ export function HomePageClient({ categories, restaurantId, restaurantName }: Pro
         </main>
         <Footer
           left="Goiânia"
-          right=""
+          right={showFooterCount ? `${String(categories.length).padStart(2, "0")} categorias` : ""}
         />
 
         <style>{`

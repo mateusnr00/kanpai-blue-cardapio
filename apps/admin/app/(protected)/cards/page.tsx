@@ -3,8 +3,10 @@ import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { listCategoriesAll } from "@/lib/data/categories";
 import { createServerClient } from "@/lib/supabase-server";
 import { CategoriesTable } from "@/components/CategoriesTable";
+import { MenuDisplayToggles } from "@/components/MenuDisplayToggles";
 import { PageHeader } from "@/components/PageHeader";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
+import type { DisplayFlag } from "./display-actions";
 
 async function countByCategory(restaurantId: string): Promise<Record<string, number>> {
   const supabase = createServerClient();
@@ -20,11 +22,29 @@ async function countByCategory(restaurantId: string): Promise<Record<string, num
   return counts;
 }
 
+async function loadDisplayFlags(restaurantId: string): Promise<Record<DisplayFlag, boolean>> {
+  const supabase = createServerClient();
+  const { data } = await supabase
+    .from("restaurants")
+    .select(
+      "show_category_eyebrow, show_category_subtitle, show_home_footer_count, show_category_footer_count",
+    )
+    .eq("id", restaurantId)
+    .maybeSingle();
+  return {
+    show_category_eyebrow: data?.show_category_eyebrow ?? true,
+    show_category_subtitle: data?.show_category_subtitle ?? true,
+    show_home_footer_count: data?.show_home_footer_count ?? true,
+    show_category_footer_count: data?.show_category_footer_count ?? true,
+  };
+}
+
 export default async function CardsPage() {
   const restaurantId = getActiveRestaurantId();
-  const [categories, dishCounts] = await Promise.all([
+  const [categories, dishCounts, displayFlags] = await Promise.all([
     listCategoriesAll(restaurantId),
     countByCategory(restaurantId),
+    loadDisplayFlags(restaurantId),
   ]);
 
   return (
@@ -39,6 +59,8 @@ export default async function CardsPage() {
           </Link>
         }
       />
+
+      <MenuDisplayToggles initial={displayFlags} />
 
       <CategoriesTable initial={categories} dishCounts={dishCounts} />
     </section>
