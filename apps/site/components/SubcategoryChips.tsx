@@ -32,7 +32,7 @@ export function SubcategoryChips({ options, onSelect, active: activeProp }: Prop
         display: "flex",
         gap: 8,
         overflowX: "auto",
-        padding: "10px 22px",
+        padding: "18px 22px 12px",
         background: "var(--bg)",
         borderBottom: "0.5px solid var(--ink-ghost)",
         scrollSnapType: "x proximity",
