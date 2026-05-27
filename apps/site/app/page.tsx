@@ -5,7 +5,7 @@ import { LinktreePills } from "@/components/LinktreePills";
 
 export const metadata = {
   title: "Kanpai Blue",
-  description: "Cardápio digital, reservas e contato — Kanpai Blue Goiânia.",
+  description: "Cardápio digital, reservas e contato, Kanpai Blue Goiânia.",
 };
 
 export const revalidate = 86400;
@@ -59,7 +59,7 @@ export default async function HomePage() {
             letterSpacing: "-0.005em",
           }}
         >
-          Culinária japonesa contemporânea · Goiânia
+          Culinária japonesa contemporânea, Goiânia
         </p>
       </header>
 

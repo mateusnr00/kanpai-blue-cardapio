@@ -5,7 +5,7 @@ import { ReviewsList } from "./ReviewsList";
 import { MarkAllReadAction } from "./MarkAllReadAction";
 
 function fmtAvg(n: number | null): string {
-  if (n == null) return "—";
+  if (n == null) return "-";
   return n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 }
 
@@ -19,7 +19,7 @@ export default async function ReviewsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <PageHeader
           title="Avaliações"
-          description="Feedback dos clientes desta unidade — vindo do form público em /avaliacao."
+          description="Feedback dos clientes desta unidade, vindo do form público em /avaliacao."
         />
         {stats.unread > 0 ? <MarkAllReadAction restaurantId={restaurantId} /> : null}
       </div>
@@ -73,7 +73,7 @@ function DistributionBar({
                 />
               </div>
               <span className="w-16 text-right tabular-nums text-ink-muted">
-                {n} · {pct.toFixed(0)}%
+                {n} | {pct.toFixed(0)}%
               </span>
             </div>
           );

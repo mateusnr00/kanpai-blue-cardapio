@@ -35,9 +35,9 @@ export function DishRow({ dish, dragHandle }: Props) {
         {dish.description ? (
           <div className="line-clamp-1 max-w-xl text-xs text-ink-soft">{dish.description}</div>
         ) : null}
-        <div className="mt-1 text-xs text-ink-soft sm:hidden">{dish.price ?? "—"}</div>
+        <div className="mt-1 text-xs text-ink-soft sm:hidden">{dish.price ?? "-"}</div>
       </td>
-      <td className="hidden w-24 whitespace-nowrap py-3 pr-4 text-sm sm:table-cell">{dish.price ?? "—"}</td>
+      <td className="hidden w-24 whitespace-nowrap py-3 pr-4 text-sm sm:table-cell">{dish.price ?? "-"}</td>
       <td className="w-16 py-3 pr-3">
         <DishToggleActive id={dish.id} active={dish.active} />
       </td>

@@ -153,7 +153,7 @@ export function CategoryView({ category, restaurantId }: Props) {
             color: "var(--ink-soft)",
           }}
         >
-          Categoria · {category.number}
+          Categoria {category.number}
         </p>
         <h1
           style={{
@@ -177,7 +177,7 @@ export function CategoryView({ category, restaurantId }: Props) {
             color: "var(--ink-soft)",
           }}
         >
-          {category.itemCount} · {category.detail}
+          {category.itemCount} - {category.detail}
         </p>
       </section>
 

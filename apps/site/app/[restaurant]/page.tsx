@@ -17,9 +17,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: { restaurant: string } }) {
   const r = await getRestaurantById(params.restaurant);
-  if (!r) return { title: "Kanpai Blue · Cardápio" };
+  if (!r) return { title: "Kanpai Blue | Cardápio" };
   return {
-    title: `${r.name} · Cardápio`,
+    title: `${r.name} | Cardápio`,
     description: `Cardápio digital do ${r.name}.`,
   };
 }

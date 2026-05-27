@@ -88,7 +88,7 @@ export function CategoriesDonutChart({ categories }: Props) {
   return (
     <ChartPanel
       title={labels.title}
-      description={`${fmt(totalClicks)} aberturas · ${slices.length} ${slices.length === 1 ? "categoria" : "categorias"}`}
+      description={`${fmt(totalClicks)} aberturas | ${slices.length} ${slices.length === 1 ? "categoria" : "categorias"}`}
       className="!p-4 sm:!p-5"
     >
       <div className="flex flex-col gap-5">
@@ -108,7 +108,7 @@ export function CategoriesDonutChart({ categories }: Props) {
                 </span>
                 <span className="shrink-0 text-right text-xs tabular-nums text-ink-muted">
                   <span className="font-semibold text-ink">{fmt(slice.cliques)}</span>
-                  {" · "}
+                  {" | "}
                   {slice.pct.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
                 </span>
               </div>

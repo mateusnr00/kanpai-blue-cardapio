@@ -47,7 +47,7 @@ export function SubcategoriesEditor({ initial, initialModes }: Props) {
 
       <p className="mb-4 text-xs text-ink-muted">
         Ex: &quot;Quentes&quot;, &quot;Frias&quot;. Aparecem como filtro acima da lista no site.
-        Cada subcategoria pode ser exibida como <strong>Cards</strong> (foto) ou <strong>Lista</strong> (texto) — bom pra bebidas e drinks que não têm foto.
+        Cada subcategoria pode ser exibida como <strong>Cards</strong> (foto) ou <strong>Lista</strong> (texto), bom pra bebidas e drinks que não têm foto.
       </p>
 
       <input type="hidden" name="subcategory_count" value={items.length} readOnly />

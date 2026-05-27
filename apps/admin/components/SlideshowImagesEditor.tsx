@@ -270,7 +270,7 @@ export function SlideshowImagesEditor({ initial }: Props) {
           />
         </label>
         <p className="text-xs text-ink-muted">
-          <ImageIcon size={14} className="inline-block align-text-bottom" weight="duotone" /> JPEG, PNG, WebP ou AVIF · máx. {MAX_SIZE_MB}MB por foto · até {MAX_FILES} fotos · exporta em WebP até {MAX_OUTPUT_SIZE}px
+          <ImageIcon size={14} className="inline-block align-text-bottom" weight="duotone" /> JPEG, PNG, WebP ou AVIF, máx. {MAX_SIZE_MB}MB por foto, até {MAX_FILES} fotos, exporta em WebP até {MAX_OUTPUT_SIZE}px
         </p>
       </div>
     </div>

@@ -70,10 +70,10 @@ function SortableDishRow({ dish }: { dish: DishListRow }) {
         {dish.description ? (
           <div className="line-clamp-1 max-w-xl text-xs text-ink-muted">{dish.description}</div>
         ) : null}
-        <div className="mt-1 text-xs text-ink-muted sm:hidden">{dish.price ?? "—"}</div>
+        <div className="mt-1 text-xs text-ink-muted sm:hidden">{dish.price ?? "-"}</div>
       </td>
       <td className="hidden w-28 whitespace-nowrap font-medium tabular-nums sm:table-cell">
-        {dish.price ?? "—"}
+        {dish.price ?? "-"}
       </td>
       <td className="w-20">
         <DishToggleActive id={dish.id} active={dish.active} />

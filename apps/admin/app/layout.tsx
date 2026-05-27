@@ -13,8 +13,13 @@ const sans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Kanpai · Admin",
+  title: "Kanpai | Admin",
   description: "Painel de gestão do cardápio Kanpai Blue.",
+  icons: {
+    icon: "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/favicon%20kanpai.png",
+    shortcut: "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/favicon%20kanpai.png",
+    apple: "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/favicon%20kanpai.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

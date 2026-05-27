@@ -16,8 +16,8 @@ export async function generateMetadata({ params }: Props) {
   const tree = await getSubLinktree(params.slug);
   if (!tree) return { title: "Kanpai Blue" };
   return {
-    title: `${tree.root.label} · Kanpai Blue`,
-    description: `${tree.root.label} — Kanpai Blue.`,
+    title: `${tree.root.label} | Kanpai Blue`,
+    description: `${tree.root.label}, Kanpai Blue.`,
   };
 }
 

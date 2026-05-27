@@ -53,7 +53,7 @@ export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: 
           <span className="text-sm font-medium text-ink">Mostrar o aviso no site</span>
           <span className="text-xs text-ink-muted">
             Quando ligado, o modal aparece <strong>logo após a animação de intro</strong> na home do restaurante
-            ativo. Cliente fecha clicando no X, fora do modal ou apertando ESC — não aparece de novo na mesma
+            ativo. Cliente fecha clicando no X, fora do modal ou apertando ESC, não aparece de novo na mesma
             sessão.
           </span>
         </span>
@@ -71,7 +71,7 @@ export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: 
             {currentUrl}
           </a>
           <p className="mt-2 text-ink-muted">
-            Clica pra abrir num tab novo — se não carregar aqui, também não vai carregar no modal do site.
+            Clica pra abrir num tab novo, se não carregar aqui, também não vai carregar no modal do site.
           </p>
         </div>
       ) : null}
@@ -86,7 +86,7 @@ export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: 
           onChange={(e) => setAspect(e.target.value as Aspect)}
           className="admin-input max-w-sm"
         >
-          <option value="portrait">Retrato (1080×1620) — recomendado pra mobile</option>
+          <option value="portrait">Retrato (1080×1620), recomendado pra mobile</option>
           <option value="square">Quadrada (1200×1200)</option>
         </select>
         <p className="text-xs text-ink-muted">

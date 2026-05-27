@@ -114,7 +114,7 @@ export function ReviewsList({ reviews }: Props) {
                 </p>
                 <p className="truncate text-xs text-ink-muted">
                   {fmtDate(r.created_at)}
-                  {r.waiter_name ? ` · garçom: ${r.waiter_name}` : ""}
+                  {r.waiter_name ? ` | garçom: ${r.waiter_name}` : ""}
                 </p>
               </div>
               {isUnread ? (

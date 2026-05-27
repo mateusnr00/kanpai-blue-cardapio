@@ -320,7 +320,7 @@ function EditDialog({
             onChange={(e) => setLabel(e.target.value)}
             className="admin-input"
             autoFocus
-            placeholder="Ex: Cardápio · Flamboyant"
+            placeholder="Ex: Cardápio Flamboyant"
           />
         </div>
 
