@@ -159,7 +159,7 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
               style={{
                 position: "absolute",
                 top: 12,
-                right: 12,
+                left: 12,
                 width: 36,
                 height: 36,
                 display: "inline-flex",
