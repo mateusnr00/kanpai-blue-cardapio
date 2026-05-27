@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import type { Category, Dish } from "@/lib/menu-types";
@@ -80,11 +80,12 @@ export function SearchBar({ categories }: SearchBarProps) {
 
 function SearchOverlay({ index, onClose }: { index: Result[]; onClose: () => void }) {
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const results = useMemo(() => {
-    const q = normalize(query.trim());
+    const q = normalize(deferredQuery.trim());
     if (!q) return [];
     return index
       .filter((r) => {
@@ -97,7 +98,7 @@ function SearchOverlay({ index, onClose }: { index: Result[]; onClose: () => voi
         return hay.includes(q);
       })
       .slice(0, 20);
-  }, [query, index]);
+  }, [deferredQuery, index]);
 
   // Foca o input ao abrir
   useEffect(() => {

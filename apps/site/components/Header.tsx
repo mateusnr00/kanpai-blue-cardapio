@@ -65,7 +65,7 @@ export function Header({ showBack, categories, restaurantId }: Props) {
             alt="Kanpai Blue"
             width={1280}
             height={352}
-            fetchPriority="high"
+            loading="eager"
             style={{
               height: 22,
               width: "auto",

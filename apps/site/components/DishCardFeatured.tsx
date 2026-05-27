@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import dynamic from "next/dynamic";
 import { AnimatePresence } from "framer-motion";
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
@@ -8,9 +9,17 @@ import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
 import { preloadLightboxImage } from "@/lib/preload-lightbox";
 import { DishImage } from "./DishImage";
-import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
-import { DishDetailsModal } from "./DishDetailsModal";
+
+const ImageLightbox = dynamic(
+  () => import("./ImageLightbox").then((m) => m.ImageLightbox),
+  { ssr: false },
+);
+
+const DishDetailsModal = dynamic(
+  () => import("./DishDetailsModal").then((m) => m.DishDetailsModal),
+  { ssr: false },
+);
 
 const FEATURED_BLUE = "linear-gradient(135deg, #1A0E6E 0%, #2A1E8E 100%)";
 const FEATURED_BEIGE = "linear-gradient(135deg, #C8BFA0 0%, #A89878 100%)";

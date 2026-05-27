@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import dynamic from "next/dynamic";
 import { AnimatePresence } from "framer-motion";
 import type { Dish } from "@/lib/menu-data";
 import { fs } from "@/lib/scale";
@@ -8,8 +9,12 @@ import { track } from "@/lib/analytics";
 import { useImpressionOnce } from "@/lib/use-impression";
 import { preloadLightboxImage } from "@/lib/preload-lightbox";
 import { DishImage } from "./DishImage";
-import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
+
+const ImageLightbox = dynamic(
+  () => import("./ImageLightbox").then((m) => m.ImageLightbox),
+  { ssr: false },
+);
 
 const SMALL_GRADIENTS = [
   "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)",

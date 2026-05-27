@@ -60,31 +60,53 @@ export const getRestaurantById = unstable_cache(getRestaurantByIdImpl, ["restaur
 async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   const supabase = createServerClient();
 
-  const [catsRes, dishesRes, sectionsRes, componentsRes] = await Promise.all([
+  const [catsRes, dishesRes] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width, slideshow_image_paths, display_mode")
+      .select(
+        "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, image_path, full_width, slideshow_image_paths, display_mode",
+      )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
       .order("position"),
     supabase
       .from("dishes")
-      .select("id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, blur_data_url, position, badges, is_component_only")
+      .select(
+        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, original_price, image_path, blur_data_url, position, badges, is_component_only",
+      )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
-      .order("position"),
-    supabase
-      .from("dish_detail_sections")
-      .select("dish_id, label, description, position")
-      .order("position"),
-    supabase
-      .from("dish_components")
-      .select("parent_dish_id, child_dish_id, kind, position")
       .order("position"),
   ]);
 
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;
+
+  const dishUuids = (dishesRes.data ?? []).map((d) => d.id);
+
+  const [sectionsRes, componentsRes] = await Promise.all([
+    dishUuids.length === 0
+      ? (Promise.resolve({ data: [], error: null }) as Promise<{
+          data: { dish_id: string; label: string; description: string; position: number }[];
+          error: null;
+        }>)
+      : supabase
+          .from("dish_detail_sections")
+          .select("dish_id, label, description, position")
+          .in("dish_id", dishUuids)
+          .order("position"),
+    dishUuids.length === 0
+      ? (Promise.resolve({ data: [], error: null }) as Promise<{
+          data: { parent_dish_id: string; child_dish_id: string; kind: string; position: number }[];
+          error: null;
+        }>)
+      : supabase
+          .from("dish_components")
+          .select("parent_dish_id, child_dish_id, kind, position")
+          .in("parent_dish_id", dishUuids)
+          .order("position"),
+  ]);
+
   if (sectionsRes.error) throw sectionsRes.error;
   if (componentsRes.error) throw componentsRes.error;
 
