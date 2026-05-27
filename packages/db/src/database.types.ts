@@ -118,6 +118,7 @@ export type Database = {
         Row: {
           active: boolean
           blur_data_url: string | null
+          cover_aspect: string
           created_at: string
           description: string
           detail: string | null
@@ -145,6 +146,7 @@ export type Database = {
         Insert: {
           active?: boolean
           blur_data_url?: string | null
+          cover_aspect?: string
           created_at?: string
           description: string
           detail?: string | null
@@ -172,6 +174,7 @@ export type Database = {
         Update: {
           active?: boolean
           blur_data_url?: string | null
+          cover_aspect?: string
           created_at?: string
           description?: string
           detail?: string | null
