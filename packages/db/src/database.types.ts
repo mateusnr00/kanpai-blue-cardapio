@@ -86,6 +86,7 @@ export type Database = {
           slideshow_image_paths: string[]
           slug: string
           subcategories: string[]
+          subcategory_display_modes: Json
           updated_at: string
         }
         Insert: {
@@ -109,6 +110,7 @@ export type Database = {
           slideshow_image_paths?: string[]
           slug: string
           subcategories?: string[]
+          subcategory_display_modes?: Json
           updated_at?: string
         }
         Update: {
@@ -132,6 +134,7 @@ export type Database = {
           slideshow_image_paths?: string[]
           slug?: string
           subcategories?: string[]
+          subcategory_display_modes?: Json
           updated_at?: string
         }
         Relationships: [
