@@ -29,3 +29,7 @@ export function triggerSiteRevalidate(tagsToRevalidate: string[]): void {
 export function revalidateMenuOnSite(restaurantId: string): void {
   triggerSiteRevalidate([tags.menu(restaurantId), tags.restaurants()]);
 }
+
+export function revalidateLinktreeOnSite(): void {
+  triggerSiteRevalidate([tags.linktree()]);
+}

@@ -82,29 +82,18 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;
 
-  const dishUuids = (dishesRes.data ?? []).map((d) => d.id);
-
+  // Sections/components sao filtrados em memoria pelo map dishByUuid abaixo.
+  // Filtrar via .in([dishUuids]) explode o tamanho da URL (>16KB) quando o
+  // restaurante tem 200+ pratos -> erro do Supabase.
   const [sectionsRes, componentsRes] = await Promise.all([
-    dishUuids.length === 0
-      ? (Promise.resolve({ data: [], error: null }) as Promise<{
-          data: { dish_id: string; label: string; description: string; position: number }[];
-          error: null;
-        }>)
-      : supabase
-          .from("dish_detail_sections")
-          .select("dish_id, label, description, position")
-          .in("dish_id", dishUuids)
-          .order("position"),
-    dishUuids.length === 0
-      ? (Promise.resolve({ data: [], error: null }) as Promise<{
-          data: { parent_dish_id: string; child_dish_id: string; kind: string; position: number }[];
-          error: null;
-        }>)
-      : supabase
-          .from("dish_components")
-          .select("parent_dish_id, child_dish_id, kind, position")
-          .in("parent_dish_id", dishUuids)
-          .order("position"),
+    supabase
+      .from("dish_detail_sections")
+      .select("dish_id, label, description, position")
+      .order("position"),
+    supabase
+      .from("dish_components")
+      .select("parent_dish_id, child_dish_id, kind, position")
+      .order("position"),
   ]);
 
   if (sectionsRes.error) throw sectionsRes.error;

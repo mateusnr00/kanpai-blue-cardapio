@@ -1,33 +1,21 @@
 import Image from "next/image";
-import Link from "next/link";
 import { fs } from "@/lib/scale";
+import { getRootButtons } from "@/lib/linktree-server";
+import { LinktreePills } from "@/components/LinktreePills";
 
 export const metadata = {
   title: "Kanpai Blue",
   description: "Cardápio digital, reservas e contato — Kanpai Blue Goiânia.",
 };
 
+export const revalidate = 86400;
+
 const LOGO_URL =
   "https://rxzohyrttklxevegdijm.supabase.co/storage/v1/object/public/LOGOS/logo%20kanpai%20(1).png";
 
-type LinkItem = {
-  label: string;
-  href: string;
-  highlight?: boolean;
-  external?: boolean;
-  disabled?: boolean;
-};
+export default async function HomePage() {
+  const buttons = await getRootButtons();
 
-const LINKS: LinkItem[] = [
-  { label: "Cardápio · Flamboyant", href: "/flamboyant", highlight: true },
-  { label: "Cardápio · Goiânia Shopping", href: "/goianiashopping", highlight: true },
-  { label: "Reservas", href: "/reservas" },
-  { label: "Fale conosco", href: "#", disabled: true },
-  { label: "Localização", href: "/localizacao" },
-  { label: "Avalie-nos", href: "/avaliacao" },
-];
-
-export default function HomePage() {
   return (
     <main
       style={{
@@ -75,64 +63,7 @@ export default function HomePage() {
         </p>
       </header>
 
-      <nav
-        aria-label="Atalhos"
-        style={{
-          width: "100%",
-          maxWidth: 420,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          marginTop: 4,
-        }}
-      >
-        {LINKS.map((link) => {
-          const baseStyle = {
-            display: "block",
-            width: "100%",
-            padding: "16px 22px",
-            borderRadius: 999,
-            border: "1px solid var(--ink)",
-            background: "transparent",
-            color: "var(--ink)",
-            fontSize: fs(14),
-            fontWeight: 500,
-            letterSpacing: "-0.005em",
-            textAlign: "center" as const,
-            textDecoration: "none",
-            transition: "background 160ms ease, color 160ms ease, transform 120ms ease",
-          };
-
-          if (link.disabled) {
-            return (
-              <span
-                key={link.label}
-                aria-disabled
-                style={{
-                  ...baseStyle,
-                  opacity: 0.45,
-                  cursor: "not-allowed",
-                  borderStyle: "dashed",
-                }}
-              >
-                {link.label}
-              </span>
-            );
-          }
-
-          return (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="kanpai-link-pill"
-              style={baseStyle}
-              {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            >
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <LinktreePills buttons={buttons} />
 
       <footer
         style={{

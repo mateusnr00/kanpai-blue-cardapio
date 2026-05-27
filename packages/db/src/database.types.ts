@@ -86,6 +86,7 @@ export type Database = {
           slideshow_image_paths: string[]
           slug: string
           subcategories: string[]
+          subcategory_display_modes: Json
           updated_at: string
         }
         Insert: {
@@ -109,6 +110,7 @@ export type Database = {
           slideshow_image_paths?: string[]
           slug: string
           subcategories?: string[]
+          subcategory_display_modes?: Json
           updated_at?: string
         }
         Update: {
@@ -132,6 +134,7 @@ export type Database = {
           slideshow_image_paths?: string[]
           slug?: string
           subcategories?: string[]
+          subcategory_display_modes?: Json
           updated_at?: string
         }
         Relationships: [
@@ -354,6 +357,50 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linktree_buttons: {
+        Row: {
+          active: boolean
+          child_slug: string | null
+          created_at: string
+          href: string | null
+          id: string
+          label: string
+          parent_id: string | null
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          child_slug?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          label: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          child_slug?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          label?: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linktree_buttons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "linktree_buttons"
             referencedColumns: ["id"]
           },
         ]
