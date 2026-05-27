@@ -107,7 +107,6 @@ export type Stats = {
   // Funil em PESSOAS únicas (não eventos) — para % sempre <= 100%.
   peopleOpenedCategory: number;
   peopleSawDishes: number;
-  peopleOpenedDetails: number;
 };
 
 function computeStats(events: EventRow[]): Stats {
@@ -116,7 +115,6 @@ function computeStats(events: EventRow[]): Stats {
   const sessionsWithDish = new Set<string>();
   const peopleCategory = new Set<string>();
   const peopleDishes = new Set<string>();
-  const peopleDetails = new Set<string>();
   let homeViews = 0;
   let categoryOpens = 0;
   let dishImpressions = 0;
@@ -135,7 +133,6 @@ function computeStats(events: EventRow[]): Stats {
     } else if (e.event_type === "dish_view") {
       dishViews += 1;
       sessionsWithDish.add(e.session_id);
-      peopleDetails.add(e.visitor_id);
     }
   }
   const totalSessions = sessions.size;
@@ -152,7 +149,6 @@ function computeStats(events: EventRow[]): Stats {
     dishViews,
     peopleOpenedCategory: peopleCategory.size,
     peopleSawDishes: peopleDishes.size,
-    peopleOpenedDetails: peopleDetails.size,
   };
 }
 
@@ -308,7 +304,9 @@ function computeTopDishes(events: EventRow[], dishNames: Map<string, string>): D
       views: v.views,
       people: v.people.size,
     }))
-    .sort((a, b) => b.impressions - a.impressions);
+    // Ordena por pessoas distintas; desempate por impressões.
+    // Evita "Água com Gás" no topo só por estar no início da lista.
+    .sort((a, b) => b.people - a.people || b.impressions - a.impressions);
 }
 
 export type DashboardData = {

@@ -17,7 +17,8 @@ type BarProps = {
 };
 
 function DishBar({ dish, max, color, rank }: BarProps) {
-  const pct = max > 0 ? Math.max((dish.impressions / max) * 100, 4) : 0;
+  const pct = max > 0 ? Math.max((dish.people / max) * 100, 4) : 0;
+  const label = dish.people === 1 ? "1 pessoa" : `${fmt(dish.people)} pessoas`;
 
   return (
     <li className="flex items-center gap-3">
@@ -29,7 +30,7 @@ function DishBar({ dish, max, color, rank }: BarProps) {
           <span className="truncate text-sm font-medium text-ink" title={dish.name}>
             {dish.name}
           </span>
-          <span className="shrink-0 text-xs tabular-nums text-ink-muted">{fmt(dish.impressions)}</span>
+          <span className="shrink-0 text-xs tabular-nums text-ink-muted">{label}</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-bg-muted">
           <div
@@ -51,7 +52,7 @@ export function DishRankBars({ dishes, limit }: ListProps) {
   if (dishes.length === 0) return null;
 
   const list = limit != null ? dishes.slice(0, limit) : dishes;
-  const max = list[0]?.impressions ?? 1;
+  const max = list[0]?.people ?? 1;
 
   return (
     <ul className="flex flex-col gap-3">

@@ -68,11 +68,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
 
   const { stats, prevStats, insights, daySeries, hourHistogram, topCategories, topDishes } = data;
 
-  const itemsPerVisitor =
-    stats.visitors === 0
-      ? "0"
-      : fmtDecimal((stats.dishImpressions + stats.dishViews) / stats.visitors);
-
   const sessionsWithDish = Math.round(stats.engagementRate * stats.sessions);
   const engagementDisplay = fmtRate(sessionsWithDish, stats.sessions);
 
@@ -120,11 +115,8 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
         insights={insights}
         topCategoryName={topCategories[0]?.name}
         topDishName={topDishes[0]?.name}
-        engagementPct={engagementDisplay}
         dishDetailsCount={stats.dishViews}
-        itemsPerVisitor={itemsPerVisitor}
         itemsPerSession={fmtDecimal(stats.itemsPerVisit)}
-        categoryOpens={stats.categoryOpens}
         hasData={hasData}
         emptyHint={ANALYTICS_PAGE.emptyHint}
       />
@@ -140,7 +132,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
           visitors={stats.visitors}
           peopleOpenedCategory={stats.peopleOpenedCategory}
           peopleSawDishes={stats.peopleSawDishes}
-          peopleOpenedDetails={stats.peopleOpenedDetails}
         />
         <DishesBarList dishes={topDishes} />
       </div>

@@ -1,13 +1,12 @@
 "use client";
 
-import { CHART_PRIMARY, CHART_ACCENT, CHART_SECONDARY, CHART_LIGHT } from "@/lib/analytics-theme";
+import { CHART_PRIMARY, CHART_ACCENT, CHART_SECONDARY } from "@/lib/analytics-theme";
 import { ChartEmpty, ChartPanel } from "./ChartPanel";
 
 type Props = {
   visitors: number;
   peopleOpenedCategory: number;
   peopleSawDishes: number;
-  peopleOpenedDetails: number;
 };
 
 type Step = {
@@ -29,7 +28,6 @@ export function FunnelChart({
   visitors,
   peopleOpenedCategory,
   peopleSawDishes,
-  peopleOpenedDetails,
 }: Props) {
   if (visitors === 0) {
     return (
@@ -43,7 +41,6 @@ export function FunnelChart({
     { label: "Visitantes", hint: "Pessoas que abriram o cardápio", value: visitors, color: CHART_PRIMARY },
     { label: "Entraram numa categoria", hint: "Pessoas que clicaram em alguma seção", value: peopleOpenedCategory, color: CHART_ACCENT },
     { label: "Chegaram a ver pratos", hint: "Pessoas que rolaram a lista", value: peopleSawDishes, color: CHART_SECONDARY },
-    { label: "Clicaram em \"ver mais\"", hint: "Pessoas que abriram detalhes de um prato", value: peopleOpenedDetails, color: CHART_LIGHT },
   ];
 
   const base = steps[0].value;

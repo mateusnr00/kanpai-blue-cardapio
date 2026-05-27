@@ -11,11 +11,8 @@ type Props = {
   insights: Insight;
   topCategoryName?: string;
   topDishName?: string;
-  engagementPct: string;
   dishDetailsCount: number;
-  itemsPerVisitor: string;
   itemsPerSession: string;
-  categoryOpens: number;
   hasData: boolean;
   emptyHint: string;
 };
@@ -28,11 +25,8 @@ export function InsightsPanel({
   insights,
   topCategoryName,
   topDishName,
-  engagementPct,
   dishDetailsCount,
-  itemsPerVisitor,
   itemsPerSession,
-  categoryOpens,
   hasData,
   emptyHint,
 }: Props) {
@@ -48,9 +42,9 @@ export function InsightsPanel({
     insights.topDishImpression
       ? {
           icon: ForkKnife,
-          label: "Prato que mais apareceu na lista",
+          label: "Prato mais visto",
           value: topDishName ?? insights.topDishImpression.slug,
-          detail: `${fmt(insights.topDishImpression.count)} vezes na tela · ${fmt(insights.topDishImpression.people)} pessoas`,
+          detail: `${fmt(insights.topDishImpression.people)} ${insights.topDishImpression.people === 1 ? "pessoa viu" : "pessoas viram"}`,
         }
       : null,
     insights.peakHour
@@ -58,15 +52,7 @@ export function InsightsPanel({
           icon: Clock,
           label: "Horário mais movimentado",
           value: `${String(insights.peakHour.hour).padStart(2, "0")}h`,
-          detail: `${fmt(insights.peakHour.count)} ações registradas nesse horário`,
-        }
-      : null,
-    categoryOpens > 0
-      ? {
-          icon: SquaresFour,
-          label: "Categorias exploradas",
-          value: fmt(categoryOpens),
-          detail: "Total de vezes que alguém entrou em uma seção do menu",
+          detail: "Horário de Brasília com mais ações no cardápio",
         }
       : null,
     dishDetailsCount > 0
@@ -77,18 +63,6 @@ export function InsightsPanel({
           detail: STAT_LABELS.dishDetails.hint,
         }
       : null,
-    {
-      icon: TrendUp,
-      label: STAT_LABELS.engagement.label,
-      value: engagementPct,
-      detail: STAT_LABELS.engagement.hint,
-    },
-    {
-      icon: TrendUp,
-      label: "Média por pessoa",
-      value: itemsPerVisitor,
-      detail: "Pratos na tela ou detalhes abertos, dividido pelo número de visitantes",
-    },
     {
       icon: TrendUp,
       label: STAT_LABELS.depth.label,
