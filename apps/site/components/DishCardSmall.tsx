@@ -36,7 +36,8 @@ type Props = {
 
 export function DishCardSmall({ dish, number, gradientIndex, restaurantId, priority }: Props) {
   const gradient = SMALL_GRADIENTS[gradientIndex % SMALL_GRADIENTS.length];
-  const hasPrice = dish.price && dish.price.length > 0;
+  const hasVariants = !!(dish.variants && dish.variants.length > 0);
+  const hasPrice = !hasVariants && dish.price && dish.price.length > 0;
   const onImpression = useCallback(() => {
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
     // pre-carrega a versao do lightbox em background — abertura instantanea quando clicar
@@ -161,6 +162,38 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId, prior
           >
             {dish.description}
           </p>
+        )}
+
+        {hasVariants && (
+          <ul
+            style={{
+              marginTop: 8,
+              marginBottom: 0,
+              padding: 0,
+              listStyle: "none",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {dish.variants!.map((v, i) => (
+              <li
+                key={`${v.name}-${i}`}
+                style={{
+                  fontSize: fs(11),
+                  fontWeight: 500,
+                  color: "var(--ink)",
+                  letterSpacing: "-0.005em",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {v.price}
+                {v.name ? (
+                  <span style={{ color: "var(--ink-soft)", fontWeight: 400 }}> - {v.name}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         )}
 
         {dish.tags && dish.tags.length > 0 && (

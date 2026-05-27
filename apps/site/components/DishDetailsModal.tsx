@@ -144,18 +144,49 @@ export function DishDetailsModal({ dish, onClose }: Props) {
             >
               {dish.name}
             </h2>
-            {dish.price && (
-              <p
+            {dish.variants && dish.variants.length > 0 ? (
+              <ul
                 style={{
-                  margin: "6px 0 0",
-                  fontSize: fs(15),
-                  fontWeight: 500,
-                  color: "var(--ink)",
-                  fontVariantNumeric: "tabular-nums",
+                  margin: "8px 0 0",
+                  padding: 0,
+                  listStyle: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 3,
                 }}
               >
-                {dish.price}
-              </p>
+                {dish.variants.map((v, i) => (
+                  <li
+                    key={`${v.name}-${i}`}
+                    style={{
+                      fontSize: fs(14),
+                      fontWeight: 500,
+                      color: "var(--ink)",
+                      letterSpacing: "-0.005em",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {v.price}
+                    {v.name ? (
+                      <span style={{ color: "var(--ink-soft)", fontWeight: 400 }}> - {v.name}</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              dish.price && (
+                <p
+                  style={{
+                    margin: "6px 0 0",
+                    fontSize: fs(15),
+                    fontWeight: 500,
+                    color: "var(--ink)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {dish.price}
+                </p>
+              )
             )}
             {dish.tags && dish.tags.length > 0 && (
               <div
