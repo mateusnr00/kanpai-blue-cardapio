@@ -20,7 +20,8 @@ type Props = {
  * tabular-nums no preco.
  */
 export function DishListItem({ dish, restaurantId, isLast }: Props) {
-  const hasPrice = dish.price && dish.price.length > 0;
+  const hasVariants = !!(dish.variants && dish.variants.length > 0);
+  const hasPrice = !hasVariants && dish.price && dish.price.length > 0;
   const onImpression = useCallback(() => {
     track({ event_type: "dish_impression", dish_slug: dish.id, restaurant_id: restaurantId });
   }, [dish.id, restaurantId]);
@@ -123,6 +124,38 @@ export function DishListItem({ dish, restaurantId, isLast }: Props) {
         >
           {dish.description}
         </p>
+      ) : null}
+
+      {hasVariants ? (
+        <ul
+          style={{
+            margin: 0,
+            padding: 0,
+            listStyle: "none",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            marginTop: 4,
+          }}
+        >
+          {dish.variants!.map((v, i) => (
+            <li
+              key={`${v.name}-${i}`}
+              style={{
+                fontSize: fs(12),
+                fontWeight: 500,
+                color: "var(--ink)",
+                letterSpacing: "-0.005em",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {v.price}
+              {v.name ? (
+                <span style={{ color: "var(--ink-soft)", fontWeight: 400 }}> - {v.name}</span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
       ) : null}
 
       {dish.tags && dish.tags.length > 0 ? (

@@ -37,7 +37,8 @@ type Props = {
 export function DishCardFeatured({ dish, number, variant = "blue", restaurantId, priority }: Props) {
   const gradient = variant === "beige" ? FEATURED_BEIGE : FEATURED_BLUE;
   const isDark = variant !== "beige";
-  const hasPrice = dish.price && dish.price.length > 0;
+  const hasVariants = !!(dish.variants && dish.variants.length > 0);
+  const hasPrice = !hasVariants && dish.price && dish.price.length > 0;
   const hasDetails =
     (!!dish.details && dish.details.sections.length > 0) ||
     (!!dish.components && dish.components.length > 0);
@@ -222,6 +223,38 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId,
           >
             {dish.description}
           </p>
+        )}
+
+        {hasVariants && (
+          <ul
+            style={{
+              marginTop: 10,
+              marginBottom: 0,
+              padding: 0,
+              listStyle: "none",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {dish.variants!.map((v, i) => (
+              <li
+                key={`${v.name}-${i}`}
+                style={{
+                  fontSize: fs(12),
+                  fontWeight: 500,
+                  color: "var(--ink)",
+                  letterSpacing: "-0.005em",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {v.price}
+                {v.name ? (
+                  <span style={{ color: "var(--ink-soft)", fontWeight: 400 }}> - {v.name}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         )}
 
         {dish.tags && dish.tags.length > 0 && (

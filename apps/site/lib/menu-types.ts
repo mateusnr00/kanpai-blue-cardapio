@@ -33,6 +33,11 @@ export type ScheduleFields = {
   scheduleOffDays?: number[] | null;
 };
 
+export type DishVariant = {
+  name: string;
+  price: string;
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -47,6 +52,7 @@ export type Dish = {
   image?: string;
   blurDataUrl?: string;
   components?: DishComponent[];
+  variants?: DishVariant[];
 } & ScheduleFields;
 
 export type Category = {
