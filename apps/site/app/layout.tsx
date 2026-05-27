@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import { FontSizeProvider } from "@/components/FontSizeProvider";
 import { LikesProvider } from "@/components/LikesProvider";
+import { PostHogProvider } from "@/components/PostHogProvider";
+import { ConsentBanner } from "@/components/ConsentBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,9 +39,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <FontSizeProvider>
-          <LikesProvider>{children}</LikesProvider>
-        </FontSizeProvider>
+        <Suspense fallback={null}>
+          <PostHogProvider>
+            <FontSizeProvider>
+              <LikesProvider>{children}</LikesProvider>
+            </FontSizeProvider>
+            <ConsentBanner />
+          </PostHogProvider>
+        </Suspense>
       </body>
     </html>
   );
