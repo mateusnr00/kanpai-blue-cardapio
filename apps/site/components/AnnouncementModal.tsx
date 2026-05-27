@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 
 type Props = {
@@ -9,6 +8,12 @@ type Props = {
   /** Chave do storage pra evitar mostrar de novo na mesma sessão. */
   storageKey: string;
 };
+
+// Intro animation dura 2100ms (ver IntroAnimation.tsx). Aguardamos
+// um pouco mais pra garantir que ja foi fechada quando o modal abrir.
+const INTRO_TOTAL_MS = 2100;
+const INTRO_BUFFER_MS = 300;
+const FAST_DELAY_MS = 200;
 
 /**
  * Modal de aviso/anuncio que aparece UMA VEZ por sessao (sessionStorage).
@@ -29,7 +34,14 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
     } catch {
       // sessionStorage indisponível: mostra mesmo assim
     }
-    const t = window.setTimeout(() => setOpen(true), 200);
+    // Se a intro ja foi vista nessa sessao, abre rapido. Senao espera
+    // a intro acabar (2100ms + buffer).
+    let introSeen = false;
+    try {
+      introSeen = sessionStorage.getItem("kanpai-intro-seen") === "1";
+    } catch {}
+    const delay = introSeen ? FAST_DELAY_MS : INTRO_TOTAL_MS + INTRO_BUFFER_MS;
+    const t = window.setTimeout(() => setOpen(true), delay);
     return () => window.clearTimeout(t);
   }, [storageKey]);
 
@@ -89,8 +101,8 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
             onClick={(e) => e.stopPropagation()}
             style={{
               position: "relative",
-              width: "100%",
-              maxWidth: 480,
+              maxWidth: "min(92vw, 480px)",
+              maxHeight: "100%",
               borderRadius: 18,
               overflow: "hidden",
               boxShadow: "0 20px 60px rgba(0, 0, 0, 0.55)",
@@ -98,17 +110,24 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
               cursor: "default",
             }}
           >
-            <Image
+            {/*
+              Usa <img> nativo: a foto ja vem otimizada do Supabase (WebP)
+              e nao temos um aspect fixo aqui (suporta quadrada 1:1 e
+              retrato 2:3). O browser dimensiona conforme o natural ratio
+              da imagem, com max-height pra nao cortar em telas baixas.
+            */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={imageUrl}
               alt="Aviso"
-              width={960}
-              height={1440}
-              sizes="(max-width: 768px) 92vw, 480px"
-              priority
+              decoding="async"
+              fetchPriority="high"
               style={{
                 display: "block",
-                width: "100%",
+                width: "auto",
                 height: "auto",
+                maxWidth: "100%",
+                maxHeight: "calc(100vh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
                 objectFit: "contain",
               }}
             />
