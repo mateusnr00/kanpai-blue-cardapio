@@ -5,7 +5,7 @@ import { useLikes } from "./LikesProvider";
 
 type Props = {
   dishId: string;
-  /** Tamanho do icone (px). Default 28. */
+  /** Tamanho do icone (px). Default 32. */
   size?: number;
 };
 
@@ -14,9 +14,10 @@ type Props = {
  * vermelho quando curtido. Sem pill, sem contagem (use <LikeCount/>
  * separado pra mostrar o numero).
  *
- * Inspirado no Uiverse (KSAplay) — scale anim like/dislike, hover 1.1.
+ * Visual do Uiverse (KSAplay): heart Phosphor com stroke arredondado,
+ * scale anim like/dislike 400ms, hover 1.1.
  */
-export function LikeButton({ dishId, size = 28 }: Props) {
+export function LikeButton({ dishId, size = 32 }: Props) {
   const { liked, toggle } = useLikes();
   const isLiked = !!liked[dishId];
 
@@ -38,7 +39,7 @@ export function LikeButton({ dishId, size = 28 }: Props) {
       style={{
         background: "transparent",
         border: "none",
-        padding: 4,
+        padding: 2,
         cursor: "pointer",
         display: "inline-flex",
         alignItems: "center",
@@ -53,15 +54,16 @@ export function LikeButton({ dishId, size = 28 }: Props) {
         transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
         width={size}
         height={size}
-        viewBox="0 0 24 24"
+        viewBox="0 0 256 256"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden
       >
         <path
-          d="M12 21s-7.5-4.6-9.7-9.2C.7 8.4 2.2 4.5 5.6 4.1c2.2-.3 4.2 1 5.1 2.8.4.8 1.2 1.3 2.1 1.3.9 0 1.7-.5 2.1-1.3.9-1.8 2.9-3.1 5.1-2.8 3.4.4 4.9 4.3 3.3 7.7C19.5 16.4 12 21 12 21z"
+          d="M178 32c-20.65 0-38.73 8.88-50 23.89C116.73 40.88 98.65 32 78 32a62.07 62.07 0 0 0-62 62c0 70 103.79 126.66 108.21 129a8 8 0 0 0 7.58 0C136.21 220.66 240 164 240 94a62.07 62.07 0 0 0-62-62Z"
           fill={isLiked ? "#FF5353" : "none"}
           stroke={isLiked ? "none" : "var(--ink-soft)"}
-          strokeWidth={isLiked ? 0 : 1.6}
+          strokeWidth={isLiked ? 0 : 14}
+          strokeLinejoin="round"
           style={{ transition: "fill 180ms ease, stroke 180ms ease" }}
         />
       </motion.svg>
