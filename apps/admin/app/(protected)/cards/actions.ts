@@ -199,6 +199,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
   const full_width = formData.get("full_width") === "on";
   const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
+  const parent_id = String(formData.get("parent_id") ?? "").trim() || null;
   const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
   if (!name || !number || !gradient) {
@@ -235,6 +236,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
       featured,
       full_width,
       display_mode,
+      parent_id,
       active: true,
       position,
       subcategories,
@@ -292,6 +294,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
   const full_width = formData.get("full_width") === "on";
   const display_mode_raw = String(formData.get("display_mode") ?? "grid").trim();
   const display_mode = display_mode_raw === "list" ? "list" : "grid";
+  const parent_id = String(formData.get("parent_id") ?? "").trim() || null;
   const { names: subcategories, modes: subcategory_display_modes } = extractSubcategories(formData);
 
   if (!name || !number || !gradient) {
@@ -327,6 +330,7 @@ export async function updateCategory(id: string, formData: FormData): Promise<{ 
       featured,
       full_width,
       display_mode,
+      parent_id,
       subcategories,
       subcategory_display_modes,
       image_path: imagePath,

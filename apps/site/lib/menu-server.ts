@@ -173,20 +173,35 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .order("position");
   }
 
-  const [catsRes, dishesRes] = await Promise.all([
-    supabase
+  // parent_id pode nao existir ainda se a migration nao rodou
+  async function fetchCategories() {
+    const full = await supabase
+      .from("categories")
+      .select(
+        "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode, parent_id, schedule_start, schedule_end, schedule_off_days",
+      )
+      .eq("restaurant_id", restaurantId)
+      .eq("active", true)
+      .order("position");
+    if (!full.error || full.error.code !== "42703") return full;
+    return supabase
       .from("categories")
       .select(
         "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, position, subcategories, subcategory_display_modes, image_path, full_width, slideshow_image_paths, display_mode, schedule_start, schedule_end, schedule_off_days",
       )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
-      .order("position"),
-    fetchDishes(),
-  ]);
+      .order("position");
+  }
+
+  const [catsRes, dishesRes] = await Promise.all([fetchCategories(), fetchDishes()]);
 
   if (catsRes.error) throw catsRes.error;
   if (dishesRes.error) throw dishesRes.error;
+
+  // Mapa uuid -> slug pra resolver parent_id em parentSlug
+  const idToSlug = new Map<string, string>();
+  for (const c of catsRes.data ?? []) idToSlug.set(c.id, c.slug);
 
   const dishUuids = (dishesRes.data ?? []).map((d) => d.id);
 
@@ -343,6 +358,10 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
       .filter((u): u is string => Boolean(u)),
     fullWidth: c.full_width,
     displayMode: (c.display_mode === "list" ? "list" : "grid") as "grid" | "list",
+    parentSlug:
+      (c as { parent_id?: string | null }).parent_id != null
+        ? idToSlug.get((c as { parent_id?: string | null }).parent_id as string)
+        : undefined,
     subcategoryDisplayModes: parseSubcatModes((c as { subcategory_display_modes?: unknown }).subcategory_display_modes),
     scheduleStart: c.schedule_start ?? null,
     scheduleEnd: c.schedule_end ?? null,
@@ -385,4 +404,19 @@ export async function getCategoryBySlug(
 ): Promise<Category | undefined> {
   const all = await getCategories(restaurantId);
   return all.find((c) => c.id === slug);
+}
+
+/** Categorias de topo (sem pai) — usadas na home. */
+export async function getTopLevelCategories(restaurantId: string): Promise<Category[]> {
+  const all = await getCategories(restaurantId);
+  return all.filter((c) => !c.parentSlug);
+}
+
+/** Filhas de uma categoria pai (pelo slug do pai). */
+export async function getChildCategories(
+  restaurantId: string,
+  parentSlug: string,
+): Promise<Category[]> {
+  const all = await getCategories(restaurantId);
+  return all.filter((c) => c.parentSlug === parentSlug);
 }

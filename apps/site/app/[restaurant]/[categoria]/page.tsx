@@ -3,6 +3,7 @@ import { getCategories, getCategoryBySlug, getRestaurantById, listRestaurants } 
 import { Footer } from "@/components/Footer";
 import { FAB } from "@/components/FAB";
 import { CategoryView } from "@/components/CategoryView";
+import { CategoryHub } from "@/components/CategoryHub";
 
 export const revalidate = 3600;
 
@@ -40,18 +41,34 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
   const restaurant = await getRestaurantById(params.restaurant);
   if (!restaurant) notFound();
 
-  const [categories, category] = await Promise.all([
-    getCategories(restaurant.id),
-    getCategoryBySlug(restaurant.id, params.categoria),
-  ]);
+  const categories = await getCategories(restaurant.id);
+  const category = categories.find((c) => c.id === params.categoria);
   if (!category) notFound();
 
-  const total = categories.length;
+  // Filhas dessa categoria (aninhamento). Se houver, e uma pagina "hub":
+  // mostra as filhas como cards em vez de pratos.
+  const childCategories = categories.filter((c) => c.parentSlug === category.id);
+  const isHub = childCategories.length > 0;
+
+  if (isHub) {
+    return (
+      <>
+        <main style={{ position: "relative" }}>
+          <CategoryHub parent={category} children={childCategories} restaurantId={restaurant.id} />
+        </main>
+        <Footer left={category.name} right="" />
+        <div aria-hidden style={{ height: "calc(74px + env(safe-area-inset-bottom))" }} />
+        <FAB restaurantId={restaurant.id} />
+      </>
+    );
+  }
+
+  const topLevelCount = categories.filter((c) => !c.parentSlug).length;
   const rightLabel = restaurant.showCategoryFooterCount
     ? `${category.dishes.length} ${category.dishes.length === 1 ? "prato" : "pratos"}`
     : "";
   const leftLabel = restaurant.showCategoryFooterPosition
-    ? `${category.number} / ${String(total).padStart(2, "0")}`
+    ? `${category.number} / ${String(topLevelCount).padStart(2, "0")}`
     : "";
 
   return (

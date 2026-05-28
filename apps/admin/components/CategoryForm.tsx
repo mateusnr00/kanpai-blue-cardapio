@@ -13,10 +13,12 @@ import type { CategoryRow } from "@/lib/data/categories";
 type Props = {
   mode: "create" | "edit";
   initial?: CategoryRow;
+  /** Categorias que podem ser pai (topo). Usado pro aninhamento. */
+  parents?: Array<{ id: string; name: string }>;
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
-export function CategoryForm({ mode, initial, onSubmit }: Props) {
+export function CategoryForm({ mode, initial, parents = [], onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [featured, setFeatured] = useState<boolean>(initial?.featured ?? false);
@@ -100,6 +102,29 @@ export function CategoryForm({ mode, initial, onSubmit }: Props) {
           className="admin-input"
         />
       </div>
+
+      {parents.length > 0 ? (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="parent_id" className="admin-label">Categoria pai (opcional)</label>
+          <select
+            id="parent_id"
+            name="parent_id"
+            defaultValue={initial?.parent_id ?? ""}
+            className="admin-input max-w-md"
+          >
+            <option value="">Nenhuma (categoria de topo, aparece na home)</option>
+            {parents.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-ink-muted">
+            Se escolher um pai, essa categoria vira uma subseção: não aparece na home, só dentro
+            da categoria pai (ex.: &ldquo;Vinho Tinto&rdquo; dentro de &ldquo;Carta de Vinhos&rdquo;).
+          </p>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex flex-col gap-1.5">

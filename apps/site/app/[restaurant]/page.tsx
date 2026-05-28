@@ -30,7 +30,10 @@ export default async function RestaurantHomePage({ params }: { params: { restaur
 
   let categories: Category[] = [];
   try {
-    categories = await getCategories(restaurant.id);
+    const all = await getCategories(restaurant.id);
+    // Home mostra so as categorias de topo (sem pai). As filhas aparecem
+    // dentro da pagina da categoria pai.
+    categories = all.filter((c) => !c.parentSlug);
   } catch (err) {
     console.warn("[RestaurantHomePage] getCategories falhou:", (err as Error).message);
   }

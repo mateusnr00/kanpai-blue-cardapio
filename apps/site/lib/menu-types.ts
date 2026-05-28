@@ -72,6 +72,8 @@ export type Category = {
   slideshowImages?: string[];
   fullWidth?: boolean;
   displayMode?: "grid" | "list";
+  /** Slug da categoria pai (aninhamento). undefined = categoria de topo. */
+  parentSlug?: string;
   /** Override por subcategoria. Se ausente, usa displayMode (ou 'grid'). */
   subcategoryDisplayModes?: Record<string, "grid" | "list">;
   dishes: Dish[];
