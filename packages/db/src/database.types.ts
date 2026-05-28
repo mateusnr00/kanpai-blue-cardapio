@@ -130,6 +130,7 @@ export type Database = {
           item_count: string | null
           name: string
           number: string
+          parent_id: string | null
           position: number
           restaurant_id: string
           schedule_end: string | null
@@ -157,6 +158,7 @@ export type Database = {
           item_count?: string | null
           name: string
           number: string
+          parent_id?: string | null
           position: number
           restaurant_id: string
           schedule_end?: string | null
@@ -184,6 +186,7 @@ export type Database = {
           item_count?: string | null
           name?: string
           number?: string
+          parent_id?: string | null
           position?: number
           restaurant_id?: string
           schedule_end?: string | null

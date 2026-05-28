@@ -29,6 +29,7 @@ export type CategoryRow = {
   slideshow_image_paths: string[];
   full_width: boolean;
   display_mode: "grid" | "list";
+  parent_id: string | null;
   restaurant_id: string;
   schedule_start: string | null;
   schedule_end: string | null;
@@ -36,7 +37,7 @@ export type CategoryRow = {
 };
 
 const CATEGORY_FIELDS =
-  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, subcategory_display_modes, image_path, slideshow_image_paths, full_width, display_mode, restaurant_id, schedule_start, schedule_end, schedule_off_days";
+  "id, slug, number, name, short_name, description, item_count, detail, gradient, featured, active, position, subcategories, subcategory_display_modes, image_path, slideshow_image_paths, full_width, display_mode, parent_id, restaurant_id, schedule_start, schedule_end, schedule_off_days";
 
 export async function listCategoriesWithCounts(restaurantId: string): Promise<CategoryListItem[]> {
   const supabase = createServerClient();
@@ -86,6 +87,28 @@ function coerceRow(row: Record<string, unknown>): CategoryRow {
     }
   }
   return { ...row, display_mode: mode, subcategory_display_modes } as CategoryRow;
+}
+
+/** Categorias que podem ser PAI (topo, sem pai). Opcionalmente exclui uma id. */
+export async function listParentCandidates(
+  restaurantId: string,
+  excludeId?: string,
+): Promise<Array<{ id: string; name: string }>> {
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, parent_id")
+    .eq("restaurant_id", restaurantId)
+    .is("parent_id", null)
+    .order("position");
+  if (error) {
+    // 42703: coluna parent_id ainda nao existe → sem candidatos
+    if ((error as { code?: string }).code === "42703") return [];
+    throw error;
+  }
+  return (data ?? [])
+    .filter((c) => c.id !== excludeId)
+    .map((c) => ({ id: c.id as string, name: c.name as string }));
 }
 
 export async function listCategoriesAll(restaurantId: string): Promise<CategoryRow[]> {
