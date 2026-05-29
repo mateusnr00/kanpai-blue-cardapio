@@ -336,6 +336,7 @@ export type CreateDishForComponentResult =
         category: string;
         image_path: string | null;
         price: string | null;
+        active: boolean;
       };
     };
 
@@ -352,6 +353,7 @@ export async function createDishForComponent(
       category: res.categoryName,
       image_path: res.imagePath,
       price: res.price,
+      active: true,
     },
   };
 }

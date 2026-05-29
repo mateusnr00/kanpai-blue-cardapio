@@ -9,6 +9,7 @@ import type { DishComponentRow } from "@/lib/data/dishes";
 import type { CategoryListItem } from "@/lib/data/categories";
 import { createDishForComponent } from "@/app/(protected)/dishes/actions";
 import { DishCreateModal } from "./DishCreateModal";
+import { DishToggleActive } from "./DishToggleActive";
 
 type Kind = "entrada" | "principal" | "sobremesa";
 
@@ -18,6 +19,7 @@ type ChoiceItem = {
   category: string;
   image_path: string | null;
   price: string | null;
+  active: boolean;
 };
 
 type LocalComponent = {
@@ -26,6 +28,7 @@ type LocalComponent = {
   name: string;
   image_path: string | null;
   price: string | null;
+  active: boolean;
 };
 
 type Props = {
@@ -60,6 +63,7 @@ export function DishComponentsEditor({
       name: c.child.name,
       image_path: c.child.image_path,
       price: c.child.price,
+      active: c.child.active,
     })),
   );
   const [choices, setChoices] = useState<ChoiceItem[]>(initialChoices);
@@ -88,6 +92,7 @@ export function DishComponentsEditor({
         name: choice.name,
         image_path: choice.image_path,
         price: choice.price,
+        active: choice.active,
       },
     ]);
     setPickerOpen(false);
@@ -129,6 +134,7 @@ export function DishComponentsEditor({
         name: created.name,
         image_path: created.image_path,
         price: created.price,
+        active: created.active,
       },
     ]);
     setCreateOpen(false);
@@ -211,27 +217,32 @@ export function DishComponentsEditor({
             return (
               <li
                 key={`${it.kind}-${it.childId}`}
-                className="flex items-center gap-3 rounded-md border border-ink-faint bg-bg-card p-2"
+                className="flex flex-col gap-2 rounded-md border border-ink-faint bg-bg-card p-2 sm:flex-row sm:items-center sm:gap-3"
               >
-                <Link
-                  href={`/dishes/${it.childId}`}
-                  className="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink-ghost hover:ring-2 hover:ring-ink"
-                  aria-label="Editar componente (adicionar foto)"
-                  title={img ? "Editar componente" : "Adicionar foto"}
-                >
-                  {img ? (
-                    <Image src={img} alt="" width={48} height={48} className="h-12 w-12 object-cover" />
-                  ) : (
-                    <ImageIcon size={20} className="text-ink-faint" weight="duotone" />
-                  )}
-                </Link>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-ink">{it.name}</p>
-                  {it.price ? (
-                    <p className="text-xs text-ink-muted tabular-nums">{it.price}</p>
-                  ) : null}
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <Link
+                    href={`/dishes/${it.childId}`}
+                    className="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink-ghost hover:ring-2 hover:ring-ink"
+                    aria-label="Editar componente (adicionar foto)"
+                    title={img ? "Editar componente" : "Adicionar foto"}
+                  >
+                    {img ? (
+                      <Image src={img} alt="" width={48} height={48} className="h-12 w-12 object-cover" />
+                    ) : (
+                      <ImageIcon size={20} className="text-ink-faint" weight="duotone" />
+                    )}
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-ink">{it.name}</p>
+                    {it.price ? (
+                      <p className="text-xs text-ink-muted tabular-nums">{it.price}</p>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex shrink-0 items-center justify-end gap-1">
+                  <span title={it.active ? "Ativo (visível no cardápio)" : "Inativo (escondido do cardápio)"}>
+                    <DishToggleActive id={it.childId} active={it.active} />
+                  </span>
                   <Link
                     href={`/dishes/${it.childId}`}
                     className="inline-flex items-center gap-1 rounded-md border border-ink-faint px-2 py-1 text-xs hover:border-ink"
