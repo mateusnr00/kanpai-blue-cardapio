@@ -123,7 +123,7 @@ BEGIN
       (v_ori_id,  'principal', 1, 'exec-ori-file-mignon',           'Filé Mignon',                    NULL,       'Ao molho de shoyu trufado com risoto de shimeji finalizado com redução de balsâmico.'),
       (v_ori_id,  'principal', 2, 'exec-ori-risoto-nero',           'Risoto Nero',                    NULL,       'Lula empanada com risoto de tinta de lula e raspas de limão siciliano.'),
       (v_ori_id,  'principal', 3, 'exec-ori-mini-combinado-12',     'Mini Combinado 12 Peças Kanpai', NULL,       'Combinado especial selecionado pelo sushibar.')
-    ) AS t(parent uuid, kind text, pos int, slug text, name text, price text, descr text)
+    ) AS t(parent, kind, pos, slug, name, price, descr)
   LOOP
     -- prato-componente (sem foto; image_path NULL -> placeholder ate voce subir)
     INSERT INTO public.dishes
