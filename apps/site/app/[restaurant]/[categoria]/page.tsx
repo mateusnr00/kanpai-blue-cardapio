@@ -45,12 +45,15 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
   const category = categories.find((c) => c.id === params.categoria);
   if (!category) notFound();
 
-  // Filhas dessa categoria (aninhamento). Se houver, e uma pagina "hub":
-  // mostra as filhas como cards em vez de pratos.
+  // Filhas dessa categoria (aninhamento).
   const childCategories = categories.filter((c) => c.parentSlug === category.id);
-  const isHub = childCategories.length > 0;
+  const hasOwnDishes = category.dishes.length > 0;
 
-  if (isHub) {
+  // Hub "puro": tem filhas e NENHUM prato proprio (ex.: Carta de Vinhos).
+  // Mostra so os cards das filhas. Se a categoria tambem tiver pratos proprios
+  // (ex.: Promocoes com Happy Hour + promos avulsas), cai no CategoryView
+  // abaixo, que renderiza os cards das filhas E os pratos juntos.
+  if (childCategories.length > 0 && !hasOwnDishes) {
     return (
       <>
         <main style={{ position: "relative" }}>
@@ -79,6 +82,7 @@ export default async function CategoryPage({ params }: { params: { restaurant: s
           restaurantId={restaurant.id}
           showEyebrow={restaurant.showCategoryEyebrow}
           showSubtitle={restaurant.showCategorySubtitle}
+          childCategories={childCategories}
         />
       </main>
       <Footer left={leftLabel} right={rightLabel} />

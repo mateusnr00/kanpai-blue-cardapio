@@ -8,12 +8,15 @@ import { SubcategoryChips } from "./SubcategoryChips";
 import { DishCardSmall } from "./DishCardSmall";
 import { DishCardFeatured } from "./DishCardFeatured";
 import { DishListItem } from "./DishListItem";
+import { CategoryCard } from "./CategoryCard";
 
 type Props = {
   category: Category;
   restaurantId: string;
   showEyebrow?: boolean;
   showSubtitle?: boolean;
+  /** Subcategorias filhas (parent_id) — renderizadas como cards acima dos pratos. */
+  childCategories?: Category[];
 };
 
 type Row =
@@ -95,7 +98,7 @@ function groupDishes(dishes: Dish[], order: string[] | undefined): Group[] {
   return result;
 }
 
-export function CategoryView({ category, restaurantId, showEyebrow = true, showSubtitle = true }: Props) {
+export function CategoryView({ category, restaurantId, showEyebrow = true, showSubtitle = true, childCategories = [] }: Props) {
   const subcategories = category.subcategories ?? [];
   const hasSubcats = subcategories.length > 0;
 
@@ -186,6 +189,25 @@ export function CategoryView({ category, restaurantId, showEyebrow = true, showS
           </p>
         ) : null}
       </section>
+
+      {childCategories.length > 0 && (
+        <section style={{ padding: "4px 22px 8px" }}>
+          <div
+            className="category-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: 14,
+            }}
+          >
+            {childCategories.map((child, idx) => (
+              <div key={child.id} style={child.fullWidth ? { gridColumn: "1 / -1" } : undefined}>
+                <CategoryCard category={child} restaurantId={restaurantId} priority={idx === 0} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {hasSubcats && (
         <SubcategoryChips
