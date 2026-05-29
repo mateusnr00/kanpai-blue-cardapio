@@ -9,6 +9,7 @@ import {
   Users,
   VideoCamera,
   Heart,
+  QrCode,
 } from "@phosphor-icons/react";
 
 export type AdminNavItem = {
@@ -27,6 +28,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/reviews", label: "Avaliações", icon: Star, exact: false, badgeKey: "unreadReviews" },
   { href: "/likes", label: "Curtidas", icon: Heart, exact: false, badgeKey: null },
   { href: "/analytics", label: "Analytics", icon: ChartLineUp, exact: false, badgeKey: null },
+  { href: "/qrcode", label: "QR Codes", icon: QrCode, exact: false, badgeKey: null },
   { href: "/comportamento", label: "Comportamento", icon: VideoCamera, exact: false, badgeKey: null },
   { href: "/historico", label: "Histórico", icon: ClockCounterClockwise, exact: false, badgeKey: null },
   { href: "/users", label: "Usuários", icon: Users, exact: false, badgeKey: null },

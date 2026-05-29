@@ -73,6 +73,7 @@ export type Database = {
           referrer: string | null
           restaurant_id: string
           session_id: string
+          source: string | null
           user_agent: string | null
           visitor_id: string
         }
@@ -87,6 +88,7 @@ export type Database = {
           referrer?: string | null
           restaurant_id: string
           session_id: string
+          source?: string | null
           user_agent?: string | null
           visitor_id: string
         }
@@ -101,12 +103,48 @@ export type Database = {
           referrer?: string | null
           restaurant_id?: string
           session_id?: string
+          source?: string | null
           user_agent?: string | null
           visitor_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "analytics_events_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_codes: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          restaurant_id: string
+          slug: string
+          target_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          restaurant_id: string
+          slug: string
+          target_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          restaurant_id?: string
+          slug?: string
+          target_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
