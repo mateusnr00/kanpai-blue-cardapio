@@ -217,27 +217,29 @@ export function DishComponentsEditor({
             return (
               <li
                 key={`${it.kind}-${it.childId}`}
-                className="flex items-center gap-3 rounded-md border border-ink-faint bg-bg-card p-2"
+                className="flex flex-col gap-2 rounded-md border border-ink-faint bg-bg-card p-2 sm:flex-row sm:items-center sm:gap-3"
               >
-                <Link
-                  href={`/dishes/${it.childId}`}
-                  className="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink-ghost hover:ring-2 hover:ring-ink"
-                  aria-label="Editar componente (adicionar foto)"
-                  title={img ? "Editar componente" : "Adicionar foto"}
-                >
-                  {img ? (
-                    <Image src={img} alt="" width={48} height={48} className="h-12 w-12 object-cover" />
-                  ) : (
-                    <ImageIcon size={20} className="text-ink-faint" weight="duotone" />
-                  )}
-                </Link>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-ink">{it.name}</p>
-                  {it.price ? (
-                    <p className="text-xs text-ink-muted tabular-nums">{it.price}</p>
-                  ) : null}
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <Link
+                    href={`/dishes/${it.childId}`}
+                    className="group relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-ink-ghost hover:ring-2 hover:ring-ink"
+                    aria-label="Editar componente (adicionar foto)"
+                    title={img ? "Editar componente" : "Adicionar foto"}
+                  >
+                    {img ? (
+                      <Image src={img} alt="" width={48} height={48} className="h-12 w-12 object-cover" />
+                    ) : (
+                      <ImageIcon size={20} className="text-ink-faint" weight="duotone" />
+                    )}
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-ink">{it.name}</p>
+                    {it.price ? (
+                      <p className="text-xs text-ink-muted tabular-nums">{it.price}</p>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex shrink-0 items-center justify-end gap-1">
                   <span title={it.active ? "Ativo (visível no cardápio)" : "Inativo (escondido do cardápio)"}>
                     <DishToggleActive id={it.childId} active={it.active} />
                   </span>
