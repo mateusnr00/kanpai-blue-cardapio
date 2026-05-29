@@ -18,4 +18,9 @@ export function restaurantPublicUrl(restaurantId: string): string {
   return `${PUBLIC_SITE_ORIGIN}/${slug}`;
 }
 
+/** Origem pública do site (ex.: pra montar a URL curta de QR /q/<slug>). */
+export function publicSiteOrigin(): string {
+  return PUBLIC_SITE_ORIGIN;
+}
+
 export const RESTAURANT_DEFAULT_ID = DEFAULT_RESTAURANT;

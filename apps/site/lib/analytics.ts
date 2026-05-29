@@ -26,6 +26,25 @@ function syncInternalFlag(): boolean {
   }
 }
 
+const SOURCE_KEY = "kanpai-traffic-source";
+
+/**
+ * Captura a origem da visita via ?src=... (ex.: ?src=qr-cardapio vindo de um
+ * QR code rastreado). Persiste na sessao pra que TODOS os eventos da visita
+ * (home_view, category_open, etc.) carreguem o mesmo source — sem duplicar
+ * eventos. Devolve null quando nao ha origem marcada.
+ */
+function getTrafficSource(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const src = new URLSearchParams(window.location.search).get("src");
+    if (src) window.sessionStorage.setItem(SOURCE_KEY, src.slice(0, 60));
+    return window.sessionStorage.getItem(SOURCE_KEY);
+  } catch {
+    return null;
+  }
+}
+
 function safeUuid(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -85,6 +104,7 @@ export async function track(input: AnalyticsEventInput): Promise<void> {
       referrer: document.referrer || null,
       user_agent: navigator.userAgent.slice(0, 200),
       is_internal,
+      source: getTrafficSource(),
     });
   } catch {
     // analytics nunca pode quebrar a UI

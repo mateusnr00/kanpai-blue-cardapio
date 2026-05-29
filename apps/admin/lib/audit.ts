@@ -9,7 +9,8 @@ export type AuditEntity =
   | "linktree_theme"
   | "review"
   | "restaurant"
-  | "user";
+  | "user"
+  | "qr_code";
 
 export type AuditParams = {
   action: AuditAction;
