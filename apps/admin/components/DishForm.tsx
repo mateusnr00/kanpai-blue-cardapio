@@ -18,6 +18,7 @@ type ComponentChoice = {
   category: string;
   image_path: string | null;
   price: string | null;
+  active: boolean;
 };
 
 type Props = {

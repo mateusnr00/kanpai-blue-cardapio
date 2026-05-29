@@ -88,6 +88,7 @@ export type DishComponentRow = {
     price: string | null;
     image_path: string | null;
     description: string | null;
+    active: boolean;
   };
 };
 
@@ -96,7 +97,7 @@ export async function listDishComponents(parentDishId: string): Promise<DishComp
   const { data, error } = await supabase
     .from("dish_components")
     .select(
-      "child_dish_id, kind, position, child:dishes!dish_components_child_dish_id_fkey(id, slug, name, price, image_path, description)"
+      "child_dish_id, kind, position, child:dishes!dish_components_child_dish_id_fkey(id, slug, name, price, image_path, description, active)"
     )
     .eq("parent_dish_id", parentDishId)
     .order("kind")
@@ -116,6 +117,7 @@ export async function listDishComponents(parentDishId: string): Promise<DishComp
         price: child?.price ?? null,
         image_path: child?.image_path ?? null,
         description: child?.description ?? null,
+        active: child?.active ?? true,
       },
     };
   });
@@ -128,12 +130,12 @@ export async function listDishComponents(parentDishId: string): Promise<DishComp
 export async function listAvailableComponentChoices(
   restaurantId: string,
   excludeDishId: string,
-): Promise<Array<{ id: string; name: string; category: string; image_path: string | null; price: string | null }>> {
+): Promise<Array<{ id: string; name: string; category: string; image_path: string | null; price: string | null; active: boolean }>> {
   const supabase = createServerClient();
   let query = supabase
     .from("dishes")
     .select(
-      "id, name, price, image_path, category:categories!dishes_category_id_fkey(name)"
+      "id, name, price, image_path, active, category:categories!dishes_category_id_fkey(name)"
     )
     .eq("restaurant_id", restaurantId)
     .order("name");
@@ -152,6 +154,7 @@ export async function listAvailableComponentChoices(
       name: d.name,
       price: d.price,
       image_path: d.image_path,
+      active: d.active ?? true,
       category: cat?.name ?? "",
     };
   });
