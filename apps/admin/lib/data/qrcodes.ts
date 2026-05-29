@@ -6,16 +6,14 @@ export type QrCodeRow = {
   label: string;
   target_path: string;
   created_at: string;
-  /** visitas (sessoes distintas) que chegaram por este QR */
-  visits: number;
-  /** pessoas (visitantes distintos) que chegaram por este QR */
-  people: number;
+  /** leituras (scans) registradas pra este QR */
+  scans: number;
 };
 
 /**
- * Lista os QR codes da unidade + as metricas de cada um, lidas do
- * analytics_events (source = 'qr-<slug>'). Sem tabela de clicks separada:
- * conta sessoes e visitantes distintos atribuidos a cada QR.
+ * Lista os QR codes da unidade + quantas leituras cada um teve.
+ * As leituras saem do analytics_events (event_type='qr_scan', source='qr-<slug>'),
+ * registradas pela rota /q. Sem tabela de clicks separada.
  */
 export async function listQrCodes(restaurantId: string): Promise<QrCodeRow[]> {
   const supabase = createServerClient();
@@ -34,30 +32,23 @@ export async function listQrCodes(restaurantId: string): Promise<QrCodeRow[]> {
 
   const { data: events, error: evErr } = await supabase
     .from("analytics_events")
-    .select("source, visitor_id, session_id")
-    .eq("restaurant_id", restaurantId)
+    .select("source")
+    .eq("event_type", "qr_scan")
     .in("source", sources);
   if (evErr) throw evErr;
 
-  const agg = new Map<string, { sessions: Set<string>; people: Set<string> }>();
+  const counts = new Map<string, number>();
   for (const e of events ?? []) {
     if (!e.source) continue;
-    const r = agg.get(e.source) ?? { sessions: new Set<string>(), people: new Set<string>() };
-    r.sessions.add(e.session_id);
-    r.people.add(e.visitor_id);
-    agg.set(e.source, r);
+    counts.set(e.source, (counts.get(e.source) ?? 0) + 1);
   }
 
-  return list.map((c) => {
-    const r = agg.get(`qr-${c.slug}`);
-    return {
-      id: c.id,
-      slug: c.slug,
-      label: c.label,
-      target_path: c.target_path,
-      created_at: c.created_at,
-      visits: r?.sessions.size ?? 0,
-      people: r?.people.size ?? 0,
-    };
-  });
+  return list.map((c) => ({
+    id: c.id,
+    slug: c.slug,
+    label: c.label,
+    target_path: c.target_path,
+    created_at: c.created_at,
+    scans: counts.get(`qr-${c.slug}`) ?? 0,
+  }));
 }

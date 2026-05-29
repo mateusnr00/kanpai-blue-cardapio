@@ -10,7 +10,6 @@ import type { RestaurantRow } from "@/lib/restaurants-shared";
 type Props = {
   codes: QrCodeRow[];
   restaurants: RestaurantRow[];
-  activeRestaurant: string;
   origin: string;
   onCreate: (formData: FormData) => Promise<{ error?: string }>;
   onDelete: (id: string) => Promise<{ error?: string }>;
@@ -20,21 +19,37 @@ function qrImageUrl(data: string, size = 600): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&margin=10&data=${encodeURIComponent(data)}`;
 }
 
-export function QrCodeManager({ codes, restaurants, activeRestaurant, origin, onCreate, onDelete }: Props) {
+// Mostra o destino de forma amigavel (sem o https:// pra caber).
+function prettyTarget(origin: string, target: string): string {
+  if (target === "/") return origin.replace(/^https?:\/\//, "");
+  if (target.startsWith("/")) return origin.replace(/^https?:\/\//, "") + target;
+  return target.replace(/^https?:\/\//, "");
+}
+
+export function QrCodeManager({ codes, restaurants, origin, onCreate, onDelete }: Props) {
   const router = useRouter();
   const [label, setLabel] = useState("");
-  const [target, setTarget] = useState(`/${activeRestaurant}`);
+  const [target, setTarget] = useState("/"); // padrao: home (kanpaiblue.com)
   const [creating, startCreate] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const presets = [
+    { label: "Home (kanpaiblue.com)", value: "/" },
+    ...restaurants.map((r) => ({ label: `Cardápio · ${r.name}`, value: `/${r.id}` })),
+  ];
 
   function handleCreate() {
     if (!label.trim()) {
       toast.error("Dê um nome pro QR (ex.: Mesa 4, Balcão, Panfleto).");
       return;
     }
+    if (!target.trim()) {
+      toast.error("Informe o destino do QR.");
+      return;
+    }
     const fd = new FormData();
     fd.set("label", label.trim());
-    fd.set("target_path", target);
+    fd.set("target_path", target.trim());
     startCreate(async () => {
       const res = await onCreate(fd);
       if (res.error) {
@@ -75,8 +90,8 @@ export function QrCodeManager({ codes, restaurants, activeRestaurant, origin, on
       {/* Criar novo QR */}
       <div className="rounded-md border border-ink-faint p-4">
         <p className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-soft">Novo QR code</p>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className="flex flex-1 flex-col gap-1 text-sm">
+        <div className="flex flex-col gap-3">
+          <label className="flex flex-col gap-1 text-sm">
             <span className="text-ink-soft">Nome (só pra você identificar)</span>
             <input
               type="text"
@@ -86,29 +101,50 @@ export function QrCodeManager({ codes, restaurants, activeRestaurant, origin, on
               className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm outline-none focus:border-ink"
             />
           </label>
+
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-ink-soft">Leva pro cardápio</span>
-            <select
+            <span className="text-ink-soft">Destino (pra onde o QR leva)</span>
+            <input
+              type="text"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
+              placeholder='"/" para a home, "/flamboyant" para um cardápio, ou uma URL completa'
               className="rounded-md border border-ink-faint bg-bg-card px-3 py-2 text-sm outline-none focus:border-ink"
-            >
-              {restaurants.map((r) => (
-                <option key={r.id} value={`/${r.id}`}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
+            />
+            <span className="text-xs text-ink-muted">
+              Vai pra: <strong>{prettyTarget(origin, target || "/")}</strong>
+            </span>
           </label>
-          <button
-            type="button"
-            onClick={handleCreate}
-            disabled={creating}
-            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
-          >
-            <Plus size={16} weight="bold" />
-            {creating ? "Gerando..." : "Gerar QR"}
-          </button>
+
+          <div className="flex flex-wrap gap-1.5">
+            {presets.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => setTarget(p.value)}
+                className={
+                  "rounded-md border px-2.5 py-1 text-xs transition " +
+                  (target === p.value
+                    ? "border-ink bg-ink text-white"
+                    : "border-ink-faint bg-bg-card text-ink hover:border-ink")
+                }
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          <div>
+            <button
+              type="button"
+              onClick={handleCreate}
+              disabled={creating}
+              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            >
+              <Plus size={16} weight="bold" />
+              {creating ? "Gerando..." : "Gerar QR"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -136,25 +172,22 @@ export function QrCodeManager({ codes, restaurants, activeRestaurant, origin, on
                       <QrCode size={16} weight="duotone" />
                       <p className="truncate font-medium">{c.label}</p>
                     </div>
+                    <p className="mt-0.5 truncate text-xs text-ink-muted" title={c.target_path}>
+                      → {prettyTarget(origin, c.target_path)}
+                    </p>
                     <button
                       type="button"
                       onClick={() => copy(shortUrl)}
                       className="mt-1 inline-flex max-w-full items-center gap-1 text-left text-xs text-ink-muted hover:text-ink"
-                      title="Copiar link"
+                      title="Copiar link do QR"
                     >
                       <span className="truncate">{shortUrl.replace(/^https?:\/\//, "")}</span>
                       <Copy size={12} className="shrink-0" />
                     </button>
-                    <div className="mt-2 flex gap-4 text-sm">
-                      <span className="text-ink">
-                        <strong className="tabular-nums">{c.visits}</strong>{" "}
-                        <span className="text-ink-soft">{c.visits === 1 ? "visita" : "visitas"}</span>
-                      </span>
-                      <span className="text-ink">
-                        <strong className="tabular-nums">{c.people}</strong>{" "}
-                        <span className="text-ink-soft">{c.people === 1 ? "pessoa" : "pessoas"}</span>
-                      </span>
-                    </div>
+                    <p className="mt-2 text-sm text-ink">
+                      <strong className="tabular-nums">{c.scans}</strong>{" "}
+                      <span className="text-ink-soft">{c.scans === 1 ? "leitura" : "leituras"}</span>
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
