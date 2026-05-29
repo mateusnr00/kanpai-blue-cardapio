@@ -22,7 +22,9 @@ export async function createQrCode(formData: FormData): Promise<{ error?: string
   const label = String(formData.get("label") ?? "").trim();
   const target = String(formData.get("target_path") ?? "").trim();
   if (!label) return { error: "Informe um nome pro QR." };
-  if (!target.startsWith("/")) return { error: "Destino inválido." };
+  // Destino pode ser caminho interno ("/", "/flamboyant") ou URL externa.
+  const validTarget = target.startsWith("/") || /^https?:\/\//i.test(target);
+  if (!validTarget) return { error: 'Destino inválido. Use "/" para a home, "/flamboyant" para um cardápio, ou uma URL completa.' };
 
   const restaurantId = getActiveRestaurantId();
   const supabase = createServerClient();

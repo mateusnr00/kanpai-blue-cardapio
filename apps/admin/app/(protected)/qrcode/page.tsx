@@ -21,7 +21,6 @@ export default async function QrCodePage() {
         <QrCodeManager
           codes={codes}
           restaurants={restaurants}
-          activeRestaurant={restaurantId}
           origin={publicSiteOrigin()}
           onCreate={createQrCode}
           onDelete={deleteQrCode}
