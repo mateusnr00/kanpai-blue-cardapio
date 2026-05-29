@@ -7,7 +7,7 @@ import { CategoriesDonutChart } from "@/components/analytics/CategoriesDonutChar
 import { DishesBarList } from "@/components/analytics/DishesBarList";
 import { FunnelChart } from "@/components/analytics/FunnelChart";
 import { InsightsPanel } from "@/components/analytics/InsightsPanel";
-import { loadDashboard, loadCategoryOptions, type Range } from "@/lib/data/analytics";
+import { loadDashboard, loadCategoryOptions, loadHourHistogram, brasiliaToday, type Range } from "@/lib/data/analytics";
 import { ANALYTICS_PAGE, STAT_LABELS } from "@/lib/analytics-labels";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
@@ -65,9 +65,15 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
 
   const filterCategories = await loadCategoryOptions(restaurantId);
 
-  const data = await loadDashboard(range, restaurantId, categorySlug ?? undefined);
+  // O gráfico "Horário do dia" começa sempre em hoje (Brasília), independente
+  // do filtro de período acima, e permite navegar dia a dia no client.
+  const today = brasiliaToday();
+  const [data, hourHistogram] = await Promise.all([
+    loadDashboard(range, restaurantId, categorySlug ?? undefined),
+    loadHourHistogram(restaurantId, today, categorySlug ?? undefined),
+  ]);
 
-  const { stats, prevStats, insights, daySeries, hourHistogram, topCategories, topDishes } = data;
+  const { stats, prevStats, insights, daySeries, topCategories, topDishes } = data;
 
   const sessionsWithDish = Math.round(stats.engagementRate * stats.sessions);
   const engagementDisplay = fmtRate(sessionsWithDish, stats.sessions);
@@ -132,7 +138,12 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <CategoriesDonutChart categories={topCategories} />
-        <HourBarChart hours={hourHistogram} />
+        <HourBarChart
+          initialHours={hourHistogram}
+          initialDay={today}
+          today={today}
+          categorySlug={categorySlug}
+        />
       </div>
 
       <DishesBarList dishes={topDishes} />

@@ -28,6 +28,29 @@ function hourInBrasilia(iso: string): number {
   return Number.isFinite(n) ? n % 24 : 0;
 }
 
+// en-CA formata como YYYY-MM-DD; com timeZone obtemos a data civil de Brasília.
+const DAY_FMT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: BRASILIA_TZ,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/** Data de hoje no fuso de Brasília, formato YYYY-MM-DD. */
+export function brasiliaToday(): string {
+  return DAY_FMT.format(new Date());
+}
+
+/**
+ * Janela UTC de um dia civil de Brasília (YYYY-MM-DD).
+ * Brasília é UTC−3 fixo (sem horário de verão desde 2019).
+ */
+function dayWindowBrasilia(dayISO: string): { start: string; end: string } {
+  const start = new Date(`${dayISO}T00:00:00-03:00`);
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
 function startOfToday(): Date {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -391,6 +414,20 @@ export async function loadDashboard(
     topCategories,
     topDishes,
   };
+}
+
+/**
+ * Histograma de acessos por hora de UM dia civil de Brasília.
+ * Independente da janela do dashboard — busca só os eventos do dia pedido.
+ */
+export async function loadHourHistogram(
+  restaurantId: string,
+  dayISO: string,
+  categorySlug?: string
+): Promise<number[]> {
+  const { start, end } = dayWindowBrasilia(dayISO);
+  const events = await fetchEvents(restaurantId, start, end, categorySlug);
+  return computeHourHistogram(events);
 }
 
 export async function loadCategoryOptions(restaurantId: string): Promise<{ slug: string; name: string; id: string }[]> {
