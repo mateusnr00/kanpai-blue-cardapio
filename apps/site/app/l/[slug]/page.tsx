@@ -32,10 +32,11 @@ export default async function SubLinktreePage({ params }: Props) {
   return (
     <>
       {fontHref ? <link rel="stylesheet" href={fontHref} /> : null}
-      <style>{`html, body { padding: 0 !important; margin: 0 !important; background: ${theme.bgColor} !important; }`}</style>
+      <style>{`html, body { padding: 0 !important; margin: 0 !important; background: ${theme.bgColor} !important; }
+        .lt-screen { min-height: 100vh; min-height: 100dvh; }`}</style>
       <main
+        className="lt-screen"
         style={{
-          minHeight: "100vh",
           ...backgroundStyle(theme),
           display: "flex",
           flexDirection: "column",

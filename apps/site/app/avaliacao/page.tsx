@@ -25,7 +25,7 @@ export default async function ReviewPage({ searchParams }: Props) {
   return (
     <main
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         background: "var(--bg-warm)",
         display: "flex",
         flexDirection: "column",
