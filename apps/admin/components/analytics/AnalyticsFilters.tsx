@@ -107,59 +107,77 @@ export function AnalyticsFilters({ activeRange, activeCategory, categories, deta
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <FilterDropdown label={RANGE_LABELS[activeRange]} icon={CalendarBlank}>
-        {RANGE_ORDER.map((r) => (
-          <FilterLink key={r} href={buildHref(r, activeCategory, detailed)} active={r === activeRange}>
-            {RANGE_LABELS[r]}
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+      {/* Período: botões sempre visíveis (quebram linha no mobile, sem dropdown que some) */}
+      <div className="flex flex-wrap gap-1.5">
+        {RANGE_ORDER.map((r) => {
+          const active = r === activeRange;
+          return (
+            <Link
+              key={r}
+              href={buildHref(r, activeCategory, detailed)}
+              aria-current={active ? "page" : undefined}
+              className={
+                "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium shadow-sm transition " +
+                (active
+                  ? "border-accent bg-accent text-white"
+                  : "border-ink-ghost bg-bg-surface text-ink hover:border-accent/40 hover:bg-accent-soft/30")
+              }
+            >
+              {r === "today" ? <CalendarBlank size={16} weight="duotone" className={active ? "" : "text-accent"} /> : null}
+              {RANGE_LABELS[r]}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Categoria + detalhes + atualizar: ficam juntos numa linha própria no mobile */}
+      <div className="flex flex-wrap items-center gap-2">
+        <FilterDropdown
+          label={
+            activeCategory
+              ? categories.find((c) => c.slug === activeCategory)?.name ?? "Categoria"
+              : "Todas as categorias"
+          }
+          icon={SquaresFour}
+        >
+          <FilterLink href={buildHref(activeRange, null, detailed)} active={!activeCategory}>
+            Todas as categorias
           </FilterLink>
-        ))}
-      </FilterDropdown>
+          {categories.map((c) => (
+            <FilterLink
+              key={c.slug}
+              href={buildHref(activeRange, c.slug, detailed)}
+              active={activeCategory === c.slug}
+            >
+              {c.name}
+            </FilterLink>
+          ))}
+        </FilterDropdown>
 
-      <FilterDropdown
-        label={
-          activeCategory
-            ? categories.find((c) => c.slug === activeCategory)?.name ?? "Categoria"
-            : "Todas as categorias"
-        }
-        icon={SquaresFour}
-      >
-        <FilterLink href={buildHref(activeRange, null, detailed)} active={!activeCategory}>
-          Todas as categorias
-        </FilterLink>
-        {categories.map((c) => (
-          <FilterLink
-            key={c.slug}
-            href={buildHref(activeRange, c.slug, detailed)}
-            active={activeCategory === c.slug}
-          >
-            {c.name}
-          </FilterLink>
-        ))}
-      </FilterDropdown>
+        <Link
+          href={buildHref(activeRange, activeCategory, !detailed)}
+          className={
+            "inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium shadow-sm transition " +
+            (detailed
+              ? "border-accent bg-accent-soft text-accent hover:bg-accent-soft"
+              : "border-ink-ghost bg-bg-surface text-ink hover:border-accent/40 hover:bg-accent-soft/30")
+          }
+        >
+          {detailed ? <EyeSlash size={16} weight="duotone" /> : <Eye size={16} weight="duotone" />}
+          <span>{detailed ? "Resumo" : "Ver detalhes"}</span>
+        </Link>
 
-      <Link
-        href={buildHref(activeRange, activeCategory, !detailed)}
-        className={
-          "inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium shadow-sm transition " +
-          (detailed
-            ? "border-accent bg-accent-soft text-accent hover:bg-accent-soft"
-            : "border-ink-ghost bg-bg-surface text-ink hover:border-accent/40 hover:bg-accent-soft/30")
-        }
-      >
-        {detailed ? <EyeSlash size={16} weight="duotone" /> : <Eye size={16} weight="duotone" />}
-        <span>{detailed ? "Resumo" : "Ver detalhes"}</span>
-      </Link>
-
-      <button
-        type="button"
-        onClick={refresh}
-        disabled={pending}
-        className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-lg border border-ink-ghost bg-bg-surface text-ink-muted shadow-sm transition hover:border-accent/40 hover:bg-accent-soft/30 hover:text-accent disabled:opacity-50"
-        aria-label="Atualizar dados"
-      >
-        <ArrowsClockwise size={18} weight="bold" className={pending ? "animate-spin" : ""} />
-      </button>
+        <button
+          type="button"
+          onClick={refresh}
+          disabled={pending}
+          className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-lg border border-ink-ghost bg-bg-surface text-ink-muted shadow-sm transition hover:border-accent/40 hover:bg-accent-soft/30 hover:text-accent disabled:opacity-50"
+          aria-label="Atualizar dados"
+        >
+          <ArrowsClockwise size={18} weight="bold" className={pending ? "animate-spin" : ""} />
+        </button>
+      </div>
     </div>
   );
 }

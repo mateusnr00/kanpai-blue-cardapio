@@ -16,7 +16,8 @@ type SearchParams = { range?: string; category?: string; detailed?: string };
 const VALID_RANGES: Range[] = ["today", "yesterday", "7d", "30d", "90d", "all"];
 
 function asRange(input: string | undefined): Range {
-  return VALID_RANGES.includes(input as Range) ? (input as Range) : "7d";
+  // Sem filtro na URL → abre em "Hoje".
+  return VALID_RANGES.includes(input as Range) ? (input as Range) : "today";
 }
 
 function fmtNumber(n: number): string {
