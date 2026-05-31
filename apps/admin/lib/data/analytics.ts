@@ -51,32 +51,33 @@ function dayWindowBrasilia(dayISO: string): { start: string; end: string } {
   return { start: start.toISOString(), end: end.toISOString() };
 }
 
-function startOfToday(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
+/** Data civil de Brasília (YYYY-MM-DD) de um instante ISO. */
+function brasiliaDay(iso: string): string {
+  return DAY_FMT.format(new Date(iso));
 }
 
 export function rangeWindow(r: Range): RangeWindow {
   const nowIso = new Date().toISOString();
+  // Meia-noite de Brasília de hoje (não do fuso do servidor, que é UTC na Vercel).
+  const todayStartIso = dayWindowBrasilia(brasiliaToday()).start;
+  const todayStartMs = new Date(todayStartIso).getTime();
+  const DAY = 24 * 60 * 60 * 1000;
+
   if (r === "today") {
-    const s = startOfToday();
-    const prevStart = new Date(s.getTime() - 24 * 60 * 60 * 1000);
     return {
-      start: s.toISOString(),
+      start: todayStartIso,
       end: nowIso,
-      prevStart: prevStart.toISOString(),
-      prevEnd: s.toISOString(),
+      prevStart: new Date(todayStartMs - DAY).toISOString(),
+      prevEnd: todayStartIso,
     };
   }
   if (r === "yesterday") {
-    const todayStart = startOfToday();
-    const yStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+    const yStart = new Date(todayStartMs - DAY).toISOString();
     return {
-      start: yStart.toISOString(),
-      end: todayStart.toISOString(),
-      prevStart: new Date(yStart.getTime() - 24 * 60 * 60 * 1000).toISOString(),
-      prevEnd: yStart.toISOString(),
+      start: yStart,
+      end: todayStartIso,
+      prevStart: new Date(todayStartMs - 2 * DAY).toISOString(),
+      prevEnd: yStart,
     };
   }
   const days = r === "7d" ? 7 : r === "30d" ? 30 : r === "90d" ? 90 : 0;
@@ -110,6 +111,8 @@ async function fetchEvents(
     .select("visitor_id, session_id, event_type, category_id, dish_slug, created_at")
     .eq("restaurant_id", restaurantId)
     .eq("is_internal", false)
+    // qr_scan é métrica do QR (IDs sintéticos) — não entra nas contagens do dashboard
+    .neq("event_type", "qr_scan")
     .lt("created_at", end);
   if (start) q = q.gte("created_at", start);
   if (categorySlug) q = q.eq("category_id", categorySlug);
@@ -272,21 +275,24 @@ export type SeriesPoint = { day: string; visits: number; uniques: number };
 function computeDaySeries(events: EventRow[], range: RangeWindow): SeriesPoint[] {
   const byDay = new Map<string, { visits: number; uniques: Set<string> }>();
   for (const e of events) {
-    const day = e.created_at.slice(0, 10); // YYYY-MM-DD
+    const day = brasiliaDay(e.created_at); // dia civil de Brasília, não UTC
     const b = byDay.get(day) ?? { visits: 0, uniques: new Set() };
     if (e.event_type === "home_view") b.visits += 1;
     b.uniques.add(e.visitor_id);
     byDay.set(day, b);
   }
   const points: SeriesPoint[] = [];
-  // Constrói série contígua se houver janela limitada
+  // Constrói série contígua (dia a dia de Brasília) se houver janela limitada
   if (range.start) {
-    const startMs = new Date(range.start).getTime();
-    const endMs = new Date(range.end).getTime();
-    for (let t = startMs; t <= endMs; t += 24 * 60 * 60 * 1000) {
-      const day = new Date(t).toISOString().slice(0, 10);
+    const DAY = 24 * 60 * 60 * 1000;
+    // Alinha o cursor à meia-noite de Brasília do primeiro dia da janela.
+    let cursorMs = new Date(`${brasiliaDay(range.start)}T00:00:00-03:00`).getTime();
+    const endMs = new Date(`${brasiliaDay(range.end)}T00:00:00-03:00`).getTime();
+    while (cursorMs <= endMs) {
+      const day = brasiliaDay(new Date(cursorMs).toISOString());
       const b = byDay.get(day);
       points.push({ day, visits: b?.visits ?? 0, uniques: b?.uniques.size ?? 0 });
+      cursorMs += DAY;
     }
   } else {
     // sem limite — ordena tudo cronologicamente
