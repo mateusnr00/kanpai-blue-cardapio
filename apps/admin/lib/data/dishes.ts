@@ -52,6 +52,49 @@ export async function listDishesByCategory(
   return data ?? [];
 }
 
+export type DishSearchRow = {
+  id: string;
+  name: string;
+  slug: string;
+  price: string | null;
+  image_path: string | null;
+  active: boolean;
+  subcategory: string | null;
+  categoryName: string;
+  categorySlug: string;
+};
+
+/** Todos os itens do restaurante (com a categoria), pra busca global no admin. */
+export async function listAllDishesForSearch(restaurantId: string): Promise<DishSearchRow[]> {
+  const supabase = createServerClient();
+  const [catsRes, dishesRes] = await Promise.all([
+    supabase.from("categories").select("id, name, slug").eq("restaurant_id", restaurantId),
+    supabase
+      .from("dishes")
+      .select("id, name, slug, price, image_path, active, subcategory, category_id")
+      .eq("restaurant_id", restaurantId)
+      .eq("is_component_only", false)
+      .order("name"),
+  ]);
+  if (dishesRes.error) throw dishesRes.error;
+
+  const catById = new Map((catsRes.data ?? []).map((c) => [c.id, c]));
+  return (dishesRes.data ?? []).map((d) => {
+    const c = d.category_id ? catById.get(d.category_id) : undefined;
+    return {
+      id: d.id,
+      name: d.name,
+      slug: d.slug,
+      price: d.price,
+      image_path: d.image_path,
+      active: d.active,
+      subcategory: d.subcategory,
+      categoryName: c?.name ?? "—",
+      categorySlug: c?.slug ?? "",
+    };
+  });
+}
+
 export async function getDish(id: string): Promise<DishDetail | null> {
   const supabase = createServerClient();
   const { data, error } = await supabase
