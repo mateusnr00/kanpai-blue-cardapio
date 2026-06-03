@@ -7,7 +7,7 @@ import { CategoriesDonutChart } from "@/components/analytics/CategoriesDonutChar
 import { DishesBarList } from "@/components/analytics/DishesBarList";
 import { FunnelChart } from "@/components/analytics/FunnelChart";
 import { InsightsPanel } from "@/components/analytics/InsightsPanel";
-import { loadDashboard, loadCategoryOptions, loadHourHistogram, brasiliaToday, type Range } from "@/lib/data/analytics";
+import { loadDashboard, loadCategoryOptions, loadHourHistogram, loadDataStartDate, brasiliaToday, type Range } from "@/lib/data/analytics";
 import { ANALYTICS_PAGE, STAT_LABELS } from "@/lib/analytics-labels";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 
@@ -69,10 +69,20 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
   // O gráfico "Horário do dia" começa sempre em hoje (Brasília), independente
   // do filtro de período acima, e permite navegar dia a dia no client.
   const today = brasiliaToday();
-  const [data, hourHistogram] = await Promise.all([
+  const [data, hourHistogram, dataStart] = await Promise.all([
     loadDashboard(range, restaurantId, categorySlug ?? undefined),
     loadHourHistogram(restaurantId, today, categorySlug ?? undefined),
+    loadDataStartDate(restaurantId),
   ]);
+
+  const dataStartLabel = dataStart
+    ? new Date(dataStart).toLocaleDateString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : null;
 
   const { stats, prevStats, insights, daySeries, topCategories, topDishes } = data;
 
@@ -92,6 +102,13 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Se
           detailed={detailed}
         />
       </div>
+
+      {dataStartLabel ? (
+        <p className="-mt-2 text-xs text-ink-muted">
+          Coletando dados desde {dataStartLabel}. Períodos maiores (30/90 dias) incluem dias
+          anteriores a essa data, que aparecem vazios — não é perda de dados.
+        </p>
+      ) : null}
 
       <div
         className={
