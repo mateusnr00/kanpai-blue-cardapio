@@ -446,3 +446,20 @@ export async function loadCategoryOptions(restaurantId: string): Promise<{ slug:
   if (error) throw error;
   return data ?? [];
 }
+
+/**
+ * Data/hora do primeiro evento registrado da unidade (ISO) — ou null se ainda
+ * não há dados. Usado pra avisar "coletando dados desde DD/MM" e não confundir
+ * com janelas (30/90 dias) que incluem dias anteriores ao início do rastreio.
+ */
+export async function loadDataStartDate(restaurantId: string): Promise<string | null> {
+  const supabase = createServerClient();
+  const { data } = await supabase
+    .from("analytics_events")
+    .select("created_at")
+    .eq("restaurant_id", restaurantId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  return data?.created_at ?? null;
+}
