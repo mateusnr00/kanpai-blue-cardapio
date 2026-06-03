@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { listCategoriesWithCounts } from "@/lib/data/categories";
-import { listDishesByCategory } from "@/lib/data/dishes";
+import { listDishesByCategory, listAllDishesForSearch } from "@/lib/data/dishes";
 import { CategoryChips } from "@/components/CategoryChips";
+import { DishSearch } from "@/components/DishSearch";
 import { DishesTableSortable } from "@/components/DishesTableSortable";
 import { PageHeader } from "@/components/PageHeader";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
@@ -15,7 +16,10 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
   const selectedSlug = searchParams.cat ?? categories[0]?.slug ?? "";
   const selected = categories.find((c) => c.slug === selectedSlug) ?? categories[0];
 
-  const dishes = selected ? await listDishesByCategory(selected.id) : [];
+  const [dishes, allDishes] = await Promise.all([
+    selected ? listDishesByCategory(selected.id) : Promise.resolve([]),
+    listAllDishesForSearch(restaurantId),
+  ]);
 
   return (
     <section className="flex w-full flex-col gap-6">
@@ -35,6 +39,8 @@ export default async function CardapioPage({ searchParams }: { searchParams: Sea
           ) : null
         }
       />
+
+      <DishSearch dishes={allDishes} />
 
       <CategoryChips categories={categories} selectedSlug={selectedSlug} />
 
