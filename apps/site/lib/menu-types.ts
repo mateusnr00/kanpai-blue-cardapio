@@ -54,6 +54,8 @@ export type Dish = {
   image?: string;
   blurDataUrl?: string;
   components?: DishComponent[];
+  /** Rótulos customizados dos grupos de componentes (keyed por kind). */
+  componentLabels?: Partial<Record<DishComponent["kind"], string>>;
   variants?: DishVariant[];
 } & ScheduleFields;
 

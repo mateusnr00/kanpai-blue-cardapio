@@ -163,6 +163,7 @@ export function DishForm({
       {embedded ? null : (
         <DishComponentsEditor
           initial={components}
+          initialLabels={initial?.component_labels ?? null}
           choices={componentChoices}
           categories={categories}
           parentCategoryId={currentCategoryId}

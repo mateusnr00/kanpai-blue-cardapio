@@ -157,7 +157,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     const full = await supabase
       .from("dishes")
       .select(
-        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, featured_label, original_price, image_path, blur_data_url, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days",
+        "id, slug, category_id, name, price, unit, description, long_description, subcategory, featured, featured_label, original_price, image_path, blur_data_url, position, badges, is_component_only, component_labels, schedule_start, schedule_end, schedule_off_days",
       )
       .eq("restaurant_id", restaurantId)
       .eq("active", true)
@@ -331,6 +331,17 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
     }
     if (components && components.length > 0) {
       dish.components = components;
+      // component_labels pode nao existir ainda se a migration nao rodou
+      const rawLabels = (d as { component_labels?: Record<string, string> | null })
+        .component_labels;
+      if (rawLabels && typeof rawLabels === "object") {
+        const labels: NonNullable<Dish["componentLabels"]> = {};
+        for (const k of ["entrada", "principal", "sobremesa"] as const) {
+          const v = rawLabels[k]?.trim();
+          if (v) labels[k] = v;
+        }
+        if (Object.keys(labels).length > 0) dish.componentLabels = labels;
+      }
     }
     const variants = variantsByDish.get(d.id);
     if (variants && variants.length > 0) {
