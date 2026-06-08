@@ -107,7 +107,7 @@ export function Header({ showBack, categories, restaurantId }: Props) {
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <SearchBar categories={categories} />
+        <SearchBar categories={categories} restaurantId={restaurantId} />
         <FontSizeToggle />
       </div>
     </header>

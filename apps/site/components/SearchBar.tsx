@@ -25,9 +25,11 @@ function normalize(s: string) {
  */
 type SearchBarProps = {
   categories: Category[];
+  /** Slug da unidade atual — prefixo das rotas (/goianiashopping/festival#...). */
+  restaurantId?: string;
 };
 
-export function SearchBar({ categories }: SearchBarProps) {
+export function SearchBar({ categories, restaurantId }: SearchBarProps) {
   const [open, setOpen] = useState(false);
 
   const index = useMemo<Result[]>(() => {
@@ -72,13 +74,27 @@ export function SearchBar({ categories }: SearchBarProps) {
       </button>
 
       <AnimatePresence>
-        {open && <SearchOverlay index={index} onClose={() => setOpen(false)} />}
+        {open && (
+          <SearchOverlay
+            index={index}
+            restaurantId={restaurantId}
+            onClose={() => setOpen(false)}
+          />
+        )}
       </AnimatePresence>
     </>
   );
 }
 
-function SearchOverlay({ index, onClose }: { index: Result[]; onClose: () => void }) {
+function SearchOverlay({
+  index,
+  restaurantId,
+  onClose,
+}: {
+  index: Result[];
+  restaurantId?: string;
+  onClose: () => void;
+}) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -127,7 +143,10 @@ function SearchOverlay({ index, onClose }: { index: Result[]; onClose: () => voi
   const go = (r: Result) => {
     onClose();
     setQuery("");
-    router.push(`/${r.categoryId}#${r.dish.id}`);
+    // Sempre prefixa a unidade: /goianiashopping/festival#<dish>. Sem o slug,
+    // "/festival" cairia na rota [restaurant] e quebraria.
+    const base = restaurantId ? `/${restaurantId}` : "";
+    router.push(`${base}/${r.categoryId}#${r.dish.id}`);
   };
 
   return (
