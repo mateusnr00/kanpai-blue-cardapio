@@ -106,19 +106,45 @@ async function fetchEvents(
   categorySlug?: string
 ): Promise<EventRow[]> {
   const supabase = createServerClient();
-  let q = supabase
-    .from("analytics_events")
-    .select("visitor_id, session_id, event_type, category_id, dish_slug, created_at")
-    .eq("restaurant_id", restaurantId)
-    .eq("is_internal", false)
-    // qr_scan é métrica do QR (IDs sintéticos) — não entra nas contagens do dashboard
-    .neq("event_type", "qr_scan")
-    .lt("created_at", end);
-  if (start) q = q.gte("created_at", start);
-  if (categorySlug) q = q.eq("category_id", categorySlug);
-  const { data, error } = await q.order("created_at", { ascending: false }).limit(50000);
-  if (error) throw error;
-  return (data ?? []) as EventRow[];
+
+  // Builder recriado a cada página (o query builder do supabase não é reutilizável
+  // depois de awaited).
+  const buildQuery = () => {
+    let q = supabase
+      .from("analytics_events")
+      .select("visitor_id, session_id, event_type, category_id, dish_slug, created_at")
+      .eq("restaurant_id", restaurantId)
+      .eq("is_internal", false)
+      // qr_scan é métrica do QR (IDs sintéticos) — não entra nas contagens do dashboard
+      .neq("event_type", "qr_scan")
+      .lt("created_at", end);
+    if (start) q = q.gte("created_at", start);
+    if (categorySlug) q = q.eq("category_id", categorySlug);
+    return q.order("created_at", { ascending: false });
+  };
+
+  // Pagina via range() em vez de um teto fixo de 50k linhas. Janelas longas
+  // (30/90 dias, Tudo) em unidades movimentadas têm centenas de milhares de
+  // eventos; cortar no topo (ordenado por mais recente) subcontava visitantes —
+  // ao ponto de "30 dias" aparecer MENOR que "ontem". SAFETY_MAX evita runaway.
+  const PAGE = 50000;
+  const SAFETY_MAX = 1_000_000;
+  const rows: EventRow[] = [];
+  let from = 0;
+  // Tamanho efetivo da página: o servidor pode capar abaixo de PAGE (max-rows do
+  // PostgREST). Lemos o real na 1ª página pra não parar cedo demais.
+  let pageSize = PAGE;
+  while (from < SAFETY_MAX) {
+    const { data, error } = await buildQuery().range(from, from + PAGE - 1);
+    if (error) throw error;
+    const batch = (data ?? []) as EventRow[];
+    rows.push(...batch);
+    if (batch.length === 0) break;
+    if (from === 0) pageSize = batch.length;
+    if (batch.length < pageSize) break;
+    from += pageSize;
+  }
+  return rows;
 }
 
 export type Stats = {
