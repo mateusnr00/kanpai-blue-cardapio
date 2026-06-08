@@ -27,6 +27,8 @@ export type DishDetail = DishListRow & {
   original_price: string | null;
   badges: string[];
   is_component_only: boolean;
+  /** Rótulos customizados dos grupos de componentes (keyed por kind). */
+  component_labels: Record<string, string> | null;
 };
 
 export type DishVariantRow = {
@@ -100,7 +102,7 @@ export async function getDish(id: string): Promise<DishDetail | null> {
   const { data, error } = await supabase
     .from("dishes")
     .select(
-      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, featured_label, original_price, image_path, active, position, badges, is_component_only, schedule_start, schedule_end, schedule_off_days"
+      "id, slug, category_id, name, description, long_description, price, unit, subcategory, featured, featured_label, original_price, image_path, active, position, badges, is_component_only, component_labels, schedule_start, schedule_end, schedule_off_days"
     )
     .eq("id", id)
     .maybeSingle();

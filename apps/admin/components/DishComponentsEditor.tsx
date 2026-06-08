@@ -33,6 +33,8 @@ type LocalComponent = {
 
 type Props = {
   initial: DishComponentRow[];
+  /** Rótulos customizados por kind (vazio/ausente → usa o padrão). */
+  initialLabels?: Record<string, string> | null;
   choices: ChoiceItem[];
   categories: CategoryListItem[];
   parentCategoryId: string;
@@ -52,10 +54,21 @@ function kindSingular(kind: Kind): string {
 
 export function DishComponentsEditor({
   initial,
+  initialLabels,
   choices: initialChoices,
   categories,
   parentCategoryId,
 }: Props) {
+  const [labels, setLabels] = useState<Record<Kind, string>>({
+    entrada: initialLabels?.entrada ?? "",
+    principal: initialLabels?.principal ?? "",
+    sobremesa: initialLabels?.sobremesa ?? "",
+  });
+
+  // Rótulo que efetivamente aparece (custom ou padrão).
+  function tabLabel(kind: Kind): string {
+    return labels[kind].trim() || TAB_LABEL[kind];
+  }
   const [items, setItems] = useState<LocalComponent[]>(
     initial.map((c) => ({
       childId: c.childId,
@@ -183,6 +196,14 @@ export function DishComponentsEditor({
           <input type="hidden" name={`component_${idx}_kind`} value={it.kind} />
         </span>
       ))}
+      {TAB_ORDER.map((kind) => (
+        <input
+          key={`label-${kind}`}
+          type="hidden"
+          name={`component_label_${kind}`}
+          value={labels[kind].trim()}
+        />
+      ))}
 
       <div className="mb-3 flex gap-1">
         {TAB_ORDER.map((kind) => {
@@ -200,12 +221,32 @@ export function DishComponentsEditor({
                   : "border border-ink-faint bg-bg-card text-ink hover:border-ink")
               }
             >
-              {TAB_LABEL[kind]}
+              {tabLabel(kind)}
               <span className="ml-1 opacity-70">{count}</span>
             </button>
           );
         })}
       </div>
+
+      {/* Rótulo customizado do grupo ativo — como aparece no cardápio público. */}
+      <label className="mb-3 flex flex-col gap-1">
+        <span className="text-xs font-medium text-ink-soft">
+          Título da etapa no cardápio
+        </span>
+        <input
+          type="text"
+          value={labels[activeTab]}
+          onChange={(e) =>
+            setLabels((prev) => ({ ...prev, [activeTab]: e.target.value }))
+          }
+          placeholder={TAB_LABEL[activeTab]}
+          maxLength={40}
+          className="w-full max-w-xs rounded-md border border-ink-faint bg-bg-card px-2.5 py-1.5 text-sm outline-none focus:border-ink"
+        />
+        <span className="text-[11px] text-ink-muted">
+          Deixe em branco para usar o padrão “{TAB_LABEL[activeTab]}”.
+        </span>
+      </label>
 
       {itemsByKind[activeTab].length === 0 ? (
         <p className="text-xs italic text-ink-soft">Nenhum item nessa etapa.</p>
@@ -320,7 +361,7 @@ export function DishComponentsEditor({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={`Buscar prato pra ${TAB_LABEL[activeTab].toLowerCase()}...`}
+                placeholder={`Buscar prato pra ${tabLabel(activeTab).toLowerCase()}...`}
                 className="flex-1 bg-transparent text-sm outline-none"
               />
               <button

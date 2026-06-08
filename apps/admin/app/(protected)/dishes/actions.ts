@@ -129,6 +129,19 @@ type ComponentInput = {
   kind: "entrada" | "principal" | "sobremesa";
 };
 
+/**
+ * Rótulos customizados dos grupos de componentes (entrada/principal/sobremesa).
+ * Só inclui kinds com valor não-vazio — ausência = usa o rótulo padrão.
+ */
+function parseComponentLabels(formData: FormData): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const kind of ["entrada", "principal", "sobremesa"] as const) {
+    const v = String(formData.get(`component_label_${kind}`) ?? "").trim();
+    if (v) out[kind] = v.slice(0, 40);
+  }
+  return out;
+}
+
 function parseComponents(formData: FormData): ComponentInput[] {
   const count = Number(formData.get("components_count") ?? "0");
   const out: ComponentInput[] = [];
@@ -265,6 +278,7 @@ async function createDishCore(
       active: true,
       position,
       is_component_only: opts.isComponentOnly,
+      component_labels: parseComponentLabels(formData),
       ...schedule,
     })
     .select("id")
@@ -406,6 +420,7 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
     featured_label: featuredLabel,
     badges,
     image_path: imagePath,
+    component_labels: parseComponentLabels(formData),
     updated_at: new Date().toISOString(),
     ...schedule,
   };

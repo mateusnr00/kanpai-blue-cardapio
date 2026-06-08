@@ -334,7 +334,7 @@ export function DishDetailsModal({ dish, onClose }: Props) {
                     color: "var(--ink-soft)",
                   }}
                 >
-                  {KIND_LABEL[group.kind]}
+                  {dish.componentLabels?.[group.kind]?.trim() || KIND_LABEL[group.kind]}
                 </h3>
                 <ul
                   style={{
