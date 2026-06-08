@@ -107,7 +107,14 @@ export async function getDish(id: string): Promise<DishDetail | null> {
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return data;
+  if (!data) return null;
+  // component_labels vem como Json nos tipos gerados; normaliza pro shape do app.
+  const raw = data.component_labels;
+  const component_labels =
+    raw && typeof raw === "object" && !Array.isArray(raw)
+      ? (raw as Record<string, string>)
+      : null;
+  return { ...data, component_labels };
 }
 
 export async function listVariants(dishId: string): Promise<DishVariantRow[]> {
