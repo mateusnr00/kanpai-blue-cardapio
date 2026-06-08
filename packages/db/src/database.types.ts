@@ -380,6 +380,7 @@ export type Database = {
           badges: string[]
           blur_data_url: string | null
           category_id: string
+          component_labels: Json
           created_at: string
           description: string | null
           featured: boolean
@@ -407,6 +408,7 @@ export type Database = {
           badges?: string[]
           blur_data_url?: string | null
           category_id: string
+          component_labels?: Json
           created_at?: string
           description?: string | null
           featured?: boolean
@@ -434,6 +436,7 @@ export type Database = {
           badges?: string[]
           blur_data_url?: string | null
           category_id?: string
+          component_labels?: Json
           created_at?: string
           description?: string | null
           featured?: boolean
