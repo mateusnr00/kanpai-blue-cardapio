@@ -17,6 +17,11 @@ const ImageLightbox = dynamic(
   { ssr: false },
 );
 
+const DishDetailsModal = dynamic(
+  () => import("./DishDetailsModal").then((m) => m.DishDetailsModal),
+  { ssr: false },
+);
+
 const SMALL_GRADIENTS = [
   "linear-gradient(135deg, #EDE7D4 0%, #DDD3B9 100%)",
   "linear-gradient(135deg, #E5DEC8 0%, #D2C7AA 100%)",
@@ -46,6 +51,14 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId, prior
   const ref = useImpressionOnce<HTMLElement>(onImpression);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const canZoom = !!dish.image;
+  const hasDetails =
+    (!!dish.details && dish.details.sections.length > 0) ||
+    (!!dish.components && dish.components.length > 0);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const openDetails = useCallback(() => {
+    setDetailsOpen(true);
+    track({ event_type: "dish_view", dish_slug: dish.id, restaurant_id: restaurantId });
+  }, [dish.id, restaurantId]);
 
   return (
     <>
@@ -231,12 +244,39 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId, prior
             marginTop: 12,
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-end",
+            justifyContent: hasDetails ? "space-between" : "flex-end",
             gap: 10,
           }}
         >
-          <LikeCount dishId={dish.id} fontSize={11} />
-          <LikeButton dishId={dish.id} size={26} />
+          {hasDetails && (
+            <button
+              type="button"
+              onClick={openDetails}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "7px 12px",
+                background: "transparent",
+                border: "0.5px solid var(--ink)",
+                borderRadius: 999,
+                cursor: "pointer",
+                color: "var(--ink)",
+                fontSize: fs(11),
+                fontWeight: 500,
+                letterSpacing: "-0.005em",
+              }}
+            >
+              Ver itens
+              <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
+                <path d="M3 1L7 5L3 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <LikeCount dishId={dish.id} fontSize={11} />
+            <LikeButton dishId={dish.id} size={26} />
+          </div>
         </div>
       </div>
     </article>
@@ -249,6 +289,11 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId, prior
           onClose={() => setLightboxOpen(false)}
         />
       ) : null}
+    </AnimatePresence>
+    <AnimatePresence>
+      {detailsOpen && (
+        <DishDetailsModal dish={dish} onClose={() => setDetailsOpen(false)} />
+      )}
     </AnimatePresence>
     </>
   );
