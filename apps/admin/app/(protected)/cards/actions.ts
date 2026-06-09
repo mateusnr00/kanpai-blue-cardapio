@@ -208,8 +208,10 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
 
   const restaurantId = getActiveRestaurantId();
 
-  let slug = String(formData.get("id") ?? "").trim();
-  if (!slug) slug = slugify(name);
+  // Slug sempre normalizado: mesmo quando digitado à mão, passa pela slugify
+  // (senão "Menu Kids" virava slug com espaço e a rota /unidade/Menu Kids quebrava).
+  const rawSlug = String(formData.get("id") ?? "").trim();
+  const slug = rawSlug ? slugify(rawSlug) : slugify(name);
 
   const { data: maxRow } = await supabase
     .from("categories")
