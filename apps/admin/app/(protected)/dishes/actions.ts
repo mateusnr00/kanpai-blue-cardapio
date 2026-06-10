@@ -448,5 +448,6 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
 
   revalidatePath("/");
   revalidateMenu();
-  redirect(`/?cat=${cat.slug}`);
+  // Âncora #dish-<id> pra home rolar de volta até o prato editado (não pro topo).
+  redirect(`/?cat=${cat.slug}#dish-${id}`);
 }
