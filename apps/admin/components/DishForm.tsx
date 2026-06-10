@@ -9,6 +9,7 @@ import { BadgeCheckboxes } from "./BadgeCheckboxes";
 import { VariantsEditor } from "./VariantsEditor";
 import { DishComponentsEditor } from "./DishComponentsEditor";
 import { ScheduleEditor } from "./ScheduleEditor";
+import { OtherUnitsField } from "./OtherUnitsField";
 import type { DishDetail, DishVariantRow, DishComponentRow } from "@/lib/data/dishes";
 import type { CategoryListItem } from "@/lib/data/categories";
 
@@ -29,6 +30,8 @@ type Props = {
   componentChoices?: ComponentChoice[];
   categories: CategoryListItem[];
   defaultCategoryId?: string;
+  /** Outras unidades ativas — habilita "criar também em" (só na criação). */
+  otherUnits?: Array<{ id: string; shortName: string }>;
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
   /** Quando true: oculta editor de componentes aninhados e o link "Editar detalhes". Usado no modal. */
   embedded?: boolean;
@@ -47,6 +50,7 @@ export function DishForm({
   componentChoices = [],
   categories,
   defaultCategoryId,
+  otherUnits = [],
   onSubmit,
   embedded = false,
   onCancel,
@@ -208,6 +212,10 @@ export function DishForm({
             Ex.: NOVO, MAIS PEDIDO, PROMOÇÃO, EXCLUSIVO.
           </p>
         </div>
+      ) : null}
+
+      {mode === "create" && !embedded ? (
+        <OtherUnitsField units={otherUnits} kind="prato" />
       ) : null}
 
         </div>

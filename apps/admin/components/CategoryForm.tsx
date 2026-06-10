@@ -8,6 +8,7 @@ import { ImageUpload } from "./ImageUpload";
 import { SlideshowImagesEditor } from "./SlideshowImagesEditor";
 import { SubcategoriesEditor } from "./SubcategoriesEditor";
 import { ScheduleEditor } from "./ScheduleEditor";
+import { OtherUnitsField } from "./OtherUnitsField";
 import type { CategoryRow } from "@/lib/data/categories";
 
 type Props = {
@@ -15,10 +16,12 @@ type Props = {
   initial?: CategoryRow;
   /** Categorias que podem ser pai (topo). Usado pro aninhamento. */
   parents?: Array<{ id: string; name: string }>;
+  /** Outras unidades ativas — habilita "criar também em" (só na criação). */
+  otherUnits?: Array<{ id: string; shortName: string }>;
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
-export function CategoryForm({ mode, initial, parents = [], onSubmit }: Props) {
+export function CategoryForm({ mode, initial, parents = [], otherUnits = [], onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [featured, setFeatured] = useState<boolean>(initial?.featured ?? false);
@@ -227,6 +230,8 @@ export function CategoryForm({ mode, initial, parents = [], onSubmit }: Props) {
           <option value="list">Lista de texto (sem foto, bom pra bebidas, drinks, vinhos)</option>
         </select>
       </div>
+
+      {mode === "create" ? <OtherUnitsField units={otherUnits} kind="categoria" /> : null}
 
       {error ? (
         <p className="rounded-lg bg-danger-soft px-3 py-2 text-xs font-medium text-danger">{error}</p>
