@@ -250,9 +250,13 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
 
   if (insertErr || !inserted) return { error: insertErr?.message ?? "Falha ao criar." };
 
+  let sharedImagePath: string | null = null;
+  let sharedSlideshow: string[] = [];
   try {
     const newPath = await handleCategoryImage(formData, inserted.id, null);
     const newSlideshow = await handleSlideshowImages(formData, inserted.id, []);
+    sharedImagePath = newPath;
+    sharedSlideshow = newSlideshow;
     const update: { image_path?: string; slideshow_image_paths?: string[] } = {};
     if (newPath) update.image_path = newPath;
     if (newSlideshow.length > 0) update.slideshow_image_paths = newSlideshow;
@@ -265,6 +269,82 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
     }
   } catch (e) {
     return { error: (e as Error).message };
+  }
+
+  // "Criar também em outras unidades": copia a categoria pras unidades marcadas
+  // (quando ainda não houver uma com o mesmo slug lá). Mapeia o pai por slug.
+  const alsoUnits = formData
+    .getAll("also_unit")
+    .map(String)
+    .filter((u) => u && u !== restaurantId);
+  if (alsoUnits.length > 0) {
+    let parentSlug: string | null = null;
+    if (parent_id) {
+      const { data: p } = await supabase
+        .from("categories")
+        .select("slug")
+        .eq("id", parent_id)
+        .maybeSingle();
+      parentSlug = p?.slug ?? null;
+    }
+    for (const unitId of alsoUnits) {
+      const { data: existing } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("restaurant_id", unitId)
+        .eq("slug", slug)
+        .maybeSingle();
+      if (existing) continue; // já existe lá → não duplica
+      let targetParentId: string | null = null;
+      if (parent_id) {
+        if (!parentSlug) continue;
+        const { data: tp } = await supabase
+          .from("categories")
+          .select("id")
+          .eq("restaurant_id", unitId)
+          .eq("slug", parentSlug)
+          .maybeSingle();
+        if (!tp) continue; // pai não existe na unidade → evita categoria órfã
+        targetParentId = tp.id;
+      }
+      const { data: maxRow } = await supabase
+        .from("categories")
+        .select("position")
+        .eq("restaurant_id", unitId)
+        .order("position", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const { data: copy } = await supabase
+        .from("categories")
+        .insert({
+          slug,
+          restaurant_id: unitId,
+          number,
+          name,
+          short_name,
+          description,
+          item_count,
+          detail,
+          gradient,
+          featured,
+          full_width,
+          display_mode,
+          parent_id: targetParentId,
+          active: true,
+          position: (maxRow?.position ?? -1) + 1,
+          subcategories,
+          subcategory_display_modes,
+          image_path: sharedImagePath,
+          slideshow_image_paths: sharedSlideshow,
+          ...schedule,
+        })
+        .select("id")
+        .maybeSingle();
+      if (copy) {
+        revalidateTag(tags.menu(unitId));
+        revalidateMenuOnSite(unitId);
+      }
+    }
   }
 
   await logAudit({

@@ -160,23 +160,76 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
   const isDesktop = useIsDesktop();
 
   // Ao voltar de uma edição (redirect com #dish-<id>), rola até o prato editado
-  // em vez de deixar a lista no topo. Destaque rápido pra localizar.
+  // em vez de deixar a lista no topo. Re-corrige a posição até o layout assentar
+  // (troca desktop/mobile, imagens, etc.) e para se o usuário rolar manualmente.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = window.location.hash;
     if (!hash.startsWith("#dish-")) return;
-    const raf = requestAnimationFrame(() => {
-      const el = document.getElementById(hash.slice(1));
+    const id = hash.slice(1);
+
+    let cancelled = false;
+    let timer = 0;
+    let prevAbs: number | null = null;
+    let stable = 0;
+    const startedAt = Date.now();
+
+    const onUserScroll = () => {
+      cancelled = true;
+    };
+    // wheel/touchstart = intenção do usuário (scrollIntoView não dispara esses)
+    window.addEventListener("wheel", onUserScroll, { passive: true });
+    window.addEventListener("touchstart", onUserScroll, { passive: true });
+    const removeListeners = () => {
+      window.removeEventListener("wheel", onUserScroll);
+      window.removeEventListener("touchstart", onUserScroll);
+    };
+
+    const finish = () => {
+      removeListeners();
+      // limpa o hash pra não re-rolar em re-renders futuros (ex.: reordenar)
+      try {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      } catch {
+        /* noop */
+      }
+      if (cancelled) return;
+      const el = document.getElementById(id);
       if (!el) return;
-      el.scrollIntoView({ block: "center", behavior: "auto" });
-      const prev = el.style.backgroundColor;
+      const prevBg = el.style.backgroundColor;
       el.style.transition = "background-color 0.4s ease";
-      el.style.backgroundColor = "rgba(99, 102, 241, 0.12)";
+      el.style.backgroundColor = "rgba(99, 102, 241, 0.16)";
       window.setTimeout(() => {
-        el.style.backgroundColor = prev;
-      }, 1400);
-    });
-    return () => cancelAnimationFrame(raf);
+        el.style.backgroundColor = prevBg;
+      }, 1500);
+    };
+
+    const step = () => {
+      if (cancelled) {
+        removeListeners();
+        return;
+      }
+      const el = document.getElementById(id);
+      if (el) {
+        // posição absoluta no documento (invariante ao scroll): muda enquanto o
+        // layout acima ainda está assentando.
+        const absTop = Math.round(el.getBoundingClientRect().top + window.scrollY);
+        el.scrollIntoView({ block: "center", behavior: "auto" });
+        if (prevAbs !== null && Math.abs(absTop - prevAbs) <= 1) stable += 1;
+        else stable = 0;
+        prevAbs = absTop;
+        if (stable >= 3) return finish();
+      }
+      if (Date.now() - startedAt > 2500) return finish();
+      timer = window.setTimeout(step, 90);
+    };
+
+    timer = window.setTimeout(step, 60);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      removeListeners();
+    };
   }, [isDesktop]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
