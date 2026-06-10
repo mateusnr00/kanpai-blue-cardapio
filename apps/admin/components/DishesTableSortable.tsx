@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Image as ImageIcon, PencilSimple, Tray } from "@phosphor-icons/react";
 import {
   DndContext,
@@ -42,11 +42,12 @@ function SortableDishRow({ dish }: { dish: DishListRow }) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.6 : 1,
+    scrollMarginTop: 96,
   };
   const img = publicImageUrl(dish.image_path);
 
   return (
-    <tr ref={setNodeRef} style={style}>
+    <tr ref={setNodeRef} id={`dish-${dish.id}`} style={style}>
       <td className="w-10">
         <div {...attributes} {...listeners}>
           <DragHandle />
@@ -99,12 +100,14 @@ function SortableDishCard({ dish }: { dish: DishListRow }) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.6 : 1,
+    scrollMarginTop: 96,
   };
   const img = publicImageUrl(dish.image_path);
 
   return (
     <article
       ref={setNodeRef}
+      id={`dish-${dish.id}`}
       style={style}
       className="border-b border-ink-ghost/60 transition last:border-b-0 hover:bg-bg-muted/30"
     >
@@ -155,6 +158,26 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
   const [items, setItems] = useState(initial);
   const [, startTransition] = useTransition();
   const isDesktop = useIsDesktop();
+
+  // Ao voltar de uma edição (redirect com #dish-<id>), rola até o prato editado
+  // em vez de deixar a lista no topo. Destaque rápido pra localizar.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (!hash.startsWith("#dish-")) return;
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(hash.slice(1));
+      if (!el) return;
+      el.scrollIntoView({ block: "center", behavior: "auto" });
+      const prev = el.style.backgroundColor;
+      el.style.transition = "background-color 0.4s ease";
+      el.style.backgroundColor = "rgba(99, 102, 241, 0.12)";
+      window.setTimeout(() => {
+        el.style.backgroundColor = prev;
+      }, 1400);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [isDesktop]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   function onDragEnd(e: DragEndEvent) {
