@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowSquareOut, SignOut } from "@phosphor-icons/react";
 import { NavLink } from "./NavLink";
 import { RestaurantSelector } from "./RestaurantSelector";
+import { ActiveUnitLogo } from "./ActiveUnitLogo";
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
 import { ADMIN_NAV } from "@/lib/admin-nav";
@@ -51,6 +52,10 @@ export function AdminSidebar({ email, activeRestaurant, restaurants, unreadRevie
         <div className="flex-1" />
 
         <div className="admin-sidebar-footer">
+          <ActiveUnitLogo
+            restaurantId={activeRestaurant}
+            name={restaurants.find((r) => r.id === activeRestaurant)?.short_name ?? ""}
+          />
           <RestaurantSelector active={activeRestaurant} restaurants={restaurants} fullWidth />
 
           <a
