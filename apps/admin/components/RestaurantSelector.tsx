@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Storefront } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { AdminSelect } from "./AdminSelect";
@@ -15,6 +16,7 @@ type Props = {
 
 export function RestaurantSelector({ active, restaurants, fullWidth }: Props) {
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
 
   function onChange(next: string) {
     if (next === active) return;
@@ -22,9 +24,14 @@ export function RestaurantSelector({ active, restaurants, fullWidth }: Props) {
       const res = await setActiveRestaurant(next);
       if ("error" in res) {
         toast.error("Falha ao trocar unidade.");
-      } else {
-        toast.success("Unidade alterada.");
+        return;
       }
+      const unit = restaurants.find((r) => r.id === next)?.short_name ?? "unidade";
+      toast.success(`Unidade: ${unit}`);
+      // Recarrega a rota atual JÁ com o cookie novo (a action acima só altera o
+      // cookie no response — sem este refresh a tela ficaria no estado antigo
+      // até um F5).
+      router.refresh();
     });
   }
 
