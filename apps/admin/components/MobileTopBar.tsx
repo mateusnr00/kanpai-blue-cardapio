@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import { RestaurantSelector } from "./RestaurantSelector";
+import { ActiveUnitLogo } from "./ActiveUnitLogo";
 import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
 import { ADMIN_NAV } from "@/lib/admin-nav";
 
@@ -68,6 +69,11 @@ export function MobileTopBar({ email, activeRestaurant, restaurants, unreadRevie
       {open ? (
         <div className="max-h-[calc(100dvh-56px)] overflow-y-auto border-t border-ink-ghost bg-bg-surface px-4 py-3">
           <div className="flex flex-col gap-3">
+            <ActiveUnitLogo
+              restaurantId={activeRestaurant}
+              name={restaurants.find((r) => r.id === activeRestaurant)?.short_name ?? ""}
+              size={64}
+            />
             <RestaurantSelector active={activeRestaurant} restaurants={restaurants} />
 
             <nav className="flex flex-col gap-0.5 border-t border-ink-ghost pt-3">
