@@ -14,6 +14,6 @@ const LOGOS_BASE =
  * estes nomes (unit-<id>.png). Enquanto não existirem, o indicador fica oculto.
  */
 export const UNIT_LOGOS: Record<string, string> = {
-  flamboyant: `${LOGOS_BASE}/unit-flamboyant.png`,
-  goianiashopping: `${LOGOS_BASE}/unit-goianiashopping.png`,
+  flamboyant: `${LOGOS_BASE}/Flamboyant.png`,
+  goianiashopping: `${LOGOS_BASE}/GoianiaS.png`,
 };
