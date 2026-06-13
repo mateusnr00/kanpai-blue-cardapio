@@ -11,11 +11,12 @@ type Props = {
   onSubmit: (formData: FormData) => Promise<{ error?: string }>;
 };
 
-type Aspect = "square" | "portrait";
+type Aspect = "square" | "portrait" | "story";
 
 const ASPECT_CONFIG: Record<Aspect, { ratio: number; maxOutput: number; label: string }> = {
   square: { ratio: 1, maxOutput: 1200, label: "Quadrada (1200×1200)" },
   portrait: { ratio: 1080 / 1620, maxOutput: 1080, label: "Retrato (1080×1620)" },
+  story: { ratio: 1080 / 1920, maxOutput: 1080, label: "9:16 (1080×1920)" },
 };
 
 export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: Props) {
@@ -87,6 +88,7 @@ export function AnnouncementForm({ initialActive, initialImagePath, onSubmit }: 
           className="admin-input max-w-sm"
         >
           <option value="portrait">Retrato (1080×1620), recomendado pra mobile</option>
+          <option value="story">9:16 (1080×1920), tela cheia / stories</option>
           <option value="square">Quadrada (1200×1200)</option>
         </select>
         <p className="text-xs text-ink-muted">

@@ -4,6 +4,7 @@ import { revalidateTag } from "next/cache";
 import { createServerClient } from "@/lib/supabase-server";
 import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-actions";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
+import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
 
 const ANNOUNCEMENT_TAG = "restaurants";
 
@@ -49,6 +50,10 @@ export async function saveAnnouncement(formData: FormData): Promise<{ error?: st
 
   if (error) return { error: error.message };
 
+  // Invalida o cache local do admin E dispara a revalidação no SITE (webhook).
+  // Sem o revalidateMenuOnSite, o aviso ativado só aparecia no cardápio após o
+  // TTL de 24h do cache do site.
   revalidateTag(ANNOUNCEMENT_TAG);
+  revalidateMenuOnSite(restaurantId);
   return {};
 }
