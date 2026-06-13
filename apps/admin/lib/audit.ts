@@ -10,7 +10,8 @@ export type AuditEntity =
   | "review"
   | "restaurant"
   | "user"
-  | "qr_code";
+  | "qr_code"
+  | "announcement";
 
 export type AuditParams = {
   action: AuditAction;

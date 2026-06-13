@@ -32,30 +32,59 @@ export type RestaurantInfo = {
   showCategoryFooterPosition: boolean;
 };
 
-export type RestaurantAnnouncement = {
+export type AnnouncementCandidate = {
+  id: string;
   imageUrl: string;
+  aspect: "portrait" | "square";
+  dim: number;
+  scheduleStart: string | null;
+  scheduleEnd: string | null;
+  daysOff: number[];
 };
 
-async function getRestaurantAnnouncementImpl(id: string): Promise<RestaurantAnnouncement | null> {
+/**
+ * Avisos ATIVOS da unidade (com imagem), por prioridade (sort_order). NÃO filtra
+ * por programação aqui — a visibilidade por data/hora é decidida no cliente
+ * (AnnouncementModal), pra não ficar presa ao cache ISR da página.
+ */
+async function getRestaurantAnnouncementsImpl(id: string): Promise<AnnouncementCandidate[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
-    .from("restaurants")
-    .select("announcement_active, announcement_image_path")
-    .eq("id", id)
-    .eq("active", true)
-    .maybeSingle();
+    .from("announcements")
+    .select("id, image_url, aspect, dim, schedule_start, schedule_end, schedule_days_off")
+    .eq("restaurant_id", id)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
   if (error) throw error;
-  const row = data as { announcement_active?: boolean; announcement_image_path?: string | null } | null;
-  if (!row?.announcement_active || !row.announcement_image_path) return null;
-  const url = imageUrl(row.announcement_image_path);
-  if (!url) return null;
-  return { imageUrl: url };
+  const out: AnnouncementCandidate[] = [];
+  for (const r of (data ?? []) as Array<{
+    id: string;
+    image_url: string | null;
+    aspect: string;
+    dim: number | null;
+    schedule_start: string | null;
+    schedule_end: string | null;
+    schedule_days_off: number[] | null;
+  }>) {
+    if (!r.image_url) continue;
+    out.push({
+      id: r.id,
+      imageUrl: r.image_url,
+      aspect: r.aspect === "square" ? "square" : "portrait",
+      dim: r.dim ?? 0,
+      scheduleStart: r.schedule_start,
+      scheduleEnd: r.schedule_end,
+      daysOff: r.schedule_days_off ?? [],
+    });
+  }
+  return out;
 }
 
-export const getRestaurantAnnouncement = unstable_cache(
-  getRestaurantAnnouncementImpl,
-  ["restaurants:announcement"],
-  { tags: [tags.restaurants()], revalidate: 86400 },
+export const getRestaurantAnnouncements = unstable_cache(
+  getRestaurantAnnouncementsImpl,
+  ["announcements:active"],
+  { tags: [tags.restaurants()], revalidate: 300 },
 );
 
 type RestaurantRowMaybe = {

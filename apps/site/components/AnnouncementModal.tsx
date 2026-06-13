@@ -2,38 +2,57 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { isVisibleToday } from "@/lib/announcement-schedule";
 
-type Props = {
+type Candidate = {
+  id: string;
   imageUrl: string;
-  /** Chave do storage pra evitar mostrar de novo na mesma sessão. */
-  storageKey: string;
+  aspect: "portrait" | "square";
+  dim: number;
+  scheduleStart: string | null;
+  scheduleEnd: string | null;
+  daysOff: number[];
 };
 
-// Intro animation dura 2100ms (ver IntroAnimation.tsx). Aguardamos
-// um pouco mais pra garantir que ja foi fechada quando o modal abrir.
+type Props = {
+  /** Avisos ativos por prioridade (sort_order). O 1º visível agora é exibido. */
+  announcements: Candidate[];
+};
+
+// Intro animation dura ~2100ms (IntroAnimation.tsx). Aguardamos um pouco mais.
 const INTRO_TOTAL_MS = 2100;
 const INTRO_BUFFER_MS = 300;
 const FAST_DELAY_MS = 200;
 
 /**
- * Modal de aviso/anuncio que aparece UMA VEZ por sessao (sessionStorage).
- * Toggle + imagem sao geridos no admin (/aviso). Pra remover do projeto
- * de vez:
- *   1. Drop nas colunas restaurants.announcement_active e
- *      restaurants.announcement_image_path.
- *   2. Apaga este componente, /admin/app/(protected)/aviso/, o item do
- *      AdminSidebar NAV, e o uso em apps/site/app/[restaurant]/page.tsx.
+ * Modal de aviso. Mostra UM aviso (o 1º ativo + dentro da programação, por
+ * prioridade), 1x por sessão POR aviso (sessionStorage com chave por id).
+ * Fecha por X / clique fora / ESC. A visibilidade por data/hora é calculada
+ * aqui (cliente) pra não ficar presa ao cache da página.
  */
-export function AnnouncementModal({ imageUrl, storageKey }: Props) {
+export function AnnouncementModal({ announcements }: Props) {
+  const [chosen, setChosen] = useState<Candidate | null>(null);
   const [open, setOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
 
+  // Escolhe o aviso visível agora (client-side → sem mismatch de hidratação).
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const now = new Date();
+    const c =
+      announcements.find((a) =>
+        isVisibleToday({ start: a.scheduleStart, end: a.scheduleEnd, daysOff: a.daysOff }, now),
+      ) ?? null;
+    setChosen(c);
+  }, [announcements]);
+
+  const storageKey = chosen ? `kanpai-announcement-${chosen.id}` : "";
+
+  useEffect(() => {
+    if (!chosen || typeof window === "undefined") return;
     try {
       if (sessionStorage.getItem(storageKey) === "1") return;
     } catch {
-      // sessionStorage indisponível: mostra mesmo assim
+      /* sessionStorage indisponível: mostra mesmo assim */
     }
     let introSeen = false;
     try {
@@ -42,7 +61,7 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
     const delay = introSeen ? FAST_DELAY_MS : INTRO_TOTAL_MS + INTRO_BUFFER_MS;
     const t = window.setTimeout(() => setOpen(true), delay);
     return () => window.clearTimeout(t);
-  }, [storageKey]);
+  }, [chosen, storageKey]);
 
   function dismiss() {
     try {
@@ -66,6 +85,10 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  if (!chosen) return null;
+  const dimAlpha = Math.max(0, Math.min(90, chosen.dim)) / 100;
+  const imageUrl = chosen.imageUrl;
+
   return (
     <AnimatePresence>
       {open ? (
@@ -82,7 +105,7 @@ export function AnnouncementModal({ imageUrl, storageKey }: Props) {
             position: "fixed",
             inset: 0,
             zIndex: 220,
-            background: "rgba(8, 4, 30, 0.86)",
+            background: `rgba(8, 4, 30, ${dimAlpha})`,
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
             display: "flex",

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCategories, getRestaurantAnnouncement, getRestaurantById, listRestaurants } from "@/lib/menu-server";
+import { getCategories, getRestaurantAnnouncements, getRestaurantById, listRestaurants } from "@/lib/menu-server";
 import type { Category } from "@/lib/menu-types";
 import { AnnouncementModal } from "@/components/AnnouncementModal";
 import { HomePageClient } from "./HomePageClient";
@@ -38,11 +38,11 @@ export default async function RestaurantHomePage({ params }: { params: { restaur
     console.warn("[RestaurantHomePage] getCategories falhou:", (err as Error).message);
   }
 
-  let announcement: Awaited<ReturnType<typeof getRestaurantAnnouncement>> = null;
+  let announcements: Awaited<ReturnType<typeof getRestaurantAnnouncements>> = [];
   try {
-    announcement = await getRestaurantAnnouncement(restaurant.id);
+    announcements = await getRestaurantAnnouncements(restaurant.id);
   } catch (err) {
-    console.warn("[RestaurantHomePage] getRestaurantAnnouncement falhou:", (err as Error).message);
+    console.warn("[RestaurantHomePage] getRestaurantAnnouncements falhou:", (err as Error).message);
   }
 
   return (
@@ -53,12 +53,7 @@ export default async function RestaurantHomePage({ params }: { params: { restaur
         categories={categories}
         showFooterCount={restaurant.showHomeFooterCount}
       />
-      {announcement ? (
-        <AnnouncementModal
-          imageUrl={announcement.imageUrl}
-          storageKey={`kanpai-announcement-${restaurant.id}`}
-        />
-      ) : null}
+      {announcements.length > 0 ? <AnnouncementModal announcements={announcements} /> : null}
     </>
   );
 }
