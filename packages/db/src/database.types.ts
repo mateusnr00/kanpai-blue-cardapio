@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          aspect: string
+          created_at: string
+          dim: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          restaurant_id: string
+          schedule_days_off: number[]
+          schedule_end: string | null
+          schedule_start: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          aspect?: string
+          created_at?: string
+          dim?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          restaurant_id: string
+          schedule_days_off?: number[]
+          schedule_end?: string | null
+          schedule_start?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          aspect?: string
+          created_at?: string
+          dim?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          restaurant_id?: string
+          schedule_days_off?: number[]
+          schedule_end?: string | null
+          schedule_start?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       admin_audit_log: {
         Row: {
           action: string
