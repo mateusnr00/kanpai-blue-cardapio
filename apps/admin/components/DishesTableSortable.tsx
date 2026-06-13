@@ -33,6 +33,9 @@ type Props = {
   initial: DishListRow[];
 };
 
+/** Chave estável da subcategoria (null = grupo "Destaques"). */
+const gkey = (label: string | null) => label ?? "__nosub";
+
 /** Desktop: linha de tabela. */
 function SortableDishRow({ dish }: { dish: DishListRow }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -49,7 +52,7 @@ function SortableDishRow({ dish }: { dish: DishListRow }) {
   return (
     <tr ref={setNodeRef} id={`dish-${dish.id}`} style={style}>
       <td className="w-10">
-        <div {...attributes} {...listeners}>
+        <div {...attributes} {...listeners} className="cursor-grab" title="Arrastar prato">
           <DragHandle />
         </div>
       </td>
@@ -91,6 +94,45 @@ function SortableDishRow({ dish }: { dish: DishListRow }) {
   );
 }
 
+/** Desktop: cabeçalho de subcategoria — arrastável move a seção inteira. */
+function SortableGroupHeaderRow({
+  groupKey,
+  label,
+  count,
+}: {
+  groupKey: string;
+  label: string;
+  count: number;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: `grp:${groupKey}`,
+  });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  return (
+    <tr ref={setNodeRef} style={style} className="bg-bg-muted/60">
+      <td className="w-10">
+        <div {...attributes} {...listeners} className="cursor-grab" title="Arrastar seção inteira">
+          <DragHandle />
+        </div>
+      </td>
+      <td colSpan={5} className="py-2.5">
+        <div className="flex items-baseline justify-between gap-2 px-1">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+            {label}
+          </span>
+          <span className="text-[11px] tabular-nums text-ink-faint">
+            {count} {count === 1 ? "item" : "itens"}
+          </span>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 /** Mobile: card empilhado. */
 function SortableDishCard({ dish }: { dish: DishListRow }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -112,7 +154,7 @@ function SortableDishCard({ dish }: { dish: DishListRow }) {
       className="border-b border-ink-ghost/60 transition last:border-b-0 hover:bg-bg-muted/30"
     >
       <div className="flex items-start gap-3 p-3">
-        <div {...attributes} {...listeners} className="shrink-0 cursor-grab pt-0.5">
+        <div {...attributes} {...listeners} className="shrink-0 cursor-grab pt-0.5" title="Arrastar prato">
           <DragHandle />
         </div>
 
@@ -154,6 +196,48 @@ function SortableDishCard({ dish }: { dish: DishListRow }) {
   );
 }
 
+/** Mobile: cabeçalho de subcategoria — arrastável move a seção inteira. */
+function SortableGroupHeaderDiv({
+  groupKey,
+  label,
+  count,
+  withBorder,
+}: {
+  groupKey: string;
+  label: string;
+  count: number;
+  withBorder: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: `grp:${groupKey}`,
+  });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={
+        "flex items-center gap-2 bg-bg-muted/60 px-3 py-2.5 " +
+        (withBorder ? "border-t border-ink-ghost/60" : "")
+      }
+    >
+      <div {...attributes} {...listeners} className="shrink-0 cursor-grab" title="Arrastar seção inteira">
+        <DragHandle />
+      </div>
+      <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+        {label}
+      </span>
+      <span className="text-[11px] tabular-nums text-ink-faint">
+        {count} {count === 1 ? "item" : "itens"}
+      </span>
+    </div>
+  );
+}
+
 export function DishesTableSortable({ categoryId, initial }: Props) {
   const [items, setItems] = useState(initial);
   const [, startTransition] = useTransition();
@@ -177,7 +261,6 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
     const onUserScroll = () => {
       cancelled = true;
     };
-    // wheel/touchstart = intenção do usuário (scrollIntoView não dispara esses)
     window.addEventListener("wheel", onUserScroll, { passive: true });
     window.addEventListener("touchstart", onUserScroll, { passive: true });
     const removeListeners = () => {
@@ -187,7 +270,6 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
 
     const finish = () => {
       removeListeners();
-      // limpa o hash pra não re-rolar em re-renders futuros (ex.: reordenar)
       try {
         history.replaceState(null, "", window.location.pathname + window.location.search);
       } catch {
@@ -211,8 +293,6 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
       }
       const el = document.getElementById(id);
       if (el) {
-        // posição absoluta no documento (invariante ao scroll): muda enquanto o
-        // layout acima ainda está assentando.
         const absTop = Math.round(el.getBoundingClientRect().top + window.scrollY);
         el.scrollIntoView({ block: "center", behavior: "auto" });
         if (prevAbs !== null && Math.abs(absTop - prevAbs) <= 1) stable += 1;
@@ -231,18 +311,11 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
       removeListeners();
     };
   }, [isDesktop]);
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
-  function onDragEnd(e: DragEndEvent) {
-    const { active, over } = e;
-    if (!over || active.id === over.id) return;
-    const oldIndex = items.findIndex((d) => d.id === active.id);
-    const newIndex = items.findIndex((d) => d.id === over.id);
-    if (oldIndex < 0 || newIndex < 0) return;
-
-    const next = arrayMove(items, oldIndex, newIndex);
+  function persist(next: DishListRow[]) {
     setItems(next);
-
     startTransition(async () => {
       const res = await reorderDishes(categoryId, next.map((d) => d.id));
       if ("error" in res) {
@@ -278,6 +351,46 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
     groups.push({ label: null, rows: items });
   }
 
+  // IDs ordenáveis: header da seção (grp:<key>) + os pratos dela, na ordem atual.
+  const sortableIds = usesSubcategories
+    ? groups.flatMap((g) => [`grp:${gkey(g.label)}`, ...g.rows.map((d) => d.id)])
+    : items.map((d) => d.id);
+
+  function onDragEnd(e: DragEndEvent) {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const activeId = String(active.id);
+    const overId = String(over.id);
+
+    // Arrastou uma SEÇÃO (subcategoria) inteira.
+    if (activeId.startsWith("grp:")) {
+      const activeKey = activeId.slice(4);
+      const overKey = overId.startsWith("grp:")
+        ? overId.slice(4)
+        : gkey(items.find((d) => d.id === overId)?.subcategory ?? null);
+      const keys = groups.map((g) => gkey(g.label));
+      const from = keys.indexOf(activeKey);
+      const to = keys.indexOf(overKey);
+      if (from < 0 || to < 0 || from === to) return;
+      const reordered = arrayMove(groups, from, to);
+      persist(reordered.flatMap((g) => g.rows));
+      return;
+    }
+
+    // Arrastou um PRATO.
+    let overDishId = overId;
+    if (overId.startsWith("grp:")) {
+      const gk = overId.slice(4);
+      const first = items.find((d) => gkey(d.subcategory) === gk);
+      if (!first) return;
+      overDishId = first.id;
+    }
+    const oldIndex = items.findIndex((d) => d.id === activeId);
+    const newIndex = items.findIndex((d) => d.id === overDishId);
+    if (oldIndex < 0 || newIndex < 0) return;
+    persist(arrayMove(items, oldIndex, newIndex));
+  }
+
   // ----- Desktop: tabela -----
   if (isDesktop) {
     return (
@@ -294,22 +407,15 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
             </tr>
           </thead>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
               {groups.map((g) => (
                 <tbody key={g.label ?? "_top"}>
                   {usesSubcategories ? (
-                    <tr className="bg-bg-muted/60">
-                      <td colSpan={6} className="py-2.5">
-                        <div className="flex items-baseline justify-between gap-2 px-1">
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                            {g.label ?? "Destaques"}
-                          </span>
-                          <span className="text-[11px] tabular-nums text-ink-faint">
-                            {g.rows.length} {g.rows.length === 1 ? "item" : "itens"}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
+                    <SortableGroupHeaderRow
+                      groupKey={gkey(g.label)}
+                      label={g.label ?? "Destaques"}
+                      count={g.rows.length}
+                    />
                   ) : null}
                   {g.rows.map((d) => (
                     <SortableDishRow key={d.id} dish={d} />
@@ -327,23 +433,16 @@ export function DishesTableSortable({ categoryId, initial }: Props) {
   return (
     <div className="admin-card overflow-hidden">
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
           {groups.map((g, gi) => (
             <div key={g.label ?? "_top"}>
               {usesSubcategories ? (
-                <div
-                  className={
-                    "flex items-baseline justify-between gap-2 bg-bg-muted/60 px-3 py-2.5 " +
-                    (gi > 0 ? "border-t border-ink-ghost/60" : "")
-                  }
-                >
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                    {g.label ?? "Destaques"}
-                  </span>
-                  <span className="text-[11px] tabular-nums text-ink-faint">
-                    {g.rows.length} {g.rows.length === 1 ? "item" : "itens"}
-                  </span>
-                </div>
+                <SortableGroupHeaderDiv
+                  groupKey={gkey(g.label)}
+                  label={g.label ?? "Destaques"}
+                  count={g.rows.length}
+                  withBorder={gi > 0}
+                />
               ) : null}
               {g.rows.map((d) => (
                 <SortableDishCard key={d.id} dish={d} />
