@@ -130,7 +130,7 @@ export async function listVariants(dishId: string): Promise<DishVariantRow[]> {
 
 export type DishComponentRow = {
   childId: string;
-  kind: "entrada" | "principal" | "sobremesa";
+  kind: "entrada" | "entrada_fria" | "principal" | "sobremesa";
   position: number;
   /** Snapshot do dish child pra renderizar (nome + foto + preço sem nova query). */
   child: {

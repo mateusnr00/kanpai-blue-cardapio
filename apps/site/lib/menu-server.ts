@@ -365,7 +365,7 @@ async function getCategoriesImpl(restaurantId: string): Promise<Category[]> {
         .component_labels;
       if (rawLabels && typeof rawLabels === "object") {
         const labels: NonNullable<Dish["componentLabels"]> = {};
-        for (const k of ["entrada", "principal", "sobremesa"] as const) {
+        for (const k of ["entrada", "entrada_fria", "principal", "sobremesa"] as const) {
           const v = rawLabels[k]?.trim();
           if (v) labels[k] = v;
         }

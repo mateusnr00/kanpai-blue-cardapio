@@ -11,15 +11,17 @@ import { LikeCount } from "./LikeCount";
 
 const KIND_LABEL: Record<DishComponent["kind"], string> = {
   entrada: "Entradas",
+  entrada_fria: "Entradas frias",
   principal: "Principais",
   sobremesa: "Sobremesas",
 };
 
-const KIND_ORDER: DishComponent["kind"][] = ["entrada", "principal", "sobremesa"];
+const KIND_ORDER: DishComponent["kind"][] = ["entrada", "entrada_fria", "principal", "sobremesa"];
 
 function groupComponents(components: DishComponent[]) {
   const buckets: Record<DishComponent["kind"], DishComponent[]> = {
     entrada: [],
+    entrada_fria: [],
     principal: [],
     sobremesa: [],
   };
