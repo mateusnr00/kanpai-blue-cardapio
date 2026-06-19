@@ -11,7 +11,7 @@ import { createDishForComponent } from "@/app/(protected)/dishes/actions";
 import { DishCreateModal } from "./DishCreateModal";
 import { DishToggleActive } from "./DishToggleActive";
 
-type Kind = "entrada" | "principal" | "sobremesa";
+type Kind = "entrada" | "entrada_fria" | "principal" | "sobremesa";
 
 type ChoiceItem = {
   id: string;
@@ -42,11 +42,12 @@ type Props = {
 
 const TAB_LABEL: Record<Kind, string> = {
   entrada: "Entradas",
+  entrada_fria: "Entradas frias",
   principal: "Principais",
   sobremesa: "Sobremesas",
 };
 
-const TAB_ORDER: Kind[] = ["entrada", "principal", "sobremesa"];
+const TAB_ORDER: Kind[] = ["entrada", "entrada_fria", "principal", "sobremesa"];
 
 function kindSingular(kind: Kind): string {
   return TAB_LABEL[kind].toLowerCase().slice(0, -1);
@@ -61,6 +62,7 @@ export function DishComponentsEditor({
 }: Props) {
   const [labels, setLabels] = useState<Record<Kind, string>>({
     entrada: initialLabels?.entrada ?? "",
+    entrada_fria: initialLabels?.entrada_fria ?? "",
     principal: initialLabels?.principal ?? "",
     sobremesa: initialLabels?.sobremesa ?? "",
   });
@@ -87,7 +89,7 @@ export function DishComponentsEditor({
   const pendingCreatedRef = useRef<ChoiceItem | null>(null);
 
   const itemsByKind = useMemo(() => {
-    const map: Record<Kind, LocalComponent[]> = { entrada: [], principal: [], sobremesa: [] };
+    const map: Record<Kind, LocalComponent[]> = { entrada: [], entrada_fria: [], principal: [], sobremesa: [] };
     for (const it of items) map[it.kind].push(it);
     return map;
   }, [items]);

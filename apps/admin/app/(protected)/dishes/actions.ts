@@ -126,7 +126,7 @@ function extractBadges(formData: FormData): string[] {
 
 type ComponentInput = {
   childId: string;
-  kind: "entrada" | "principal" | "sobremesa";
+  kind: "entrada" | "entrada_fria" | "principal" | "sobremesa";
 };
 
 /**
@@ -135,7 +135,7 @@ type ComponentInput = {
  */
 function parseComponentLabels(formData: FormData): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const kind of ["entrada", "principal", "sobremesa"] as const) {
+  for (const kind of ["entrada", "entrada_fria", "principal", "sobremesa"] as const) {
     const v = String(formData.get(`component_label_${kind}`) ?? "").trim();
     if (v) out[kind] = v.slice(0, 40);
   }
@@ -149,7 +149,8 @@ function parseComponents(formData: FormData): ComponentInput[] {
     const childId = String(formData.get(`component_${i}_id`) ?? "").trim();
     const kind = String(formData.get(`component_${i}_kind`) ?? "").trim();
     if (!childId) continue;
-    if (kind !== "entrada" && kind !== "principal" && kind !== "sobremesa") continue;
+    if (kind !== "entrada" && kind !== "entrada_fria" && kind !== "principal" && kind !== "sobremesa")
+      continue;
     out.push({ childId, kind: kind as ComponentInput["kind"] });
   }
   return out;
@@ -160,7 +161,12 @@ async function syncComponents(parentDishId: string, components: ComponentInput[]
   await supabase.from("dish_components").delete().eq("parent_dish_id", parentDishId);
   if (components.length === 0) return;
   // numera position dentro de cada kind
-  const counters: Record<ComponentInput["kind"], number> = { entrada: 0, principal: 0, sobremesa: 0 };
+  const counters: Record<ComponentInput["kind"], number> = {
+    entrada: 0,
+    entrada_fria: 0,
+    principal: 0,
+    sobremesa: 0,
+  };
   const rows = components.map((c) => ({
     parent_dish_id: parentDishId,
     child_dish_id: c.childId,

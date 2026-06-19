@@ -14,7 +14,7 @@ export type DishDetails = {
 };
 
 export type DishComponent = {
-  kind: "entrada" | "principal" | "sobremesa";
+  kind: "entrada" | "entrada_fria" | "principal" | "sobremesa";
   /** Snapshot pra render — não precisa fazer outra busca. */
   id: string;
   name: string;
