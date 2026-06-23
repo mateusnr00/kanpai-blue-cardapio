@@ -15,6 +15,7 @@ type Props = {
   /** Disparado apenas em sucesso (apos toast). Modal fecha automaticamente. */
   onCreated: () => void;
   kindLabel: string;
+  otherUnits?: Array<{ id: string; shortName: string }>;
 };
 
 export function DishCreateModal({
@@ -25,6 +26,7 @@ export function DishCreateModal({
   onSubmit,
   onCreated,
   kindLabel,
+  otherUnits = [],
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +90,7 @@ export function DishCreateModal({
             onSuccess={onCreated}
             onCancel={onClose}
             embedded
+            otherUnits={otherUnits}
             submitLabel="Criar e adicionar"
           />
         </div>

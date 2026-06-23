@@ -38,6 +38,8 @@ type Props = {
   choices: ChoiceItem[];
   categories: CategoryListItem[];
   parentCategoryId: string;
+  /** Outras unidades — habilita "criar também na outra unidade" no modal. */
+  otherUnits?: Array<{ id: string; shortName: string }>;
 };
 
 const TAB_LABEL: Record<Kind, string> = {
@@ -59,6 +61,7 @@ export function DishComponentsEditor({
   choices: initialChoices,
   categories,
   parentCategoryId,
+  otherUnits = [],
 }: Props) {
   const [labels, setLabels] = useState<Record<Kind, string>>({
     entrada: initialLabels?.entrada ?? "",
@@ -430,6 +433,7 @@ export function DishComponentsEditor({
         onSubmit={handleCreateSubmit}
         onCreated={onCreated}
         kindLabel={kindSingular(activeTab)}
+        otherUnits={otherUnits}
       />
     </fieldset>
   );
