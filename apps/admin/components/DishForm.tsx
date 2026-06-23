@@ -20,6 +20,8 @@ type ComponentChoice = {
   image_path: string | null;
   price: string | null;
   active: boolean;
+  foreign?: boolean;
+  unitName?: string;
 };
 
 type Props = {

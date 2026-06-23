@@ -160,7 +160,7 @@ export async function listDishComponents(parentDishId: string): Promise<DishComp
     const child = Array.isArray(r.child) ? r.child[0] : r.child;
     return {
       childId: r.child_dish_id,
-      kind: r.kind as "entrada" | "principal" | "sobremesa",
+      kind: r.kind as "entrada" | "entrada_fria" | "principal" | "sobremesa",
       position: r.position,
       child: {
         id: child?.id ?? "",
@@ -175,39 +175,83 @@ export async function listDishComponents(parentDishId: string): Promise<DishComp
   });
 }
 
+export type ComponentChoice = {
+  id: string;
+  name: string;
+  category: string;
+  image_path: string | null;
+  price: string | null;
+  active: boolean;
+  /** true = prato de OUTRA unidade (será copiado pra unidade atual ao adicionar). */
+  foreign: boolean;
+  /** Nome da unidade de origem, quando foreign. */
+  unitName?: string;
+};
+
+function normName(s: string): string {
+  // eslint-disable-next-line no-misleading-character-class
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+}
+
 /**
- * Lista pratos disponíveis pra escolher como componente, na mesma unidade.
- * Exclui o próprio parent (não pode se referenciar).
+ * Pratos disponíveis pra escolher como componente. Acervo COMPARTILHADO: lista
+ * os pratos de TODAS as unidades (o restaurante é um só). Os de outra unidade
+ * vêm marcados (foreign) — ao adicionar, são copiados pra unidade atual.
+ * Exclui o próprio parent e os de fora que já têm equivalente (mesmo nome) aqui.
  */
 export async function listAvailableComponentChoices(
   restaurantId: string,
   excludeDishId: string,
-): Promise<Array<{ id: string; name: string; category: string; image_path: string | null; price: string | null; active: boolean }>> {
+): Promise<ComponentChoice[]> {
   const supabase = createServerClient();
   let query = supabase
     .from("dishes")
     .select(
-      "id, name, price, image_path, active, category:categories!dishes_category_id_fkey(name)"
+      "id, name, price, image_path, active, restaurant_id, category:categories!dishes_category_id_fkey(name)"
     )
-    .eq("restaurant_id", restaurantId)
     .order("name");
   // So aplica o neq quando o id e um uuid valido (no fluxo de edit). No
-  // fluxo de create o id ainda nao existe e passar string vazia quebra a
-  // query (id e coluna uuid).
+  // fluxo de create o id ainda nao existe e passar string vazia quebra a query.
   if (excludeDishId) {
     query = query.neq("id", excludeDishId);
   }
   const { data, error } = await query;
   if (error) throw error;
-  return (data ?? []).map((d) => {
+
+  const { data: rests } = await supabase.from("restaurants").select("id, short_name");
+  const unitName = new Map<string, string>((rests ?? []).map((r) => [r.id, r.short_name]));
+
+  type Row = {
+    id: string;
+    name: string;
+    price: string | null;
+    image_path: string | null;
+    active: boolean | null;
+    restaurant_id: string;
+    category: { name: string } | { name: string }[] | null;
+  };
+  const rows = (data ?? []) as Row[];
+  const currentNames = new Set(
+    rows.filter((r) => r.restaurant_id === restaurantId).map((r) => normName(r.name)),
+  );
+
+  const out: ComponentChoice[] = [];
+  for (const d of rows) {
+    const foreign = d.restaurant_id !== restaurantId;
+    if (foreign && currentNames.has(normName(d.name))) continue;
     const cat = Array.isArray(d.category) ? d.category[0] : d.category;
-    return {
+    out.push({
       id: d.id,
       name: d.name,
       price: d.price,
       image_path: d.image_path,
       active: d.active ?? true,
       category: cat?.name ?? "",
-    };
-  });
+      foreign,
+      unitName: foreign ? unitName.get(d.restaurant_id) : undefined,
+    });
+  }
+  // Unidade atual primeiro; depois os de fora. Alfabético dentro de cada grupo.
+  out.sort((a, b) => (a.foreign === b.foreign ? a.name.localeCompare(b.name) : a.foreign ? 1 : -1));
+  return out;
 }
