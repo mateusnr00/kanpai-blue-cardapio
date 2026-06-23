@@ -171,6 +171,7 @@ export function DishForm({
           choices={componentChoices}
           categories={categories}
           parentCategoryId={currentCategoryId}
+          otherUnits={otherUnits}
         />
       )}
 
@@ -214,7 +215,7 @@ export function DishForm({
         </div>
       ) : null}
 
-      {mode === "create" && !embedded ? (
+      {mode === "create" && otherUnits.length > 0 ? (
         <OtherUnitsField units={otherUnits} kind="prato" />
       ) : null}
 

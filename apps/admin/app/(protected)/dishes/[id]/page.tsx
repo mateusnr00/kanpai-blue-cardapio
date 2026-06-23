@@ -10,15 +10,16 @@ import { DishForm } from "@/components/DishForm";
 import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/PageHeader";
 import { updateDish } from "../actions";
-import { getActiveRestaurantId } from "@/lib/active-restaurant";
+import { getActiveRestaurantId, listRestaurants } from "@/lib/active-restaurant";
 
 type Params = { id: string };
 
 export default async function EditDishPage({ params }: { params: Params }) {
   const restaurantId = getActiveRestaurantId();
-  const [categories, dish] = await Promise.all([
+  const [categories, dish, restaurants] = await Promise.all([
     listCategoriesWithCounts(restaurantId),
     getDish(params.id),
+    listRestaurants(),
   ]);
 
   if (!dish) notFound();
@@ -27,6 +28,9 @@ export default async function EditDishPage({ params }: { params: Params }) {
     listDishComponents(dish.id),
     listAvailableComponentChoices(restaurantId, dish.id),
   ]);
+  const otherUnits = restaurants
+    .filter((r) => r.active && r.id !== restaurantId)
+    .map((r) => ({ id: r.id, shortName: r.short_name }));
 
   async function onSubmit(formData: FormData) {
     "use server";
@@ -45,6 +49,7 @@ export default async function EditDishPage({ params }: { params: Params }) {
           components={components}
           componentChoices={componentChoices}
           categories={categories}
+          otherUnits={otherUnits}
           onSubmit={onSubmit}
         />
       </div>

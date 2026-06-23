@@ -26,6 +26,29 @@ function slugify(input: string): string {
     .slice(0, 64) || `prato-${Date.now()}`;
 }
 
+/**
+ * Garante slug único dentro da unidade (constraint dishes_restaurant_slug_uk).
+ * Se já existir, tenta base-2, base-3… (evita "duplicate key" ao criar pratos
+ * com nome que colide com um já existente — ex.: "Camarão Empanado").
+ */
+async function uniqueDishSlug(
+  supabase: ReturnType<typeof createServerClient>,
+  restaurantId: string,
+  base: string,
+): Promise<string> {
+  for (let n = 1; n < 200; n++) {
+    const candidate = n === 1 ? base : `${base}-${n}`;
+    const { data } = await supabase
+      .from("dishes")
+      .select("id")
+      .eq("restaurant_id", restaurantId)
+      .eq("slug", candidate)
+      .maybeSingle();
+    if (!data) return candidate;
+  }
+  return `${base}-${Date.now()}`;
+}
+
 export async function toggleDishActive(id: string, nextActive: boolean) {
   const supabase = createServerClient();
   const { data: existing } = await supabase
@@ -257,6 +280,9 @@ async function createDishCore(
     .maybeSingle();
   if (!cat) return { error: "Categoria inválida." };
 
+  // Slug único por unidade (evita "duplicate key" quando o nome colide).
+  slug = await uniqueDishSlug(supabase, cat.restaurant_id, slug);
+
   const { data: maxRow } = await supabase
     .from("dishes")
     .select("position")
@@ -319,54 +345,56 @@ async function createDishCore(
 
   // "Criar também em outras unidades": replica o prato na categoria de mesmo
   // slug de cada unidade marcada. Unidades sem essa categoria são ignoradas.
-  if (!opts.isComponentOnly) {
-    const alsoUnits = formData
-      .getAll("also_unit")
-      .map(String)
-      .filter((u) => u && u !== cat.restaurant_id);
-    for (const unitId of alsoUnits) {
-      const { data: targetCat } = await supabase
-        .from("categories")
-        .select("id")
-        .eq("restaurant_id", unitId)
-        .eq("slug", cat.slug)
-        .maybeSingle();
-      if (!targetCat) continue;
-      const { data: maxRow } = await supabase
-        .from("dishes")
-        .select("position")
-        .eq("category_id", targetCat.id)
-        .order("position", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const { data: copy, error: copyErr } = await supabase
-        .from("dishes")
-        .insert({
-          slug,
-          category_id: targetCat.id,
-          restaurant_id: unitId,
-          name,
-          description,
-          price,
-          original_price: originalPrice,
-          subcategory,
-          featured,
-          featured_label: featuredLabel,
-          badges,
-          active: true,
-          position: (maxRow?.position ?? -1) + 1,
-          is_component_only: false,
-          component_labels: parseComponentLabels(formData),
-          image_path: imagePath,
-          ...schedule,
-        })
-        .select("id")
-        .single();
-      if (copyErr || !copy) continue;
-      if (variants.length > 0) await syncVariants(copy.id, variants);
-      revalidateTag(tags.menu(unitId));
-      revalidateMenuOnSite(unitId);
-    }
+  // "Criar também em outras unidades": replica em cada unidade marcada, na
+  // categoria de mesmo slug, com slug único por unidade. Vale pra prato normal
+  // E pra componente (aí o item já aparece no "Adicionar" das duas unidades).
+  const alsoUnits = formData
+    .getAll("also_unit")
+    .map(String)
+    .filter((u) => u && u !== cat.restaurant_id);
+  for (const unitId of alsoUnits) {
+    const { data: targetCat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("restaurant_id", unitId)
+      .eq("slug", cat.slug)
+      .maybeSingle();
+    if (!targetCat) continue;
+    const { data: maxRow } = await supabase
+      .from("dishes")
+      .select("position")
+      .eq("category_id", targetCat.id)
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const copySlug = await uniqueDishSlug(supabase, unitId, slug);
+    const { data: copy, error: copyErr } = await supabase
+      .from("dishes")
+      .insert({
+        slug: copySlug,
+        category_id: targetCat.id,
+        restaurant_id: unitId,
+        name,
+        description,
+        price,
+        original_price: originalPrice,
+        subcategory,
+        featured,
+        featured_label: featuredLabel,
+        badges,
+        active: true,
+        position: (maxRow?.position ?? -1) + 1,
+        is_component_only: opts.isComponentOnly,
+        component_labels: parseComponentLabels(formData),
+        image_path: imagePath,
+        ...schedule,
+      })
+      .select("id")
+      .single();
+    if (copyErr || !copy) continue;
+    if (variants.length > 0) await syncVariants(copy.id, variants);
+    revalidateTag(tags.menu(unitId));
+    revalidateMenuOnSite(unitId);
   }
 
   await logAudit({
