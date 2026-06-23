@@ -26,6 +26,29 @@ function slugify(input: string): string {
     .slice(0, 64) || `prato-${Date.now()}`;
 }
 
+/**
+ * Garante slug único dentro da unidade (constraint dishes_restaurant_slug_uk).
+ * Se já existir, tenta base-2, base-3… (evita "duplicate key" ao criar pratos
+ * com nome que colide com um já existente — ex.: "Camarão Empanado").
+ */
+async function uniqueDishSlug(
+  supabase: ReturnType<typeof createServerClient>,
+  restaurantId: string,
+  base: string,
+): Promise<string> {
+  for (let n = 1; n < 200; n++) {
+    const candidate = n === 1 ? base : `${base}-${n}`;
+    const { data } = await supabase
+      .from("dishes")
+      .select("id")
+      .eq("restaurant_id", restaurantId)
+      .eq("slug", candidate)
+      .maybeSingle();
+    if (!data) return candidate;
+  }
+  return `${base}-${Date.now()}`;
+}
+
 export async function toggleDishActive(id: string, nextActive: boolean) {
   const supabase = createServerClient();
   const { data: existing } = await supabase
@@ -256,6 +279,9 @@ async function createDishCore(
     .eq("id", categoryId)
     .maybeSingle();
   if (!cat) return { error: "Categoria inválida." };
+
+  // Slug único por unidade (evita "duplicate key" quando o nome colide).
+  slug = await uniqueDishSlug(supabase, cat.restaurant_id, slug);
 
   const { data: maxRow } = await supabase
     .from("dishes")
