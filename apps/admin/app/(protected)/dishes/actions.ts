@@ -458,6 +458,93 @@ export async function createDishForComponent(
   };
 }
 
+export type CreateFromSourceResult =
+  | { error: string }
+  | {
+      ok: true;
+      dish: { id: string; name: string; image_path: string | null; price: string | null; active: boolean };
+    };
+
+/**
+ * Copia um prato de OUTRA unidade pra unidade ativa, como componente. Usado pelo
+ * picker "Adicionar" quando o item escolhido é do acervo de outra unidade (o
+ * site monta o cardápio por unidade, então o componente precisa existir aqui).
+ */
+export async function createDishFromSource(
+  sourceId: string,
+  targetCategoryId: string,
+): Promise<CreateFromSourceResult> {
+  const supabase = createServerClient();
+  const restaurantId = getActiveRestaurantId();
+
+  const { data: src } = await supabase
+    .from("dishes")
+    .select("name, description, price, original_price, unit, image_path, blur_data_url, badges")
+    .eq("id", sourceId)
+    .maybeSingle();
+  if (!src) return { error: "Prato de origem não encontrado." };
+
+  const { data: cat } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("id", targetCategoryId)
+    .eq("restaurant_id", restaurantId)
+    .maybeSingle();
+  if (!cat) return { error: "Categoria inválida pra esta unidade." };
+
+  const slug = await uniqueDishSlug(supabase, restaurantId, slugify(src.name));
+  const { data: maxRow } = await supabase
+    .from("dishes")
+    .select("position")
+    .eq("category_id", cat.id)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { data: inserted, error } = await supabase
+    .from("dishes")
+    .insert({
+      slug,
+      category_id: cat.id,
+      restaurant_id: restaurantId,
+      name: src.name,
+      description: src.description,
+      price: src.price,
+      original_price: src.original_price,
+      unit: src.unit,
+      image_path: src.image_path,
+      blur_data_url: src.blur_data_url,
+      badges: src.badges ?? [],
+      is_component_only: true,
+      active: true,
+      position: (maxRow?.position ?? -1) + 1,
+    })
+    .select("id, name, image_path, price, active")
+    .single();
+  if (error || !inserted) return { error: error?.message ?? "Falha ao copiar." };
+
+  await logAudit({
+    action: "create",
+    entityType: "dish",
+    entityId: inserted.id,
+    entityLabel: src.name,
+    restaurantId,
+    details: { copied_from: sourceId },
+  });
+  revalidatePath("/");
+  revalidateMenu();
+  return {
+    ok: true,
+    dish: {
+      id: inserted.id,
+      name: inserted.name,
+      image_path: inserted.image_path,
+      price: inserted.price,
+      active: inserted.active ?? true,
+    },
+  };
+}
+
 export async function updateDish(id: string, formData: FormData): Promise<{ error?: string }> {
   const supabase = createServerClient();
   const categoryId = String(formData.get("category_id") ?? "").trim();

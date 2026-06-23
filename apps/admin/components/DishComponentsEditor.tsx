@@ -4,10 +4,11 @@ import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Plus, Trash, MagnifyingGlass, Sparkle, PencilSimple, Image as ImageIcon } from "@phosphor-icons/react";
+import { toast } from "sonner";
 import { publicImageUrl } from "@/lib/storage";
 import type { DishComponentRow } from "@/lib/data/dishes";
 import type { CategoryListItem } from "@/lib/data/categories";
-import { createDishForComponent } from "@/app/(protected)/dishes/actions";
+import { createDishForComponent, createDishFromSource } from "@/app/(protected)/dishes/actions";
 import { DishCreateModal } from "./DishCreateModal";
 import { DishToggleActive } from "./DishToggleActive";
 
@@ -20,6 +21,9 @@ type ChoiceItem = {
   image_path: string | null;
   price: string | null;
   active: boolean;
+  /** Prato de outra unidade — ao adicionar, é copiado pra unidade atual. */
+  foreign?: boolean;
+  unitName?: string;
 };
 
 type LocalComponent = {
@@ -97,20 +101,33 @@ export function DishComponentsEditor({
     return map;
   }, [items]);
 
-  function add(choice: ChoiceItem) {
+  async function add(choice: ChoiceItem) {
     if (items.some((it) => it.childId === choice.id && it.kind === activeTab)) {
       setPickerOpen(false);
       return;
     }
+    let toAdd = choice;
+    // Prato de outra unidade: copia pra unidade atual (o site monta por unidade)
+    // e usa a cópia. Some o item da lista pra não copiar duas vezes.
+    if (choice.foreign) {
+      const res = await createDishFromSource(choice.id, parentCategoryId);
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      toAdd = { ...res.dish, category: choice.category };
+      setChoices((prev) => prev.filter((c) => c.id !== choice.id));
+      toast.success("Prato copiado da outra unidade");
+    }
     setItems((prev) => [
       ...prev,
       {
-        childId: choice.id,
+        childId: toAdd.id,
         kind: activeTab,
-        name: choice.name,
-        image_path: choice.image_path,
-        price: choice.price,
-        active: choice.active,
+        name: toAdd.name,
+        image_path: toAdd.image_path,
+        price: toAdd.price,
+        active: toAdd.active,
       },
     ]);
     setPickerOpen(false);
@@ -410,9 +427,17 @@ export function DishComponentsEditor({
                           ) : null}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-ink">{c.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="truncate text-sm font-medium text-ink">{c.name}</p>
+                            {c.foreign ? (
+                              <span className="shrink-0 rounded-full bg-accent-soft px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent">
+                                {c.unitName ?? "outra unidade"}
+                              </span>
+                            ) : null}
+                          </div>
                           <p className="truncate text-xs text-ink-muted">
                             {c.category}{c.price ? ` | ${c.price}` : ""}
+                            {c.foreign ? " · copia pra esta unidade ao adicionar" : ""}
                           </p>
                         </div>
                       </button>
