@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "@phosphor-icons/react";
 import { DishForm } from "./DishForm";
 import type { CategoryListItem } from "@/lib/data/categories";
@@ -45,9 +46,9 @@ export function DishCreateModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -91,6 +92,7 @@ export function DishCreateModal({
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
