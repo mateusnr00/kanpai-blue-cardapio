@@ -7,21 +7,21 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen bg-bg-app">
       {/* Painel de marca (somente desktop) */}
-      <div className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-ink p-12 text-white lg:flex">
+      <div className="relative hidden flex-1 flex-col overflow-hidden bg-ink p-12 text-white lg:flex">
         {/* Brilhos decorativos */}
         <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-accent/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
 
-        <Image
-          src={KANPAI_BLUE_LOGO_URL}
-          alt="Kanpai Blue"
-          width={KANPAI_BLUE_LOGO_WIDTH}
-          height={KANPAI_BLUE_LOGO_HEIGHT}
-          className="relative h-10 w-auto brightness-0 invert"
-          priority
-        />
-
-        <div className="relative">
+        {/* Bloco de marca: logo + título + descrição, centralizado verticalmente */}
+        <div className="relative flex flex-1 flex-col justify-center">
+          <Image
+            src={KANPAI_BLUE_LOGO_URL}
+            alt="Kanpai Blue"
+            width={KANPAI_BLUE_LOGO_WIDTH}
+            height={KANPAI_BLUE_LOGO_HEIGHT}
+            className="mb-10 h-9 w-auto brightness-0 invert"
+            priority
+          />
           <h2 className="text-4xl font-semibold leading-tight tracking-tight">
             Gestão do cardápio
           </h2>
