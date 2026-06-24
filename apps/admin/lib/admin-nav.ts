@@ -10,6 +10,7 @@ import {
   VideoCamera,
   Heart,
   QrCode,
+  GraduationCap,
 } from "@phosphor-icons/react";
 
 export type AdminNavItem = {
@@ -22,6 +23,7 @@ export type AdminNavItem = {
 
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/", label: "Cardápio", icon: BookOpenText, exact: true, badgeKey: null },
+  { href: "/como-usar", label: "Como usar", icon: GraduationCap, exact: false, badgeKey: null },
   { href: "/cards", label: "Categorias", icon: SquaresFour, exact: false, badgeKey: null },
   { href: "/aviso", label: "Aviso", icon: Megaphone, exact: false, badgeKey: null },
   { href: "/linktree", label: "Linktree", icon: LinkSimple, exact: false, badgeKey: null },
