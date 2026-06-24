@@ -5,45 +5,65 @@ import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH }
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen">
-      <div className="hidden flex-1 flex-col justify-between bg-ink p-12 text-white lg:flex">
+    <main className="flex min-h-screen bg-bg-app">
+      {/* Painel de marca (somente desktop) */}
+      <div className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-ink p-12 text-white lg:flex">
+        {/* Brilhos decorativos */}
+        <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-accent/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
+
         <Image
           src={KANPAI_BLUE_LOGO_URL}
           alt="Kanpai Blue"
           width={KANPAI_BLUE_LOGO_WIDTH}
           height={KANPAI_BLUE_LOGO_HEIGHT}
-          className="h-10 w-auto brightness-0 invert"
+          className="relative h-10 w-auto brightness-0 invert"
           priority
         />
-        <div>
-          <h2 className="text-3xl font-semibold leading-tight tracking-tight">
+
+        <div className="relative">
+          <h2 className="text-4xl font-semibold leading-tight tracking-tight">
             Gestão do cardápio
           </h2>
-          <p className="mt-3 max-w-sm text-sm text-white/70">
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
             Atualize pratos e categorias do cardápio. As mudanças refletem no site em tempo real.
           </p>
         </div>
-        <p className="text-xs text-white/40">Kanpai Blue | Admin</p>
+
+        <p className="relative text-xs text-white/40">Kanpai Blue · Admin</p>
       </div>
 
+      {/* Painel de login */}
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
-          <div className="mb-8 flex flex-col items-center gap-4 lg:items-start">
+          {/* Logo no topo (somente mobile/tablet) */}
+          <div className="mb-8 flex justify-center lg:hidden">
             <Image
               src={KANPAI_BLUE_LOGO_URL}
               alt="Kanpai Blue"
               width={KANPAI_BLUE_LOGO_WIDTH}
               height={KANPAI_BLUE_LOGO_HEIGHT}
               priority
-              className="h-8 w-auto lg:hidden"
+              className="h-9 w-auto"
             />
-            <div className="flex items-center gap-2 text-ink-muted">
-              <LockKey size={20} weight="duotone" />
-              <span className="text-sm font-medium">Acesso administrativo</span>
-            </div>
-            <h1 className="text-xl font-semibold tracking-tight text-ink">Entrar no painel</h1>
           </div>
-          <LoginForm />
+
+          <div className="admin-card p-7 sm:p-8">
+            <div className="mb-7 flex flex-col gap-4">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                <LockKey size={22} weight="duotone" />
+              </span>
+              <div>
+                <h1 className="text-xl font-semibold tracking-tight text-ink">Entrar no painel</h1>
+                <p className="mt-1 text-sm text-ink-muted">Acesso administrativo · Kanpai Blue</p>
+              </div>
+            </div>
+            <LoginForm />
+          </div>
+
+          <p className="mt-6 text-center text-xs text-ink-faint">
+            Apenas equipe autorizada
+          </p>
         </div>
       </div>
     </main>

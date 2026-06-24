@@ -27,7 +27,15 @@ export function LoginForm() {
             size={18}
             className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint"
           />
-          <input id="email" name="email" type="email" required autoComplete="email" className="admin-input pl-10" />
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="seu@email.com"
+            className="admin-input pl-10"
+          />
         </div>
       </div>
 
@@ -44,6 +52,7 @@ export function LoginForm() {
             type="password"
             required
             autoComplete="current-password"
+            placeholder="••••••••"
             className="admin-input pl-10"
           />
         </div>
