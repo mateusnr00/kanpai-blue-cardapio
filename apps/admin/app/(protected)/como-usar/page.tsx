@@ -12,7 +12,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { PageHeader } from "@/components/PageHeader";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 /** Bloco de seção com título, ícone e conteúdo. */
 function Section({
