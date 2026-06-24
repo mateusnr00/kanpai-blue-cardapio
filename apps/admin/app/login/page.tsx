@@ -1,70 +1,50 @@
 import Image from "next/image";
-import { LockKey } from "@phosphor-icons/react/dist/ssr";
 import { LoginForm } from "@/components/LoginForm";
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen bg-bg-app">
-      {/* Painel de marca (somente desktop) */}
-      <div className="relative hidden flex-1 flex-col overflow-hidden bg-ink p-12 text-white lg:flex">
-        {/* Brilhos decorativos */}
-        <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-accent/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink px-4 py-10">
+      {/* Brilhos de fundo (sutis) */}
+      <div className="pointer-events-none absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -right-24 h-[34rem] w-[34rem] rounded-full bg-accent/20 blur-3xl" />
 
-        {/* Bloco de marca: logo + título + descrição, centralizado verticalmente */}
-        <div className="relative flex flex-1 flex-col justify-center">
-          <Image
-            src={KANPAI_BLUE_LOGO_URL}
-            alt="Kanpai Blue"
-            width={KANPAI_BLUE_LOGO_WIDTH}
-            height={KANPAI_BLUE_LOGO_HEIGHT}
-            className="mb-10 h-9 w-auto brightness-0 invert"
-            priority
-          />
-          <h2 className="text-4xl font-semibold leading-tight tracking-tight">
-            Gestão do cardápio
-          </h2>
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
-            Atualize pratos e categorias do cardápio. As mudanças refletem no site em tempo real.
-          </p>
-        </div>
-
-        <p className="relative text-xs text-white/40">Kanpai Blue · Admin</p>
-      </div>
-
-      {/* Painel de login */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-          {/* Logo no topo (somente mobile/tablet) */}
-          <div className="mb-8 flex justify-center lg:hidden">
+      <div className="relative w-full max-w-md">
+        <div className="rounded-2xl border border-white/10 bg-bg-surface p-8 shadow-2xl sm:p-10">
+          {/* Logo */}
+          <div className="flex justify-center">
             <Image
               src={KANPAI_BLUE_LOGO_URL}
               alt="Kanpai Blue"
               width={KANPAI_BLUE_LOGO_WIDTH}
               height={KANPAI_BLUE_LOGO_HEIGHT}
               priority
-              className="h-9 w-auto"
+              className="h-11 w-auto"
             />
           </div>
 
-          <div className="admin-card p-7 sm:p-8">
-            <div className="mb-7 flex flex-col gap-4">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
-                <LockKey size={22} weight="duotone" />
-              </span>
-              <div>
-                <h1 className="text-xl font-semibold tracking-tight text-ink">Entrar no painel</h1>
-                <p className="mt-1 text-sm text-ink-muted">Acesso administrativo · Kanpai Blue</p>
-              </div>
-            </div>
-            <LoginForm />
+          {/* Cabeçalho */}
+          <div className="mt-8 text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+              Acesso administrativo
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
+              Entrar no painel
+            </h1>
+            <p className="mx-auto mt-2 max-w-xs text-sm text-ink-muted">
+              Gerencie pratos e categorias do cardápio.
+            </p>
           </div>
 
-          <p className="mt-6 text-center text-xs text-ink-faint">
-            Apenas equipe autorizada
-          </p>
+          {/* Formulário */}
+          <div className="mt-8">
+            <LoginForm />
+          </div>
         </div>
+
+        <p className="mt-6 text-center text-xs text-white/45">
+          Kanpai Blue · Admin
+        </p>
       </div>
     </main>
   );
