@@ -1,19 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import {
   PencilSimple,
   Plus,
   Trash,
   ArrowsClockwise,
   ToggleLeft,
+  CopySimple,
 } from "@phosphor-icons/react";
 import type { AuditRow } from "@/lib/data/audit";
+import { duplicateDishToOtherUnit, duplicateCategoryToOtherUnit } from "./actions";
+
+type Unit = { id: string; short_name: string; active: boolean };
 
 type Props = {
   rows: AuditRow[];
+  units: Unit[];
   filters: {
     entity: string | null;
     action: string | null;
@@ -62,10 +67,16 @@ function fmtDate(iso: string): string {
   });
 }
 
-export function AuditList({ rows, filters }: Props) {
+export function AuditList({ rows, units, filters }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  function otherUnitOf(restaurantId: string | null): Unit | null {
+    if (!restaurantId) return null;
+    const others = units.filter((u) => u.active && u.id !== restaurantId);
+    return others.length === 1 ? others[0] : null;
+  }
 
   function setFilter(key: string, value: string | null) {
     const next = new URLSearchParams(searchParams.toString());
@@ -105,36 +116,52 @@ export function AuditList({ rows, filters }: Props) {
               color: "bg-ink-ghost/40 text-ink-soft",
             };
             const entityLabel = ENTITY_LABEL[r.entity_type] ?? r.entity_type;
+            const target = otherUnitOf(r.restaurant_id);
+            const canDuplicate =
+              !!r.entity_id &&
+              !!target &&
+              r.action !== "delete" &&
+              (r.entity_type === "dish" || r.entity_type === "category");
             return (
               <li key={r.id} className="rounded-xl border border-ink-ghost bg-bg-card">
-                <button
-                  type="button"
-                  onClick={() => setExpanded(isOpen ? null : r.id)}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left"
-                >
-                  <span
-                    className={
-                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium " +
-                      action.color
-                    }
+                <div className="flex items-stretch">
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(isOpen ? null : r.id)}
+                    className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left"
                   >
-                    <ActionIcon action={r.action} />
-                    {action.label}
-                  </span>
-                  <span className="rounded-full bg-bg-muted px-2 py-0.5 text-[10px] font-medium text-ink-soft">
-                    {entityLabel}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-ink">
-                      {r.entity_label ?? <span className="italic text-ink-muted">sem nome</span>}
-                    </p>
-                    <p className="truncate text-xs text-ink-muted">
-                      {r.actor_email ?? r.actor_id?.slice(0, 8) ?? "-"}
-                      {r.restaurant_id ? ` | ${r.restaurant_id}` : ""}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-xs text-ink-muted">{fmtDate(r.created_at)}</span>
-                </button>
+                    <span
+                      className={
+                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium " +
+                        action.color
+                      }
+                    >
+                      <ActionIcon action={r.action} />
+                      {action.label}
+                    </span>
+                    <span className="rounded-full bg-bg-muted px-2 py-0.5 text-[10px] font-medium text-ink-soft">
+                      {entityLabel}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-ink">
+                        {r.entity_label ?? <span className="italic text-ink-muted">sem nome</span>}
+                      </p>
+                      <p className="truncate text-xs text-ink-muted">
+                        {r.actor_email ?? r.actor_id?.slice(0, 8) ?? "-"}
+                        {r.restaurant_id ? ` | ${r.restaurant_id}` : ""}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-xs text-ink-muted">{fmtDate(r.created_at)}</span>
+                  </button>
+                  {canDuplicate && target ? (
+                    <DuplicateButton
+                      entityType={r.entity_type as "dish" | "category"}
+                      entityId={r.entity_id as string}
+                      targetName={target.short_name}
+                      onDone={() => router.refresh()}
+                    />
+                  ) : null}
+                </div>
                 {isOpen && r.details ? (
                   <div className="border-t border-ink-ghost bg-bg-muted/40 px-4 py-3">
                     <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-soft">
@@ -156,6 +183,53 @@ export function AuditList({ rows, filters }: Props) {
         </ul>
       )}
     </div>
+  );
+}
+
+function DuplicateButton({
+  entityType,
+  entityId,
+  targetName,
+  onDone,
+}: {
+  entityType: "dish" | "category";
+  entityId: string;
+  targetName: string;
+  onDone: () => void;
+}) {
+  const [pending, startTransition] = useTransition();
+
+  function run() {
+    if (pending) return;
+    const what = entityType === "dish" ? "prato" : "categoria";
+    if (!window.confirm(`Duplicar este ${what} no ${targetName}?`)) return;
+    startTransition(async () => {
+      const res =
+        entityType === "dish"
+          ? await duplicateDishToOtherUnit(entityId)
+          : await duplicateCategoryToOtherUnit(entityId);
+      if ("error" in res) {
+        toast.error(res.error);
+        return;
+      }
+      const extra =
+        res.count !== undefined ? ` (${res.count} ${res.count === 1 ? "prato" : "pratos"})` : "";
+      toast.success(`"${res.name}" duplicado no ${res.unitName}${extra}.`);
+      onDone();
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={run}
+      disabled={pending}
+      title={`Duplicar no ${targetName}`}
+      className="flex shrink-0 items-center gap-1.5 border-l border-ink-ghost px-3 text-xs font-medium text-ink-soft transition hover:bg-bg-muted hover:text-ink disabled:opacity-50"
+    >
+      <CopySimple size={15} weight="bold" />
+      <span className="hidden sm:inline">{pending ? "Duplicando…" : `Duplicar no ${targetName}`}</span>
+    </button>
   );
 }
 
