@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
 import { listAuditLog } from "@/lib/data/audit";
+import { listRestaurants } from "@/lib/active-restaurant";
 import { AuditList } from "./AuditList";
 
 type SearchParams = {
@@ -9,12 +10,16 @@ type SearchParams = {
 };
 
 export default async function HistoricoPage({ searchParams }: { searchParams: SearchParams }) {
-  const rows = await listAuditLog({
-    limit: 300,
-    entityType: searchParams.entity || null,
-    action: searchParams.action || null,
-    restaurantId: searchParams.restaurant || null,
-  });
+  const [rows, restaurants] = await Promise.all([
+    listAuditLog({
+      limit: 300,
+      entityType: searchParams.entity || null,
+      action: searchParams.action || null,
+      restaurantId: searchParams.restaurant || null,
+    }),
+    listRestaurants(),
+  ]);
+  const units = restaurants.map((r) => ({ id: r.id, short_name: r.short_name, active: r.active }));
 
   return (
     <section className="flex w-full flex-col gap-6">
@@ -24,6 +29,7 @@ export default async function HistoricoPage({ searchParams }: { searchParams: Se
       />
       <AuditList
         rows={rows}
+        units={units}
         filters={{
           entity: searchParams.entity ?? null,
           action: searchParams.action ?? null,
