@@ -27,6 +27,8 @@ export function Spin360Button({ dish, restaurantId }: Props) {
 
   if (!cfg) return null;
   const frameUrls = spin360FrameUrls(cfg);
+  // Sem frames ainda (imagens não subidas) → não mostra o botão.
+  if (frameUrls.length === 0) return null;
 
   return (
     <>
