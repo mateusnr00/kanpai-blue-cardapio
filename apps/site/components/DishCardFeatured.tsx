@@ -11,6 +11,7 @@ import { preloadLightboxImage } from "@/lib/preload-lightbox";
 import { DishImage } from "./DishImage";
 import { LikeButton } from "./LikeButton";
 import { LikeCount } from "./LikeCount";
+import { Spin360Button } from "./Spin360Button";
 
 const ImageLightbox = dynamic(
   () => import("./ImageLightbox").then((m) => m.ImageLightbox),
@@ -292,50 +293,53 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId,
             marginTop: 14,
             display: "flex",
             alignItems: "center",
-            justifyContent: hasDetails ? "space-between" : "flex-end",
+            justifyContent: "space-between",
             gap: 10,
           }}
         >
-          {hasDetails && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                openDetails();
-              }}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "10px 16px",
-                background: "transparent",
-                border: "0.5px solid var(--ink)",
-                borderRadius: 999,
-                cursor: "pointer",
-                color: "var(--ink)",
-                fontSize: fs(12),
-                fontWeight: 500,
-                letterSpacing: "-0.005em",
-              }}
-            >
-              Ver itens
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                aria-hidden
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            {hasDetails && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openDetails();
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "10px 16px",
+                  background: "transparent",
+                  border: "0.5px solid var(--ink)",
+                  borderRadius: 999,
+                  cursor: "pointer",
+                  color: "var(--ink)",
+                  fontSize: fs(12),
+                  fontWeight: 500,
+                  letterSpacing: "-0.005em",
+                }}
               >
-                <path
-                  d="M3 1L7 5L3 9"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          )}
+                Ver itens
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M3 1L7 5L3 9"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            )}
+            <Spin360Button dish={dish} restaurantId={restaurantId} />
+          </div>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>
             <LikeCount dishId={dish.id} fontSize={13} />
             <LikeButton dishId={dish.id} size={32} />
