@@ -2,17 +2,16 @@
 // 360° SPIN · configuração
 // ----------------------------------------------------------------------------
 // Registra quais pratos (por unidade) têm visualização 360°. Os frames ficam
-// na pasta pública do site (apps/site/public/<folder>/) e são servidos em
-// /<folder>/<arquivo>.
+// num bucket PÚBLICO do Supabase Storage e são montados por padrão de nome.
 //
-// COMO ADICIONAR UM 360 NOVO:
-//   1) Suba os frames em apps/site/public/<folder>/ (ex.:
-//      apps/site/public/360/combinado-do-chef/). Use webp/jpg pequenos
-//      (~800px) — são muitos frames, e arquivos grandes deixam o 360 lento.
-//   2) Liste os arquivos em `files`, NA ORDEM da rotação. (O viewer também
-//      ordena por número, então 1.webp, 2.webp… 10.webp ficam na ordem certa.)
-//   3) Adicione a entrada no REGISTRY com a chave
-//      `${unidade}::${nome do prato em minúsculas e sem acento}`.
+// COMO ADICIONAR/AJUSTAR:
+//   1) Suba os frames num bucket público do Supabase.
+//   2) Preencha `bucket` (nome exato, pode ter espaços) e o padrão de nome:
+//      prefix + número (com `pad` dígitos, começando em `start`) + suffix + ext.
+//      Ex.: arquivos "0001.webp".."0200.webp" → prefix:"", pad:4, start:1,
+//      count:200, ext:"webp". Arquivos "frame_1.jpg".. → prefix:"frame_",
+//      pad:0, start:1, ext:"jpg".
+//   3) `count` = quantos frames. Enquanto for 0, o botão 360 não aparece.
 // ============================================================================
 
 function norm(s: string): string {
@@ -25,19 +24,32 @@ function norm(s: string): string {
 }
 
 export type Spin360Config = {
-  /** Pasta dentro de apps/site/public (sem barra inicial/final). */
-  folder: string;
-  /** Nomes dos arquivos dos frames (na ordem da rotação). */
-  files: string[];
+  /** Nome do bucket público no Supabase (pode conter espaços/maiúsculas). */
+  bucket: string;
+  /** Texto antes do número no nome do arquivo. */
+  prefix?: string;
+  /** Texto depois do número (antes da extensão). */
+  suffix?: string;
+  /** Dígitos de zero-padding do número (0 = sem padding). */
+  pad: number;
+  /** Número do primeiro frame. */
+  start: number;
+  /** Quantidade de frames (0 = sem 360 ainda → botão escondido). */
+  count: number;
+  /** Extensão sem ponto (ex.: "webp", "jpg", "png"). */
+  ext: string;
 };
 
 // Chave: `${restaurantId}::${nomeNormalizado}`.
 const REGISTRY: Record<string, Spin360Config> = {
   "flamboyant::combinado do chef": {
-    folder: "360/combinado-do-chef",
-    // Preenchido automaticamente após subir as imagens em
-    // apps/site/public/360/combinado-do-chef/.
-    files: [],
+    bucket: "Combinado do chef",
+    prefix: "",
+    suffix: "",
+    pad: 4,
+    start: 1,
+    count: 0, // TODO: ajustar pro total real assim que soubermos o padrão dos nomes
+    ext: "webp",
   },
 };
 
@@ -48,7 +60,20 @@ export function get360Config(
   return REGISTRY[`${restaurantId}::${norm(dish.name)}`] ?? null;
 }
 
+const STORAGE_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/`;
+
+/** Codifica cada segmento do caminho (preserva as barras). */
+function encodePath(path: string): string {
+  return path.split("/").map(encodeURIComponent).join("/");
+}
+
 /** Lista de URLs dos frames, em ordem. */
 export function spin360FrameUrls(cfg: Spin360Config): string[] {
-  return cfg.files.map((f) => `/${cfg.folder}/${f}`);
+  const urls: string[] = [];
+  for (let i = 0; i < cfg.count; i++) {
+    const num = cfg.pad > 0 ? String(cfg.start + i).padStart(cfg.pad, "0") : String(cfg.start + i);
+    const file = `${cfg.prefix ?? ""}${num}${cfg.suffix ?? ""}.${cfg.ext}`;
+    urls.push(`${STORAGE_BASE}${encodePath(`${cfg.bucket}/${file}`)}`);
+  }
+  return urls;
 }
