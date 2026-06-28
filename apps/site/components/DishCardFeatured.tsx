@@ -349,7 +349,7 @@ export function DishCardFeatured({ dish, number, variant = "blue", restaurantId,
     </article>
     <AnimatePresence>
       {detailsOpen && (
-        <DishDetailsModal dish={dish} onClose={() => setDetailsOpen(false)} />
+        <DishDetailsModal dish={dish} restaurantId={restaurantId} onClose={() => setDetailsOpen(false)} />
       )}
     </AnimatePresence>
     <AnimatePresence>

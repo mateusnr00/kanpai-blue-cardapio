@@ -296,7 +296,7 @@ export function DishCardSmall({ dish, number, gradientIndex, restaurantId, prior
     </AnimatePresence>
     <AnimatePresence>
       {detailsOpen && (
-        <DishDetailsModal dish={dish} onClose={() => setDetailsOpen(false)} />
+        <DishDetailsModal dish={dish} restaurantId={restaurantId} onClose={() => setDetailsOpen(false)} />
       )}
     </AnimatePresence>
     </>
