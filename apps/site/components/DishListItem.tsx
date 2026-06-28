@@ -246,7 +246,7 @@ export function DishListItem({ dish, restaurantId, isLast }: Props) {
     </article>
     <AnimatePresence>
       {detailsOpen && (
-        <DishDetailsModal dish={dish} onClose={() => setDetailsOpen(false)} />
+        <DishDetailsModal dish={dish} restaurantId={restaurantId} onClose={() => setDetailsOpen(false)} />
       )}
     </AnimatePresence>
     </>

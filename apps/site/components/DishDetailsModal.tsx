@@ -8,6 +8,7 @@ import { fs } from "@/lib/scale";
 import { ImageLightbox } from "./ImageLightbox";
 import { LikeButton } from "./LikeButton";
 import { LikeCount } from "./LikeCount";
+import { Spin360Button } from "./Spin360Button";
 
 const KIND_LABEL: Record<DishComponent["kind"], string> = {
   entrada: "Entradas",
@@ -34,10 +35,11 @@ function groupComponents(components: DishComponent[]) {
 
 type Props = {
   dish: Dish;
+  restaurantId: string;
   onClose: () => void;
 };
 
-export function DishDetailsModal({ dish, onClose }: Props) {
+export function DishDetailsModal({ dish, restaurantId, onClose }: Props) {
   // Trava scroll do body enquanto modal está aberto
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -476,12 +478,15 @@ export function DishDetailsModal({ dish, onClose }: Props) {
             borderTop: "0.5px solid var(--ink-ghost)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 12,
           }}
         >
-          <LikeCount dishId={dish.id} fontSize={13} />
-          <LikeButton dishId={dish.id} size={32} />
+          <Spin360Button dish={dish} restaurantId={restaurantId} />
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
+            <LikeCount dishId={dish.id} fontSize={13} />
+            <LikeButton dishId={dish.id} size={32} />
+          </div>
         </div>
       </motion.div>
 
