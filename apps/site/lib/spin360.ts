@@ -38,6 +38,12 @@ export type Spin360Config = {
   count: number;
   /** Extensão sem ponto (ex.: "webp", "jpg", "png"). */
   ext: string;
+  /**
+   * Amostragem: usa 1 a cada `step` frames (default 1 = todos). Com muitos
+   * frames pesados (ex.: 500 PNGs), subir o step reduz o carregamento sem
+   * perder fluidez perceptível. step=4 em 500 frames → ~125 frames.
+   */
+  step?: number;
 };
 
 // Chave: `${restaurantId}::${nomeNormalizado}`.
@@ -46,10 +52,11 @@ const REGISTRY: Record<string, Spin360Config> = {
     bucket: "Combinado do chef",
     prefix: "",
     suffix: "",
-    pad: 4,
+    pad: 3,
     start: 1,
-    count: 0, // TODO: ajustar pro total real assim que soubermos o padrão dos nomes
-    ext: "webp",
+    count: 500, // 001.png .. 500.png
+    ext: "png",
+    step: 4, // ~125 frames (giro suave, carga viável). Baixe pra 1 = todos os 500.
   },
 };
 
@@ -67,10 +74,11 @@ function encodePath(path: string): string {
   return path.split("/").map(encodeURIComponent).join("/");
 }
 
-/** Lista de URLs dos frames, em ordem. */
+/** Lista de URLs dos frames, em ordem (já aplicando a amostragem `step`). */
 export function spin360FrameUrls(cfg: Spin360Config): string[] {
+  const step = cfg.step && cfg.step > 0 ? cfg.step : 1;
   const urls: string[] = [];
-  for (let i = 0; i < cfg.count; i++) {
+  for (let i = 0; i < cfg.count; i += step) {
     const num = cfg.pad > 0 ? String(cfg.start + i).padStart(cfg.pad, "0") : String(cfg.start + i);
     const file = `${cfg.prefix ?? ""}${num}${cfg.suffix ?? ""}.${cfg.ext}`;
     urls.push(`${STORAGE_BASE}${encodePath(`${cfg.bucket}/${file}`)}`);
