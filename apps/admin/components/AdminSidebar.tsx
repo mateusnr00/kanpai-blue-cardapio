@@ -8,7 +8,7 @@ import { RestaurantSelector } from "./RestaurantSelector";
 import { ActiveUnitLogo } from "./ActiveUnitLogo";
 import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH } from "@/lib/brand";
 import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
-import { ADMIN_NAV } from "@/lib/admin-nav";
+import { ADMIN_NAV_GROUPS } from "@/lib/admin-nav";
 
 type Props = {
   email: string | null;
@@ -22,7 +22,7 @@ export function AdminSidebar({ email, activeRestaurant, restaurants, unreadRevie
   return (
     <aside className="admin-sidebar">
       <div className="sticky top-0 flex h-screen flex-col">
-        <Link href="/" className="admin-sidebar-brand" aria-label="Kanpai Blue Admin">
+        <Link href="/" className="admin-sidebar-brand shrink-0" aria-label="Kanpai Blue Admin">
           <Image
             src={KANPAI_BLUE_LOGO_URL}
             alt="Kanpai Blue"
@@ -33,25 +33,31 @@ export function AdminSidebar({ email, activeRestaurant, restaurants, unreadRevie
           />
         </Link>
 
-        <p className="px-5 pb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-faint">Menu</p>
-        <nav className="admin-sidebar-nav">
-          {ADMIN_NAV.map(({ href, label, icon, badgeKey, ...rest }) => (
-            <NavLink
-              key={href}
-              href={href}
-              icon={icon}
-              layout="sidebar"
-              badge={badgeKey ? badges[badgeKey] : undefined}
-              {...rest}
-            >
-              {label}
-            </NavLink>
+        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+          {ADMIN_NAV_GROUPS.map((group) => (
+            <div key={group.title} className="mt-4 first:mt-1">
+              <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-ink-faint">
+                {group.title}
+              </p>
+              <div className="flex flex-col gap-0.5">
+                {group.items.map(({ href, label, icon, badgeKey, ...rest }) => (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    icon={icon}
+                    layout="sidebar"
+                    badge={badgeKey ? badges[badgeKey] : undefined}
+                    {...rest}
+                  >
+                    {label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
-        <div className="flex-1" />
-
-        <div className="admin-sidebar-footer">
+        <div className="admin-sidebar-footer shrink-0">
           <ActiveUnitLogo
             restaurantId={activeRestaurant}
             name={restaurants.find((r) => r.id === activeRestaurant)?.short_name ?? ""}

@@ -14,7 +14,7 @@ import { KANPAI_BLUE_LOGO_URL, KANPAI_BLUE_LOGO_HEIGHT, KANPAI_BLUE_LOGO_WIDTH }
 import { RestaurantSelector } from "./RestaurantSelector";
 import { ActiveUnitLogo } from "./ActiveUnitLogo";
 import { restaurantPublicUrl, type RestaurantRow } from "@/lib/restaurants-shared";
-import { ADMIN_NAV } from "@/lib/admin-nav";
+import { ADMIN_NAV_GROUPS } from "@/lib/admin-nav";
 
 type Props = {
   email: string | null;
@@ -77,34 +77,41 @@ export function MobileTopBar({ email, activeRestaurant, restaurants, unreadRevie
             <RestaurantSelector active={activeRestaurant} restaurants={restaurants} />
 
             <nav className="flex flex-col gap-0.5 border-t border-ink-ghost pt-3">
-              {ADMIN_NAV.map(({ href, label, icon: Icon, exact, badgeKey }) => {
-                const active = exact
-                  ? pathname === href
-                  : pathname === href || pathname.startsWith(href + "/");
-                const badge = badgeKey ? badges[badgeKey] : 0;
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={
-                      "flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition " +
-                      (active
-                        ? "bg-accent-soft text-accent"
-                        : "text-ink-secondary hover:bg-bg-muted hover:text-ink")
-                    }
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      <Icon size={18} weight={active ? "fill" : "duotone"} />
-                      {label}
-                    </span>
-                    {badge > 0 ? (
-                      <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-semibold text-white">
-                        {badge > 99 ? "99+" : badge}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
+              {ADMIN_NAV_GROUPS.map((group) => (
+                <div key={group.title} className="mt-2 first:mt-0">
+                  <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-ink-faint">
+                    {group.title}
+                  </p>
+                  {group.items.map(({ href, label, icon: Icon, exact, badgeKey }) => {
+                    const active = exact
+                      ? pathname === href
+                      : pathname === href || pathname.startsWith(href + "/");
+                    const badge = badgeKey ? badges[badgeKey] : 0;
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        className={
+                          "flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition " +
+                          (active
+                            ? "bg-accent-soft text-accent"
+                            : "text-ink-secondary hover:bg-bg-muted hover:text-ink")
+                        }
+                      >
+                        <span className="inline-flex items-center gap-3">
+                          <Icon size={18} weight={active ? "fill" : "duotone"} />
+                          {label}
+                        </span>
+                        {badge > 0 ? (
+                          <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-semibold text-white">
+                            {badge > 99 ? "99+" : badge}
+                          </span>
+                        ) : null}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
             </nav>
 
             <a
