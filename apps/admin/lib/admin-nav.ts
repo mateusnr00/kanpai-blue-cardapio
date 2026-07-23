@@ -11,6 +11,7 @@ import {
   Heart,
   QrCode,
   GraduationCap,
+  AddressBook,
 } from "@phosphor-icons/react";
 
 export type AdminNavItem = {
@@ -28,6 +29,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/aviso", label: "Aviso", icon: Megaphone, exact: false, badgeKey: null },
   { href: "/linktree", label: "Linktree", icon: LinkSimple, exact: false, badgeKey: null },
   { href: "/reviews", label: "Avaliações", icon: Star, exact: false, badgeKey: "unreadReviews" },
+  { href: "/clientes", label: "Clientes", icon: AddressBook, exact: false, badgeKey: null },
   { href: "/likes", label: "Curtidas", icon: Heart, exact: false, badgeKey: null },
   { href: "/analytics", label: "Analytics", icon: ChartLineUp, exact: false, badgeKey: null },
   { href: "/qrcode", label: "QR Codes", icon: QrCode, exact: false, badgeKey: null },
