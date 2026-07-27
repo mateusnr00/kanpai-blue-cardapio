@@ -267,6 +267,7 @@ function EditDialog({
   const [kind, setKind] = useState<"link" | "subtree" | "disabled">(initialKind);
   const [href, setHref] = useState(existing?.href ?? "");
   const [childSlug, setChildSlug] = useState(existing?.child_slug ?? "");
+  const [subtitle, setSubtitle] = useState(existing?.child_subtitle ?? "");
   const [active, setActive] = useState(existing?.active ?? true);
   const [pending, startTransition] = useTransition();
 
@@ -280,6 +281,7 @@ function EditDialog({
       kind,
       href: kind === "link" ? href : undefined,
       childSlug: kind === "subtree" ? childSlug : undefined,
+      subtitle: kind === "subtree" ? subtitle : undefined,
       parentId,
       active,
     };
@@ -376,6 +378,19 @@ function EditDialog({
             />
             <p className="text-[11px] text-ink-soft">
               Sem espaços. Vira a URL <code>/l/{childSlug || "..."}</code>. Vazio: gera do label.
+            </p>
+
+            <label className="admin-label mt-1">Subtítulo da página (opcional)</label>
+            <input
+              type="text"
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              className="admin-input"
+              placeholder="Escolha a unidade"
+            />
+            <p className="text-[11px] text-ink-soft">
+              O texto que aparece embaixo do título na página <code>/l/{childSlug || "..."}</code>.
+              Vazio: usa o padrão &ldquo;Escolha a unidade&rdquo;.
             </p>
           </div>
         ) : null}

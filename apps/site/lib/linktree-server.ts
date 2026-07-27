@@ -8,6 +8,8 @@ export type LinktreeButton = {
   label: string;
   href: string | null;
   childSlug: string | null;
+  /** Subtítulo custom da página de sub-linktree (null → usa o padrão). */
+  childSubtitle: string | null;
   position: number;
   active: boolean;
 };
@@ -16,7 +18,7 @@ async function fetchAllImpl(): Promise<LinktreeButton[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("linktree_buttons")
-    .select("id, parent_id, label, href, child_slug, position, active")
+    .select("id, parent_id, label, href, child_slug, child_subtitle, position, active")
     .order("parent_id", { nullsFirst: true })
     .order("position");
   if (error) throw error;
@@ -26,6 +28,7 @@ async function fetchAllImpl(): Promise<LinktreeButton[]> {
     label: r.label,
     href: r.href,
     childSlug: r.child_slug,
+    childSubtitle: r.child_subtitle,
     position: r.position,
     active: r.active,
   }));

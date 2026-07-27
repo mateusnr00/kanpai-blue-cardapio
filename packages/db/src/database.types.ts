@@ -536,6 +536,7 @@ export type Database = {
         Row: {
           active: boolean
           child_slug: string | null
+          child_subtitle: string | null
           created_at: string
           href: string | null
           id: string
@@ -547,6 +548,7 @@ export type Database = {
         Insert: {
           active?: boolean
           child_slug?: string | null
+          child_subtitle?: string | null
           created_at?: string
           href?: string | null
           id?: string
@@ -558,6 +560,7 @@ export type Database = {
         Update: {
           active?: boolean
           child_slug?: string | null
+          child_subtitle?: string | null
           created_at?: string
           href?: string | null
           id?: string
