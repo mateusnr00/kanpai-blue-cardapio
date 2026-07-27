@@ -104,7 +104,7 @@ export default async function SubLinktreePage({ params }: Props) {
               letterSpacing: "-0.005em",
             }}
           >
-            Escolha a unidade
+            {tree.root.childSubtitle?.trim() || "Escolha a unidade"}
           </p>
         </header>
 

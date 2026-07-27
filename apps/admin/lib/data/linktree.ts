@@ -6,6 +6,7 @@ export type LinktreeButtonRow = {
   label: string;
   href: string | null;
   child_slug: string | null;
+  child_subtitle: string | null;
   position: number;
   active: boolean;
 };
@@ -18,7 +19,7 @@ export async function listAllButtons(): Promise<LinktreeButtonRow[]> {
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("linktree_buttons")
-    .select("id, parent_id, label, href, child_slug, position, active")
+    .select("id, parent_id, label, href, child_slug, child_subtitle, position, active")
     .order("parent_id", { nullsFirst: true })
     .order("position");
   if (error) throw error;

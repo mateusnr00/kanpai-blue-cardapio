@@ -28,6 +28,8 @@ export type ButtonInput = {
   kind: "link" | "subtree" | "disabled";
   href?: string;
   childSlug?: string;
+  /** Subtítulo da página do sub-linktree (só usado quando kind === "subtree"). */
+  subtitle?: string;
   parentId: string | null;
   active: boolean;
 };
@@ -50,12 +52,14 @@ export async function createButton(input: ButtonInput): Promise<{ error?: string
 
   let href: string | null = null;
   let child_slug: string | null = null;
+  let child_subtitle: string | null = null;
   if (input.kind === "link" && input.href) {
     href = input.href.trim();
   } else if (input.kind === "subtree") {
     const slug = (input.childSlug && input.childSlug.trim()) || slugify(label);
     if (!slug) return { error: "Slug invalido." };
     child_slug = slug;
+    child_subtitle = input.subtitle?.trim() || null;
   }
 
   const { data: inserted, error } = await supabase
@@ -67,6 +71,7 @@ export async function createButton(input: ButtonInput): Promise<{ error?: string
       parent_id: input.parentId,
       href,
       child_slug,
+      child_subtitle,
     })
     .select("id")
     .single();
@@ -93,18 +98,20 @@ export async function updateButton(
 
   let href: string | null = null;
   let child_slug: string | null = null;
+  let child_subtitle: string | null = null;
   if (input.kind === "link" && input.href) {
     href = input.href.trim();
   } else if (input.kind === "subtree") {
     const slug = (input.childSlug && input.childSlug.trim()) || slugify(label);
     if (!slug) return { error: "Slug invalido." };
     child_slug = slug;
+    child_subtitle = input.subtitle?.trim() || null;
   }
 
   const supabase = createServerClient();
   const { error } = await supabase
     .from("linktree_buttons")
-    .update({ label, active: input.active, href, child_slug })
+    .update({ label, active: input.active, href, child_slug, child_subtitle })
     .eq("id", id);
   if (error) return { error: error.message };
 
