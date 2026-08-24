@@ -12,6 +12,7 @@ import {
   QrCode,
   GraduationCap,
   AddressBook,
+  GearSix,
 } from "@phosphor-icons/react";
 
 export type AdminNavItem = {
@@ -59,6 +60,7 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     items: [
       { href: "/historico", label: "Histórico", icon: ClockCounterClockwise, exact: false, badgeKey: null },
       { href: "/users", label: "Usuários", icon: Users, exact: false, badgeKey: null },
+      { href: "/configuracoes", label: "Configurações", icon: GearSix, exact: false, badgeKey: null },
       { href: "/como-usar", label: "Como usar", icon: GraduationCap, exact: false, badgeKey: null },
     ],
   },

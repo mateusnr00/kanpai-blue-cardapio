@@ -579,6 +579,33 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          id: string
+          meta_pixel_id: string | null
+          ga4_id: string | null
+          google_ads_id: string | null
+          tiktok_pixel_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          meta_pixel_id?: string | null
+          ga4_id?: string | null
+          google_ads_id?: string | null
+          tiktok_pixel_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          meta_pixel_id?: string | null
+          ga4_id?: string | null
+          google_ads_id?: string | null
+          tiktok_pixel_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       linktree_theme: {
         Row: {
           id: string

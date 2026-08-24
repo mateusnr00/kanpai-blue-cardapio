@@ -4,4 +4,5 @@ export const tags = {
   category: (restaurantId: string, slug: string) => `cat:${restaurantId}:${slug}`,
   dish: (dishId: string) => `dish:${dishId}`,
   linktree: () => "linktree",
+  siteSettings: () => "site_settings",
 };

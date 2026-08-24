@@ -5,6 +5,8 @@ import { FontSizeProvider } from "@/components/FontSizeProvider";
 import { LikesProvider } from "@/components/LikesProvider";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { ConsentBanner } from "@/components/ConsentBanner";
+import { AnalyticsScripts } from "@/components/AnalyticsScripts";
+import { getSiteSettings } from "@/lib/settings-server";
 import "./globals.css";
 
 const inter = Inter({
@@ -32,7 +34,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings();
   return (
     <html lang="pt-BR" data-text-size="default" className={inter.variable}>
       <head>
@@ -44,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <AnalyticsScripts settings={settings} />
         <Suspense fallback={null}>
           <PostHogProvider>
             <FontSizeProvider>

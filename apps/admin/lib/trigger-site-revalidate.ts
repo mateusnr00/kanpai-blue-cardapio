@@ -33,3 +33,7 @@ export function revalidateMenuOnSite(restaurantId: string): void {
 export function revalidateLinktreeOnSite(): void {
   triggerSiteRevalidate([tags.linktree()]);
 }
+
+export function revalidateSettingsOnSite(): void {
+  triggerSiteRevalidate([tags.siteSettings()]);
+}
