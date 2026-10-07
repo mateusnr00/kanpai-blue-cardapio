@@ -1,5 +1,8 @@
 "use server";
 
+import { ensure } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
+
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createServerClient } from "@/lib/supabase-server";
 import { tags } from "@/lib/cache-tags";
@@ -35,6 +38,8 @@ export type ButtonInput = {
 };
 
 export async function createButton(input: ButtonInput): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.LINKTREE_UPDATE);
+  if (g) return g;
   const label = input.label.trim();
   if (!label) return { error: "Label obrigatorio." };
 
@@ -93,6 +98,8 @@ export async function updateButton(
   id: string,
   input: Omit<ButtonInput, "parentId">,
 ): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.LINKTREE_UPDATE);
+  if (g) return g;
   const label = input.label.trim();
   if (!label) return { error: "Label obrigatorio." };
 
@@ -128,6 +135,8 @@ export async function updateButton(
 }
 
 export async function deleteButton(id: string): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.LINKTREE_UPDATE);
+  if (g) return g;
   const supabase = createServerClient();
   const { data: existing } = await supabase
     .from("linktree_buttons")
@@ -153,6 +162,8 @@ export async function reorderButtons(
   parentId: string | null,
   orderedIds: string[],
 ): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.LINKTREE_UPDATE);
+  if (g) return g;
   const supabase = createServerClient();
   const updates = orderedIds.map((id, i) =>
     supabase.from("linktree_buttons").update({ position: i }).eq("id", id),
@@ -176,6 +187,8 @@ export async function toggleButtonActive(
   id: string,
   active: boolean,
 ): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.LINKTREE_UPDATE);
+  if (g) return g;
   const supabase = createServerClient();
   const { data: existing } = await supabase
     .from("linktree_buttons")

@@ -1,5 +1,8 @@
 "use server";
 
+import { ensure } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
+
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase-server";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
@@ -19,6 +22,9 @@ function slugify(s: string): string {
 }
 
 export async function createQrCode(formData: FormData): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.QRCODE_MANAGE);
+  if (g) return g;
+
   const label = String(formData.get("label") ?? "").trim();
   const target = String(formData.get("target_path") ?? "").trim();
   if (!label) return { error: "Informe um nome pro QR." };
@@ -58,6 +64,9 @@ export async function createQrCode(formData: FormData): Promise<{ error?: string
 }
 
 export async function deleteQrCode(id: string): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.QRCODE_MANAGE);
+  if (g) return g;
+
   const restaurantId = getActiveRestaurantId();
   const supabase = createServerClient();
 

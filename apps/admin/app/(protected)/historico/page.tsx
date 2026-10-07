@@ -1,4 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
+import { AccessDenied } from "@/components/AccessDenied";
+import { hasPermission } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
 import { listAuditLog } from "@/lib/data/audit";
 import { listRestaurants } from "@/lib/active-restaurant";
 import { AuditList } from "./AuditList";
@@ -10,6 +13,7 @@ type SearchParams = {
 };
 
 export default async function HistoricoPage({ searchParams }: { searchParams: SearchParams }) {
+  if (!(await hasPermission(PERMISSIONS.AUDIT_VIEW))) return <AccessDenied />;
   const [rows, restaurants] = await Promise.all([
     listAuditLog({
       limit: 300,

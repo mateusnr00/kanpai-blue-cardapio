@@ -14,6 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
+      roles: {
+        Row: {
+          slug: string
+          name: string
+          description: string
+          is_owner: boolean
+          is_system: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          slug: string
+          name: string
+          description?: string
+          is_owner?: boolean
+          is_system?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          slug?: string
+          name?: string
+          description?: string
+          is_owner?: boolean
+          is_system?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          role_slug: string
+          permission_key: string
+        }
+        Insert: {
+          role_slug: string
+          permission_key: string
+        }
+        Update: {
+          role_slug?: string
+          permission_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_role_slug_fkey"
+            columns: ["role_slug"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      staff_members: {
+        Row: {
+          user_id: string
+          role_slug: string
+          status: string
+          is_owner: boolean
+          name: string | null
+          created_at: string
+          updated_at: string
+          disabled_at: string | null
+        }
+        Insert: {
+          user_id: string
+          role_slug: string
+          status?: string
+          is_owner?: boolean
+          name?: string | null
+          created_at?: string
+          updated_at?: string
+          disabled_at?: string | null
+        }
+        Update: {
+          user_id?: string
+          role_slug?: string
+          status?: string
+          is_owner?: boolean
+          name?: string | null
+          created_at?: string
+          updated_at?: string
+          disabled_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_members_role_slug_fkey"
+            columns: ["role_slug"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      staff_permission_overrides: {
+        Row: {
+          user_id: string
+          permission_key: string
+          effect: string
+          created_at: string
+        }
+        Insert: {
+          user_id: string
+          permission_key: string
+          effect: string
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          permission_key?: string
+          effect?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_permission_overrides_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "staff_members"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           aspect: string

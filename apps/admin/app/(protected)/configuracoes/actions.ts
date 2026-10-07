@@ -5,6 +5,8 @@ import { createServerClient } from "@/lib/supabase-server";
 import { tags } from "@/lib/cache-tags";
 import { revalidateSettingsOnSite } from "@/lib/trigger-site-revalidate";
 import { logAudit } from "@/lib/audit";
+import { ensure } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
 
 export type SettingsInput = {
   metaPixelId: string;
@@ -19,6 +21,8 @@ const clean = (v: string) => {
 };
 
 export async function saveSettings(input: SettingsInput): Promise<{ error?: string }> {
+  const gate = await ensure(PERMISSIONS.INTEGRATIONS_UPDATE);
+  if (gate) return gate;
   const supabase = createServerClient();
   const { error } = await supabase
     .from("site_settings")
