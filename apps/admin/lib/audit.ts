@@ -12,7 +12,10 @@ export type AuditEntity =
   | "user"
   | "qr_code"
   | "announcement"
-  | "site_settings";
+  | "site_settings"
+  | "staff"
+  | "role"
+  | "permission";
 
 export type AuditParams = {
   action: AuditAction;

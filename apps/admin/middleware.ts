@@ -37,6 +37,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Acesso suspenso: usuário desativado não continua operando com sessão antiga.
+  // Força sign-out (limpa a sessão) e manda pro login.
+  if (user && !isAuthRoute) {
+    try {
+      const { data: member } = await supabase
+        .from("staff_members")
+        .select("status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (member?.status === "disabled") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/auth/sign-out";
+        return NextResponse.redirect(url);
+      }
+    } catch {
+      // tabela ainda não existe (pré-migração) → segue normalmente.
+    }
+  }
+
   if (user && path === "/login") {
     const url = request.nextUrl.clone();
     url.pathname = "/";

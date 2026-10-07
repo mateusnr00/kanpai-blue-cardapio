@@ -9,6 +9,8 @@ import { tags } from "@/lib/cache-tags";
 import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
 import { logAudit } from "@/lib/audit";
 import { parseScheduleFromForm } from "@/lib/schedule-form";
+import { ensure } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
 
 function revalidateMenu() {
   const restaurantId = getActiveRestaurantId();
@@ -111,6 +113,8 @@ async function handleSlideshowImages(
 }
 
 export async function toggleCategoryActive(id: string, nextActive: boolean) {
+  const g = await ensure(PERMISSIONS.MENU_CATEGORY_STATUS);
+  if (g) return g;
   const supabase = createServerClient();
   const { data: existing } = await supabase
     .from("categories")
@@ -137,6 +141,8 @@ export async function toggleCategoryActive(id: string, nextActive: boolean) {
 }
 
 export async function deleteCategory(id: string) {
+  const g = await ensure(PERMISSIONS.MENU_CATEGORY_DELETE);
+  if (g) return g;
   const supabase = createServerClient();
   const { data: cat } = await supabase
     .from("categories")
@@ -165,6 +171,8 @@ export async function deleteCategory(id: string) {
 }
 
 export async function reorderCategories(orderedIds: string[]) {
+  const g = await ensure(PERMISSIONS.MENU_CATEGORY_REORDER);
+  if (g) return g;
   const supabase = createServerClient();
   const updates = orderedIds.map((id, index) =>
     supabase.from("categories").update({ position: index }).eq("id", id)
@@ -186,6 +194,8 @@ export async function reorderCategories(orderedIds: string[]) {
 }
 
 export async function createCategory(formData: FormData): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.MENU_CATEGORY_CREATE);
+  if (g) return g;
   const supabase = createServerClient();
 
   const name = String(formData.get("name") ?? "").trim();
@@ -363,6 +373,8 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
 }
 
 export async function updateCategory(id: string, formData: FormData): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.MENU_CATEGORY_UPDATE);
+  if (g) return g;
   const supabase = createServerClient();
 
   const name = String(formData.get("name") ?? "").trim();

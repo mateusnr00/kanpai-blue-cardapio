@@ -9,6 +9,8 @@ import { tags } from "@/lib/cache-tags";
 import { revalidateMenuOnSite } from "@/lib/trigger-site-revalidate";
 import { logAudit } from "@/lib/audit";
 import { parseScheduleFromForm } from "@/lib/schedule-form";
+import { ensure, hasPermission } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
 
 function revalidateMenu() {
   const restaurantId = getActiveRestaurantId();
@@ -50,6 +52,8 @@ async function uniqueDishSlug(
 }
 
 export async function toggleDishActive(id: string, nextActive: boolean) {
+  const gate = await ensure(PERMISSIONS.MENU_ITEM_STATUS);
+  if (gate) return gate;
   const supabase = createServerClient();
   const { data: existing } = await supabase
     .from("dishes")
@@ -75,6 +79,8 @@ export async function toggleDishActive(id: string, nextActive: boolean) {
 }
 
 export async function deleteDish(id: string) {
+  const gate = await ensure(PERMISSIONS.MENU_ITEM_DELETE);
+  if (gate) return gate;
   const supabase = createServerClient();
   const { data: dish } = await supabase
     .from("dishes")
@@ -97,6 +103,8 @@ export async function deleteDish(id: string) {
 }
 
 export async function reorderDishes(categoryId: string, orderedIds: string[]) {
+  const gate = await ensure(PERMISSIONS.MENU_ITEM_REORDER);
+  if (gate) return gate;
   const supabase = createServerClient();
   const updates = orderedIds.map((id, index) =>
     supabase.from("dishes").update({ position: index }).eq("id", id).eq("category_id", categoryId)
@@ -255,12 +263,15 @@ async function createDishCore(
   formData: FormData,
   opts: { isComponentOnly: boolean },
 ): Promise<CreateDishCoreResult> {
+  const gate = await ensure(PERMISSIONS.MENU_ITEM_CREATE);
+  if (gate) return { error: gate.error };
+  const canPrice = await hasPermission(PERMISSIONS.MENU_ITEM_PRICE_UPDATE);
   const supabase = createServerClient();
   const categoryId = String(formData.get("category_id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim() || null;
-  const price = String(formData.get("price") ?? "").trim() || null;
-  const originalPrice = String(formData.get("original_price") ?? "").trim() || null;
+  const price = canPrice ? (String(formData.get("price") ?? "").trim() || null) : null;
+  const originalPrice = canPrice ? (String(formData.get("original_price") ?? "").trim() || null) : null;
   const subcategory = String(formData.get("subcategory") ?? "").trim() || null;
   const featured = formData.get("featured") === "on";
   const featuredLabel = featured
@@ -546,12 +557,19 @@ export async function createDishFromSource(
 }
 
 export async function updateDish(id: string, formData: FormData): Promise<{ error?: string }> {
+  const gate = await ensure(PERMISSIONS.MENU_ITEM_UPDATE);
+  if (gate) return gate;
+  const [canPrice, canImage, canComponents] = await Promise.all([
+    hasPermission(PERMISSIONS.MENU_ITEM_PRICE_UPDATE),
+    hasPermission(PERMISSIONS.MENU_ITEM_IMAGE_UPDATE),
+    hasPermission(PERMISSIONS.MENU_ITEM_COMPONENTS_UPDATE),
+  ]);
   const supabase = createServerClient();
   const categoryId = String(formData.get("category_id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim() || null;
-  const price = String(formData.get("price") ?? "").trim() || null;
-  const originalPrice = String(formData.get("original_price") ?? "").trim() || null;
+  let price = String(formData.get("price") ?? "").trim() || null;
+  let originalPrice = String(formData.get("original_price") ?? "").trim() || null;
   const subcategory = String(formData.get("subcategory") ?? "").trim() || null;
   const featured = formData.get("featured") === "on";
   const featuredLabel = featured
@@ -562,19 +580,30 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
   if (!name || !categoryId) return { error: "Nome e categoria obrigatórios." };
 
   const [{ data: current }, { data: cat }] = await Promise.all([
-    supabase.from("dishes").select("image_path").eq("id", id).maybeSingle(),
+    supabase.from("dishes").select("image_path, price, original_price").eq("id", id).maybeSingle(),
     supabase.from("categories").select("restaurant_id, slug").eq("id", categoryId).maybeSingle(),
   ]);
   if (!cat) return { error: "Categoria inválida." };
 
+  // PROTEÇÃO EM NÍVEL DE CAMPO: sem permissão de preço, ignora o preço do
+  // payload e mantém o valor atual (anti mass-assignment). Mesmo que o cliente
+  // envie { price: 199 }, nada muda.
+  if (!canPrice) {
+    price = current?.price ?? null;
+    originalPrice = current?.original_price ?? null;
+  }
+
   let imagePath: string | null = current?.image_path ?? null;
   let blurDataUrl: string | null | undefined = undefined; // undefined = nao mexer no campo existente
-  try {
-    const r = await handleImage(formData, "image", id, current?.image_path ?? null);
-    imagePath = r.path;
-    if (r.changed) blurDataUrl = r.blurDataUrl;
-  } catch (e) {
-    return { error: (e as Error).message };
+  // Sem permissão de imagem: mantém a imagem atual, ignora upload/alteração.
+  if (canImage) {
+    try {
+      const r = await handleImage(formData, "image", id, current?.image_path ?? null);
+      imagePath = r.path;
+      if (r.changed) blurDataUrl = r.blurDataUrl;
+    } catch (e) {
+      return { error: (e as Error).message };
+    }
   }
 
   const variants = parseVariants(formData);
@@ -602,10 +631,12 @@ export async function updateDish(id: string, formData: FormData): Promise<{ erro
 
   const updatePromise = supabase.from("dishes").update(updateWithBlur).eq("id", id);
 
+  // Variantes carregam preço → só sincroniza com permissão de preço.
+  // Componentes (menus/combinados) → só com a permissão própria.
   const [updRes] = await Promise.all([
     updatePromise,
-    syncVariants(id, variants),
-    syncComponents(id, components),
+    canPrice ? syncVariants(id, variants) : Promise.resolve(),
+    canComponents ? syncComponents(id, components) : Promise.resolve(),
   ]);
 
   if (updRes.error) return { error: updRes.error.message };
