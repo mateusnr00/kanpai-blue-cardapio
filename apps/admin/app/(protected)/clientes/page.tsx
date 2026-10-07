@@ -1,4 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
+import { AccessDenied } from "@/components/AccessDenied";
+import { hasPermission } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
 import { getActiveRestaurantId } from "@/lib/active-restaurant";
 import { listCustomers } from "@/lib/data/customers";
 import { CustomersTable } from "./CustomersTable";
@@ -6,6 +9,7 @@ import { CustomersTable } from "./CustomersTable";
 export const dynamic = "force-dynamic";
 
 export default async function ClientesPage() {
+  if (!(await hasPermission(PERMISSIONS.CUSTOMERS_VIEW))) return <AccessDenied />;
   const restaurantId = getActiveRestaurantId();
   const customers = await listCustomers(restaurantId);
 

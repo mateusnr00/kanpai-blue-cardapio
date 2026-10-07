@@ -1,5 +1,8 @@
 "use server";
 
+import { ensure } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
+
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase-server";
@@ -86,6 +89,9 @@ async function resolveImageUrl(
 }
 
 export async function createAnnouncement(formData: FormData): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.ANNOUNCEMENT_UPDATE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const restaurantId = getActiveRestaurantId();
   const f = parseFields(formData);
@@ -137,6 +143,9 @@ export async function createAnnouncement(formData: FormData): Promise<{ error?: 
 }
 
 export async function updateAnnouncement(id: string, formData: FormData): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.ANNOUNCEMENT_UPDATE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const restaurantId = getActiveRestaurantId();
   const f = parseFields(formData);
@@ -184,6 +193,9 @@ export async function updateAnnouncement(id: string, formData: FormData): Promis
 }
 
 export async function toggleAnnouncement(id: string, nextActive: boolean) {
+  const g = await ensure(PERMISSIONS.ANNOUNCEMENT_UPDATE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const restaurantId = getActiveRestaurantId();
   const { data: existing } = await supabase
@@ -209,6 +221,9 @@ export async function toggleAnnouncement(id: string, nextActive: boolean) {
 }
 
 export async function deleteAnnouncement(id: string) {
+  const g = await ensure(PERMISSIONS.ANNOUNCEMENT_UPDATE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const restaurantId = getActiveRestaurantId();
   const { data: row } = await supabase
@@ -233,6 +248,9 @@ export async function deleteAnnouncement(id: string) {
 }
 
 export async function reorderAnnouncements(orderedIds: string[]) {
+  const g = await ensure(PERMISSIONS.ANNOUNCEMENT_UPDATE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const restaurantId = getActiveRestaurantId();
   const updates = orderedIds.map((id, index) =>

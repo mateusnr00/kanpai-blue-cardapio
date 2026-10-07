@@ -1,5 +1,8 @@
 "use server";
 
+import { ensure } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
+
 import { revalidateTag } from "next/cache";
 import { createServerClient } from "@/lib/supabase-server";
 import { uploadDishImageAction, deleteDishImageAction } from "@/lib/storage-actions";
@@ -36,6 +39,9 @@ export type SaveThemeInput = {
  * e grava a URL publica na tabela linktree_theme (linha 'default').
  */
 export async function saveTheme(formData: FormData): Promise<{ error?: string }> {
+  const g = await ensure(PERMISSIONS.LINKTREE_UPDATE);
+  if (g) return g;
+
   const supabase = createServerClient();
 
   // Le tema atual pra saber os paths antigos de imagem (pra deletar)

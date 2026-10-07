@@ -1,10 +1,16 @@
 "use server";
 
+import { ensure } from "@/lib/permissions/server";
+import { PERMISSIONS } from "@/lib/permissions/catalog";
+
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase-server";
 import { logAudit } from "@/lib/audit";
 
 export async function markReviewRead(id: string): Promise<{ ok: true } | { error: string }> {
+  const g = await ensure(PERMISSIONS.REVIEWS_MANAGE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const { error } = await supabase
     .from("reviews")
@@ -17,6 +23,9 @@ export async function markReviewRead(id: string): Promise<{ ok: true } | { error
 }
 
 export async function markAllReviewsRead(restaurantId: string): Promise<{ ok: true } | { error: string }> {
+  const g = await ensure(PERMISSIONS.REVIEWS_MANAGE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const { error } = await supabase
     .from("reviews")
@@ -29,6 +38,9 @@ export async function markAllReviewsRead(restaurantId: string): Promise<{ ok: tr
 }
 
 export async function deleteReview(id: string): Promise<{ ok: true } | { error: string }> {
+  const g = await ensure(PERMISSIONS.REVIEWS_MANAGE);
+  if (g) return g;
+
   const supabase = createServerClient();
   const { data: existing } = await supabase
     .from("reviews")
